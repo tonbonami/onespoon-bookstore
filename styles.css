@@ -1568,36 +1568,9 @@ p {
 .site-footer .footer-blog:hover svg { color: #03c75a; }
 .site-footer .footer-youtube:hover svg { color: #ff0000; }
 
-.site-footer .footer-download {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin: 22px auto 0;
-  padding: 8px 14px;
-  border: 1px solid rgba(67, 63, 62, 0.1);
-  border-radius: 999px;
-  background: #ffffff;
-  color: rgba(67, 63, 62, 0.7);
-  font-size: 12px;
-  font-weight: 800;
-  text-decoration: none;
-  transition: color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
-}
-
-.site-footer .footer-download svg {
-  width: 14px;
-  height: 14px;
-}
-
-.site-footer .footer-download:hover {
-  color: var(--ink);
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px rgba(67, 63, 62, 0.08);
-}
-
 .site-footer small {
   display: block;
-  margin-top: 22px;
+  margin-top: 32px;
   color: rgba(67, 63, 62, 0.32);
   font-size: 10px;
   font-weight: 800;
