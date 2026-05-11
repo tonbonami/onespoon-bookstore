@@ -67,6 +67,14 @@ a {
   box-shadow: 0 8px 18px rgba(67, 63, 62, 0.05);
 }
 
+.hero-spoon {
+  display: block;
+  width: clamp(72px, 18vw, 108px);
+  height: auto;
+  margin: 22px auto 0;
+  opacity: 0.92;
+}
+
 .eyebrow {
   margin: 20px 0 0;
   color: var(--blue);
@@ -1332,6 +1340,33 @@ p {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18), 0 10px 22px rgba(67, 63, 62, 0.1);
   background: rgba(219, 234, 254, 0.35);
+}
+
+.book-pick-card.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.book-pick-card.is-disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.book-pick-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(253, 186, 116, 0.72);
+  color: #7c2d12;
+  font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  vertical-align: middle;
+  white-space: nowrap;
 }
 
 .choice-grid {

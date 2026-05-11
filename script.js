@@ -153,15 +153,20 @@ function selectBook(id) {
 
   orderTitle.textContent = `${book.title} 주문하기`;
 
+  const allRadios = document.querySelectorAll(
+    '.book-pick input[name="entry.1833963440"]',
+  );
   if (book.formValue) {
     const radio = document.querySelector(
       `.book-pick input[name="entry.1833963440"][value="${book.formValue}"]`,
     );
-    if (radio) radio.checked = true;
+    if (radio && !radio.disabled) {
+      radio.checked = true;
+    } else {
+      allRadios.forEach((r) => (r.checked = false));
+    }
   } else {
-    document
-      .querySelectorAll('.book-pick input[name="entry.1833963440"]')
-      .forEach((r) => (r.checked = false));
+    allRadios.forEach((r) => (r.checked = false));
   }
 }
 

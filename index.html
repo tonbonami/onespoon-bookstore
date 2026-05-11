@@ -8,7 +8,7 @@
       name="description"
       content="한스푼 서점의 작은 온라인 서가. 책 소개, 가격, 추천 독자층과 신청 링크를 한곳에서 확인하세요."
     />
-    <link rel="stylesheet" href="styles.css?v=23" />
+    <link rel="stylesheet" href="styles.css?v=24" />
   </head>
   <body>
     <main class="page-shell">
@@ -18,6 +18,7 @@
         <p class="intro">
           오늘, 여러분의 프랑스어 한스푼은?
         </p>
+        <img class="hero-spoon" src="assets/spoon-cropped.png" alt="" aria-hidden="true" />
       </section>
 
       <section class="shelf-section" aria-labelledby="shelf-title">
@@ -425,7 +426,7 @@
           <div class="author-card">
             <p class="author-eyebrow">저자 소개</p>
             <h3 id="authorNoFuTitle">김우수 (Nicolas) · 프랑스어한스푼</h3>
-            <p>일상의 한 모서리에서 만나는 프랑스어를 한 스푼씩 담아 전하는 학습 콘텐츠 크리에이터. <em>나의 첫 프랑스어 책</em>은 입문자가 한 권으로 알파벳부터 어린왕자 원문 한 권을 끝낼 수 있도록, 어휘 · 문법 · 발음 · 회화 · 읽기를 모두 담아 만든 노션 기반 디지털 교재입니다. 단어를 외우는 일이 아니라 단어가 살아 있는 장면을 함께 그리는 일에 더 마음을 쓰는 책.</p>
+            <p>일상의 한 모서리에서 만나는 프랑스어를 한 스푼씩 담아 전하는 학습 콘텐츠 크리에이터. <em>나의 첫 프랑스어 책</em>은 입문자가 한 권으로 알파벳부터 어린왕자 원문 한 권을 끝낼 수 있도록, 발음과 문법을 중심에 두고 어휘 · 회화 · 읽기까지 함께 담아 만든 노션 기반 디지털 교재입니다. 빠른 회화보다, 발음과 문법의 뿌리를 단단히 내리는 일에 더 마음을 쓰는 책.</p>
           </div>
         </section>
       </div>
@@ -463,11 +464,11 @@
                   <small>빈도순 동사 + 변화표 · 9,000원</small>
                 </span>
               </label>
-              <label class="book-pick-card">
-                <input type="radio" name="entry.1833963440" value="나의 첫 프랑스어 책 3.0 (준비중)" />
+              <label class="book-pick-card is-disabled" aria-disabled="true">
+                <input type="radio" name="entry.1833963440" value="나의 첫 프랑스어 책 3.0 (준비중)" disabled />
                 <img src="assets/nofu-book-3-cover.png" alt="" />
                 <span>
-                  <strong>나의 첫 프랑스어 책 3.0</strong>
+                  <strong>나의 첫 프랑스어 책 3.0 <em class="book-pick-badge">준비 중</em></strong>
                   <small>A1~B1 종합 노션 교재 · 28,000원 (예상)</small>
                 </span>
               </label>
@@ -601,6 +602,6 @@
       </div>
     </div>
 
-    <script src="script.js?v=18"></script>
+    <script src="script.js?v=19"></script>
   </body>
 </html>
