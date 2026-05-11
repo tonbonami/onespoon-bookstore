@@ -1,0 +1,601 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>한스푼 서점</title>
+    <meta
+      name="description"
+      content="한스푼 서점의 작은 온라인 서가. 책 소개, 가격, 추천 독자층과 신청 링크를 한곳에서 확인하세요."
+    />
+    <link rel="stylesheet" href="styles.css?v=22" />
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="hero" aria-labelledby="page-title">
+        <h1 id="page-title" class="sr-only">한스푼 서점</h1>
+        <img class="hero-logo" src="assets/hanspoon-bookstore-logo.png" alt="한스푼 서점 - A Spoonful of French" />
+        <p class="intro">
+          작은 숟가락으로 떠먹듯, 오늘 마음에 맞는 책을 한 권 골라보세요.
+        </p>
+      </section>
+
+      <section class="shelf-section" aria-labelledby="shelf-title">
+        <div class="section-heading">
+          <h2 id="shelf-title">오늘의 서가</h2>
+          <span>옆으로 밀어서 보기 →</span>
+        </div>
+
+        <div class="shelf-wrap">
+          <button class="shelf-arrow left" type="button" aria-label="왼쪽으로 보기">
+            ‹
+          </button>
+          <div class="book-shelf" id="bookShelf" tabindex="0" aria-label="책 목록"></div>
+          <button class="shelf-arrow right" type="button" aria-label="오른쪽으로 보기">
+            ›
+          </button>
+        </div>
+      </section>
+
+      <section class="book-detail" id="bookDetail" aria-live="polite">
+        <button
+          class="detail-book"
+          id="detailBook"
+          type="button"
+          aria-label="책 미리보기 10페이지 열기"
+        ></button>
+        <div class="detail-copy" id="detailContent">
+          <p class="eyebrow" id="detailCategory">첫 책</p>
+          <h2 id="detailTitle">책을 한 권 골라주세요</h2>
+          <p class="lede" id="detailDescription">
+            서가 위의 책을 누르면 소개, 가격, 추천 독자층과 신청 링크가 여기에 나타납니다.
+          </p>
+          <dl class="book-meta">
+            <div>
+              <dt>가격</dt>
+              <dd id="detailPrice">-</dd>
+            </div>
+            <div>
+              <dt>추천 독자층</dt>
+              <dd id="detailAudience">-</dd>
+            </div>
+          </dl>
+          <a class="primary-link" id="detailForm" href="#orderFormSection">
+            주문 양식 작성하기
+          </a>
+        </div>
+      </section>
+
+      <div class="featured-detail" id="featured30Days" hidden>
+        <section class="why-section" aria-labelledby="whyTitle">
+          <div class="section-heading">
+            <h2 id="whyTitle">왜 이 책인가</h2>
+          </div>
+          <div class="why-grid">
+            <article class="why-card why-1">
+              <span class="why-num">01</span>
+              <h3>한 번도 책상에 앉을 필요 없는 30일</h3>
+              <p>하루 4페이지 · 약 20분. 출퇴근, 카페, 공원 — 들으면서 따라만 말하면 됩니다.</p>
+            </article>
+            <article class="why-card why-2">
+              <span class="why-num">02</span>
+              <h3>외우지 마세요, 자동으로 다시 만납니다</h3>
+              <p>어제와 일주일 전의 핵심 표현이 매일의 학습 마지막 1~2분에 다시 등장합니다. 누적 복습이 책 안에 이미 짜여 있어요.</p>
+            </article>
+            <article class="why-card why-3">
+              <span class="why-num">03</span>
+              <h3>교과서엔 없는 진짜 말투까지</h3>
+              <p><em>kiffer, ouf, mec/meuf</em> — 파리지앵이 카페와 거리에서 정말 쓰는 말도 함께 담았습니다. (격식·반말 구분 명확)</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="flow-section" aria-labelledby="flowTitle">
+          <div class="section-heading">
+            <h2 id="flowTitle">하루의 흐름</h2>
+            <span>4단계 · 약 20분</span>
+          </div>
+          <div class="flow-grid">
+            <article class="flow-card flow-1">
+              <span class="flow-step">①</span>
+              <h3>Context</h3>
+              <p>그날의 장면 도입글</p>
+              <small>파리의 한 모서리에서 시작</small>
+            </article>
+            <article class="flow-card flow-2">
+              <span class="flow-step">②</span>
+              <h3>Deconstruction</h3>
+              <p>20개 표현 분해</p>
+              <small>발음 · 품사 · 예문 · 연관어</small>
+            </article>
+            <article class="flow-card flow-3">
+              <span class="flow-step">③</span>
+              <h3>Expansion</h3>
+              <p>뉘앙스 · 문화 · 격식 가이드</p>
+              <small>"왜 이렇게 말하는가"</small>
+            </article>
+            <article class="flow-card flow-4">
+              <span class="flow-step">④</span>
+              <h3>Recall</h3>
+              <p>빈칸 5문제 + ⟲ 누적 복습</p>
+              <small>어제와 일주일 전이 자동 등장</small>
+            </article>
+          </div>
+        </section>
+
+        <section class="phase-section" aria-labelledby="phaseTitle">
+          <div class="section-heading">
+            <h2 id="phaseTitle">30일의 여정</h2>
+            <span>6 Phase</span>
+          </div>
+          <ol class="phase-list">
+            <li class="phase-item phase-1">
+              <header>
+                <span class="phase-tag">Phase 1</span>
+                <span class="phase-level">A1</span>
+              </header>
+              <h3>생존과 매너</h3>
+              <p class="phase-days">Day 01–05</p>
+              <p>인사 · 정중함 · 길찾기 · 카페 · 숫자 — 파리에 도착해 살아남는 표현부터.</p>
+            </li>
+            <li class="phase-item phase-2">
+              <header>
+                <span class="phase-tag">Phase 2</span>
+                <span class="phase-level">A1</span>
+              </header>
+              <h3>미식과 취향</h3>
+              <p class="phase-days">Day 06–10</p>
+              <p>빵집 · 레스토랑 · 와인 · 치즈 · 시장 — 미식 도시를 누리기.</p>
+            </li>
+            <li class="phase-item phase-3">
+              <header>
+                <span class="phase-tag">Phase 3</span>
+                <span class="phase-level">A2</span>
+              </header>
+              <h3>관계와 소통</h3>
+              <p class="phase-days">Day 11–15</p>
+              <p>자기소개 · 가족 · 외모 · 연애 · 감정 — 사람을 대하는 말.</p>
+            </li>
+            <li class="phase-item phase-4">
+              <header>
+                <span class="phase-tag">Phase 4</span>
+                <span class="phase-level">A2</span>
+              </header>
+              <h3>비즈니스와 커리어</h3>
+              <p class="phase-days">Day 16–20</p>
+              <p>사무실 · 이메일 · 회의 · 재택근무 · 취업 — 업무 환경의 프랑스어.</p>
+            </li>
+            <li class="phase-item phase-5">
+              <header>
+                <span class="phase-tag">Phase 5</span>
+                <span class="phase-level">B1</span>
+              </header>
+              <h3>라이프스타일과 문제해결</h3>
+              <p class="phase-days">Day 21–25</p>
+              <p>행정 · 집 구하기 · 약국 · 쇼핑 · 트러블 — 파리에 사는 사람의 언어.</p>
+            </li>
+            <li class="phase-item phase-6">
+              <header>
+                <span class="phase-tag">Phase 6</span>
+                <span class="phase-level">B1+</span>
+              </header>
+              <h3>유창성과 뉘앙스</h3>
+              <p class="phase-days">Day 26–30</p>
+              <p>연결어 · 의견 · 관용구 · 슬랭 · 총정리 — 외국인이 아니라 그 도시에 사는 사람처럼.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section class="audio-section" aria-labelledby="audioTitle">
+          <div class="audio-card">
+            <p class="audio-eyebrow">🎧 노션 오디오 컴패니언</p>
+            <h2 id="audioTitle">구매자 누구나 무료</h2>
+            <p>Day 01부터 Day 30까지, 60개의 발음 트랙. 한 사람의 일관된 목소리로 녹음했습니다.</p>
+            <p class="audio-quote">"한국어 해설 → 프랑스어 따라 말하기"의 호흡으로 짜여 있어, 출퇴근길 · 산책 · 운전 중에도 책 없이 진도가 나갑니다.</p>
+            <a
+              class="audio-link"
+              href="https://tonbonami.notion.site/30-days-in-Paris-Sample-35bb1658e7ec808a9811fdc4b47f9dd0?source=copy_link"
+              target="_blank"
+              rel="noreferrer"
+            >
+              샘플 듣기 (Day 01~02)
+              <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="faq-section" aria-labelledby="faqTitle">
+          <div class="section-heading">
+            <h2 id="faqTitle">자주 묻는 질문</h2>
+          </div>
+          <div class="faq-list">
+            <details class="faq-item">
+              <summary>프랑스어를 한 번도 안 해본 입문자도 가능한가요?</summary>
+              <p>네. Day 01은 <em>Bonjour</em>부터 시작합니다. 모든 표현에 한국어 해석과 발음 기호(IPA)가 함께 있어요.</p>
+            </details>
+            <details class="faq-item">
+              <summary>PDF는 인쇄해도 되나요?</summary>
+              <p>가능합니다. 개인 학습용 인쇄는 자유롭게 하셔도 됩니다. (재배포 · 판매 X)</p>
+            </details>
+            <details class="faq-item">
+              <summary>오디오는 어디서 듣나요?</summary>
+              <p>구매 후 보내드리는 PDF 교재 안의 QR 코드를 찍으면 30일 분량 듣기 노션 페이지로 바로 연결돼요. 별도 앱 설치 필요 없음.</p>
+            </details>
+            <details class="faq-item">
+              <summary>환불 정책은요?</summary>
+              <p>PDF 특성상 발송 후 환불은 어렵습니다. 미리 첫 이틀치 샘플 PDF를 받아 보시고 결정하시는 걸 추천드려요.</p>
+            </details>
+          </div>
+        </section>
+
+        <section class="author-section" aria-labelledby="authorTitle">
+          <div class="author-card">
+            <p class="author-eyebrow">저자 소개</p>
+            <h3 id="authorTitle">김우수 (Nicolas) · 프랑스어한스푼</h3>
+            <p>일상의 한 모서리에서 만나는 프랑스어를 한 스푼씩 담아 전하는 학습 콘텐츠 크리에이터. <em>30 Days in Paris</em>는 그 마음을 책 한 권에 정리한 결과로, 단어를 외우는 일이 아니라 단어가 살아 있는 장면을 함께 그리는 일에 더 마음을 쓰는 책입니다.</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="featured-detail" id="featuredNoFu3" hidden>
+        <section class="why-section" aria-labelledby="whyNoFuTitle">
+          <div class="section-heading">
+            <h2 id="whyNoFuTitle">왜 이 책인가</h2>
+          </div>
+          <div class="why-grid">
+            <article class="why-card why-1">
+              <span class="why-num">01</span>
+              <h3>음성과 함께 익히는 어휘</h3>
+              <p>어휘 30 카테고리, 어린왕자 30강, 회화 20개, 일상 표현 23개 — <strong>핵심 학습 페이지마다 원어민 음성</strong>이 함께 있습니다. 발음을 직접 들으며 익히는 구성이라, 텍스트만으로는 알기 어려운 프랑스어의 소리와 리듬을 자연스럽게 만나게 됩니다.</p>
+            </article>
+            <article class="why-card why-2">
+              <span class="why-num">02</span>
+              <h3>한 권으로 A1부터 B1까지</h3>
+              <p>발음 → 어휘 → 문법 → 회화 → 일상 표현 → 어린왕자 읽기. 입문서 · 중급서 · 회화책 · 읽기책을 따로 살 필요 없이, 처음 펼친 날부터 어린왕자 마지막 장을 읽는 날까지 <strong>한 권으로 함께</strong>합니다.</p>
+            </article>
+            <article class="why-card why-3">
+              <span class="why-num">03</span>
+              <h3>어린왕자 한 권을 함께</h3>
+              <p>프랑스어 학습에 더없이 좋은 작품 <em>Le Petit Prince</em>. 30강으로 나뉘어 원어민 음성과 함께 읽고, 표현 노트와 문법 포인트로 한 문단씩 정밀하게 살펴봅니다. 동화 한 권을 프랑스어 원문으로 끝낸 자신감이 손에 남습니다.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="area-section" aria-labelledby="areaTitle">
+          <div class="section-heading">
+            <h2 id="areaTitle">이 책의 6영역</h2>
+            <span>학습의 흐름</span>
+          </div>
+          <div class="area-grid">
+            <article class="area-card area-1">
+              <span class="area-step">①</span>
+              <span class="area-meta">~30 페이지</span>
+              <h3>Prononciation</h3>
+              <p class="area-sub">발음 기초</p>
+              <p>알파벳 · 자음 · 모음(비음 · 복모음) · 리에종 · 숫자(1~100 · 큰 수). 모든 소리에 IPA 발음 기호와 원어민 음성.</p>
+            </article>
+            <article class="area-card area-2">
+              <span class="area-step">②</span>
+              <span class="area-meta">30 카테고리 · 600+ 단어</span>
+              <h3>Vocabulaire</h3>
+              <p class="area-sub">핵심 어휘</p>
+              <p>의미별 6그룹 — 사람·관계 / 생활·집 / 자연·세상 / 일·도시·기술 / 일상 활동 / 마음·몸·언어. 각 단어마다 IPA · 뜻 · 예문 · 음성.</p>
+            </article>
+            <article class="area-card area-3">
+              <span class="area-step">③</span>
+              <span class="area-meta">~40 페이지</span>
+              <h3>Grammaire</h3>
+              <p class="area-sub">문법</p>
+              <p>기초(명사 · 관사 · 인칭) → 동사 · 문법(현재형 · 기본 동사) → 시제(복합과거 · 반과거 · 미래 · 조건법) → 중급(접속법 · 관계대명사 · 분사). 단계별 학습 + 실전 연습 페이지.</p>
+            </article>
+            <article class="area-card area-4">
+              <span class="area-step">④</span>
+              <span class="area-meta">회화 20 + 일상 23</span>
+              <h3>Conversations</h3>
+              <p class="area-sub">회화 + 일상 표현</p>
+              <p>A1·A2·B1·B2 레벨별 회화 5개씩 (카페 · 약국 · 면접 · 환경 토론까지) + 06시 기상부터 23시 취침까지의 일상 23 시간대 표현. 모든 대화 음성과 함께.</p>
+            </article>
+            <article class="area-card area-5">
+              <span class="area-step">⑤</span>
+              <span class="area-meta">30강 · 단어집 4부</span>
+              <h3>Lisons</h3>
+              <p class="area-sub">어린왕자 읽기</p>
+              <p>원문 + 한국어 번역 + 표현 노트 + 문법 포인트. 각 강마다 원어민 음성 낭독. 단어집은 1부(Ch1~9) / 2부(Ch10~15) / 3부(Ch16~23) / 4부(Ch24~27).</p>
+            </article>
+            <article class="area-card area-6">
+              <span class="area-step">⑥</span>
+              <span class="area-meta">1·2·3군 패턴</span>
+              <h3>Conjugaison</h3>
+              <p class="area-sub">동사 변화</p>
+              <p>1군(-er) · 2군(-ir) · 3군 불규칙 동사 활용. 외우는 대상이 아니라 자주 쓰는 문장 패턴으로 익히는 동사 변화 — <em>partir, dormir, être, avoir</em> 등. 각 패턴 음성과 함께.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="guide-section" aria-labelledby="guideNoFuTitle">
+          <div class="section-heading">
+            <h2 id="guideNoFuTitle">학습 가이드</h2>
+            <span>어디서 시작할까</span>
+          </div>
+          <ol class="phase-list">
+            <li class="phase-item phase-1">
+              <header>
+                <span class="phase-tag">Step 1</span>
+                <span class="phase-level">A1</span>
+              </header>
+              <h3>알파벳도 처음</h3>
+              <p class="phase-days">Prononciation</p>
+              <p>알파벳 → 자음 · 모음 → 리에종 순서로 차근차근.</p>
+            </li>
+            <li class="phase-item phase-2">
+              <header>
+                <span class="phase-tag">Step 2</span>
+                <span class="phase-level">A1</span>
+              </header>
+              <h3>인사 · 기본 표현 익히기</h3>
+              <p class="phase-days">Phrases + Conversations A1</p>
+              <p>일상 표현 23개 + A1 회화 5개. 매일 한 시간대씩.</p>
+            </li>
+            <li class="phase-item phase-3">
+              <header>
+                <span class="phase-tag">Step 3</span>
+                <span class="phase-level">A1·A2</span>
+              </header>
+              <h3>어휘력 키우기</h3>
+              <p class="phase-days">Vocabulaire</p>
+              <p>30 카테고리. 의미 그룹별로 일주일에 한 카테고리씩.</p>
+            </li>
+            <li class="phase-item phase-4">
+              <header>
+                <span class="phase-tag">Step 4</span>
+                <span class="phase-level">A1·A2</span>
+              </header>
+              <h3>문법 정리하기</h3>
+              <p class="phase-days">Grammaire 기초 + 동사 · 문법</p>
+              <p>명사 · 관사 · 현재형부터 차근차근.</p>
+            </li>
+            <li class="phase-item phase-5">
+              <header>
+                <span class="phase-tag">Step 5</span>
+                <span class="phase-level">A2·B1</span>
+              </header>
+              <h3>시제 마스터</h3>
+              <p class="phase-days">Grammaire 시제 + 중급</p>
+              <p>복합과거 · 반과거 · 미래 · 조건법 · 접속법.</p>
+            </li>
+            <li class="phase-item phase-6">
+              <header>
+                <span class="phase-tag">Step 6</span>
+                <span class="phase-level">B1+</span>
+              </header>
+              <h3>원서 한 권 끝내기</h3>
+              <p class="phase-days">Lisons</p>
+              <p><em>Le Petit Prince</em> 30강 + 단어집 4부.</p>
+            </li>
+          </ol>
+          <p class="guide-foot">영역끼리 연결되어 있어, 어휘 페이지에서 바로 해당 표현이 나오는 회화로 이동하거나, 문법 페이지에서 그 문법이 쓰인 어린왕자 장면으로 넘어갈 수 있습니다.</p>
+        </section>
+
+        <section class="audio-section" aria-labelledby="audioNoFuTitle">
+          <div class="audio-card">
+            <p class="audio-eyebrow">🎧</p>
+            <h2 id="audioNoFuTitle">노션 오디오 컴패니언</h2>
+            <p>학습 영역마다 원어민 음성이 함께합니다.</p>
+            <ul class="audio-bullets">
+              <li><strong>어휘</strong> — 30 카테고리, 600+ 단어</li>
+              <li><strong>어린왕자</strong> — 30강 원문 낭독</li>
+              <li><strong>회화</strong> — A1~B2 레벨 20개 대화</li>
+              <li><strong>일상 표현</strong> — 06시~23시 23개 시나리오</li>
+              <li><strong>발음</strong> — 알파벳 · 숫자 · 리에종</li>
+            </ul>
+            <p class="audio-foot">별도 앱 설치 없이 노션 페이지 안의 플레이어로 바로 재생됩니다. 출퇴근길 · 산책 · 운전 중에도 텍스트 없이 듣기만으로 진도가 나갈 수 있어요.</p>
+          </div>
+        </section>
+
+        <section class="faq-section" aria-labelledby="faqNoFuTitle">
+          <div class="section-heading">
+            <h2 id="faqNoFuTitle">자주 묻는 질문</h2>
+          </div>
+          <div class="faq-list">
+            <details class="faq-item">
+              <summary>프랑스어를 한 번도 안 해본 입문자도 가능한가요?</summary>
+              <p>네. 알파벳과 <em>Bonjour</em>부터 시작합니다. 모든 표현에 한국어 해석과 IPA 발음 기호가 함께 있어요.</p>
+            </details>
+            <details class="faq-item">
+              <summary>노션을 한 번도 써본 적 없어도 괜찮나요?</summary>
+              <p>네. 구매 후 보내드리는 링크를 클릭하시면 일반 웹페이지처럼 바로 이용하실 수 있어요. 별도 가입이나 설정이 필요 없습니다.</p>
+            </details>
+            <details class="faq-item">
+              <summary>모바일에서도 음성 들을 수 있나요?</summary>
+              <p>네. 노션 모바일 앱에서 모든 음성이 재생됩니다. 데이터 · 와이파이 어디서든.</p>
+            </details>
+            <details class="faq-item">
+              <summary>환불 정책은요?</summary>
+              <p>디지털 콘텐츠 특성상 발송 후 환불은 어렵습니다. 무료 샘플(발음 기초 + 어린왕자 1강)을 먼저 체험하신 후 결정해주세요.</p>
+            </details>
+          </div>
+        </section>
+
+        <section class="author-section" aria-labelledby="authorNoFuTitle">
+          <div class="author-card">
+            <p class="author-eyebrow">저자 소개</p>
+            <h3 id="authorNoFuTitle">김우수 (Nicolas) · 프랑스어한스푼</h3>
+            <p>일상의 한 모서리에서 만나는 프랑스어를 한 스푼씩 담아 전하는 학습 콘텐츠 크리에이터. <em>나의 첫 프랑스어 책</em>은 입문자가 한 권으로 알파벳부터 어린왕자 원문 한 권을 끝낼 수 있도록, 어휘 · 문법 · 발음 · 회화 · 읽기를 모두 담아 만든 노션 기반 디지털 교재입니다. 단어를 외우는 일이 아니라 단어가 살아 있는 장면을 함께 그리는 일에 더 마음을 쓰는 책.</p>
+          </div>
+        </section>
+      </div>
+
+      <section class="order-section" id="orderFormSection" aria-labelledby="orderTitle">
+        <div class="order-heading">
+          <p class="eyebrow">Order Form</p>
+          <h2 id="orderTitle">30 Days in Paris 주문하기</h2>
+          <p>양식 작성 후 입금이 확인되면 6시간 안에 보내드릴게요.</p>
+        </div>
+
+        <form
+          class="order-form"
+          id="orderForm"
+          action="https://docs.google.com/forms/d/e/1FAIpQLSdETXW6feUq4w9xeZ7Ep1Ie25HNOVzS6WYr9TAe-HtsJVxnig/formResponse"
+          method="POST"
+          target="googleFormTarget"
+        >
+          <fieldset class="book-pick">
+            <legend>📚 주문하실 책 <em>필수</em></legend>
+            <div class="book-pick-grid">
+              <label class="book-pick-card">
+                <input type="radio" name="entry.1833963440" value="30 Days in Paris" required />
+                <img src="assets/30daysinparis_bookcover.png" alt="" />
+                <span>
+                  <strong>30 Days in Paris</strong>
+                  <small>프랑스어 회화 입문 · 20,000원</small>
+                </span>
+              </label>
+              <label class="book-pick-card">
+                <input type="radio" name="entry.1833963440" value="프랑스어 필수동사 100" />
+                <img src="assets/verbs-100-cover.png" alt="" />
+                <span>
+                  <strong>프랑스어 필수동사 100</strong>
+                  <small>빈도순 동사 + 변화표 · 9,000원</small>
+                </span>
+              </label>
+              <label class="book-pick-card">
+                <input type="radio" name="entry.1833963440" value="나의 첫 프랑스어 책 3.0 (준비중)" />
+                <img src="assets/nofu-book-3-cover.png" alt="" />
+                <span>
+                  <strong>나의 첫 프랑스어 책 3.0</strong>
+                  <small>A1~B1 종합 노션 교재 · 28,000원 (예상)</small>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <label>
+            <span>성함 <em>예금주와 동일</em></span>
+            <input name="entry.133598618" type="text" autocomplete="name" required />
+          </label>
+
+          <fieldset>
+            <legend>성별</legend>
+            <div class="choice-grid two">
+              <label class="choice-blue"><input name="entry.1450577507" type="radio" value="남자" required />남자</label>
+              <label class="choice-red"><input name="entry.1450577507" type="radio" value="여자" />여자</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>나이대</legend>
+            <div class="choice-grid">
+              <label class="choice-mint"><input name="entry.272771426" type="radio" value="중학생" required />중학생</label>
+              <label class="choice-yellow"><input name="entry.272771426" type="radio" value="고등학생" />고등학생</label>
+              <label class="choice-lavender"><input name="entry.272771426" type="radio" value="대학생" />대학생</label>
+              <label class="choice-peach"><input name="entry.272771426" type="radio" value="직장인" />직장인</label>
+            </div>
+          </fieldset>
+
+          <label>
+            <span>교재 발송 받을 이메일 주소 <em>Notion 교재의 경우 Notion ID와 동일</em></span>
+            <input
+              id="orderEmail"
+              name="entry.768368871"
+              type="email"
+              autocomplete="email"
+              placeholder="예: hanspoon@email.com"
+              required
+            />
+          </label>
+          <input type="hidden" id="orderEmailMirror1" name="entry.1769994956" />
+          <input type="hidden" id="orderEmailMirror2" name="entry.680763611" />
+
+          <label>
+            <span>알게 된 매체</span>
+            <select name="entry.219325845" required>
+              <option value="">선택해주세요</option>
+              <option value="YouTube">YouTube</option>
+              <option value="Instagram">Instagram</option>
+              <option value="네이버 블로그">네이버 블로그</option>
+              <option value="네이버 검색">네이버 검색</option>
+              <option value="구글 검색">구글 검색</option>
+              <option value="지인 소개">지인 소개</option>
+              <option value="기타">기타</option>
+            </select>
+          </label>
+
+          <label>
+            <span>현재 프랑스어 수준</span>
+            <select name="entry.260030586" required>
+              <option value="">선택해주세요</option>
+              <option value="프랑스어 이제 막 시작">프랑스어 이제 막 시작</option>
+              <option value="프랑스어 발음은 가능">프랑스어 발음은 가능</option>
+              <option value="프랑스어 문법 공부한 적 있음">프랑스어 문법 공부한 적 있음</option>
+              <option value="프랑스어 회화도 가능">프랑스어 회화도 가능</option>
+              <option value="프랑스어의 달인">프랑스어의 달인</option>
+            </select>
+          </label>
+
+          <label>
+            <span>주로 사용할 기기</span>
+            <select name="entry.614950738" required>
+              <option value="">선택해주세요</option>
+              <option value="아이폰">아이폰</option>
+              <option value="안드로이드 폰">안드로이드 폰</option>
+              <option value="아이패드">아이패드</option>
+              <option value="안드로이드 태블릿">안드로이드 태블릿</option>
+              <option value="PC">PC</option>
+              <option value="기타">기타</option>
+            </select>
+          </label>
+
+          <label>
+            <span>니꼴라에게 하고 싶은 말</span>
+            <textarea name="entry.4057543" rows="4"></textarea>
+          </label>
+
+          <input type="hidden" name="fvv" value="1" />
+          <input type="hidden" name="pageHistory" value="0" />
+
+          <div class="deposit-box" aria-label="입금 계좌 안내">
+            <p class="deposit-eyebrow">💸 입금 계좌</p>
+            <div class="deposit-account">
+              <small>신한은행 · 예금주 김우수</small>
+              <div class="deposit-num">
+                <strong id="depositAccount">110-234-710919</strong>
+                <button type="button" class="deposit-copy" id="depositCopy" aria-label="계좌번호 복사">복사</button>
+              </div>
+            </div>
+            <p class="deposit-note">입금자명은 주문하신 성함과 동일하게 적어주세요.</p>
+          </div>
+
+          <button class="submit-order" type="submit">주문 정보 보내기</button>
+          <p class="order-status" id="orderStatus" role="status" aria-live="polite"></p>
+        </form>
+        <iframe class="google-form-target" name="googleFormTarget" title="Google Form submission"></iframe>
+      </section>
+
+      <footer class="site-footer" aria-label="한스푼 서점 링크">
+        <p>서점 소식 더보기</p>
+        <div>
+          <a href="https://www.instagram.com/" target="_blank" rel="noreferrer">Insta</a>
+          <a href="https://blog.naver.com/" target="_blank" rel="noreferrer">Blog</a>
+          <a href="https://www.youtube.com/" target="_blank" rel="noreferrer">YT</a>
+          <a href="https://pf.kakao.com/" target="_blank" rel="noreferrer">Talk</a>
+        </div>
+        <small>© 2026 Hanspoon Bookshop</small>
+      </footer>
+    </main>
+
+    <div class="preview-modal" id="previewModal" aria-hidden="true">
+      <div class="preview-panel" role="dialog" aria-modal="true" aria-labelledby="previewTitle">
+        <div class="preview-header">
+          <div>
+            <p>미리보기</p>
+            <h2 id="previewTitle">책 미리보기</h2>
+          </div>
+          <button class="preview-close" id="previewClose" type="button" aria-label="미리보기 닫기">×</button>
+        </div>
+        <div class="preview-pages" id="previewPages" aria-label="10페이지 미리보기"></div>
+      </div>
+    </div>
+
+    <script src="script.js?v=17"></script>
+  </body>
+</html>
