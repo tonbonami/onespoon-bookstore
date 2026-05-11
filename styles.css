@@ -1531,27 +1531,42 @@ p {
   font-weight: 900;
 }
 
-.site-footer div {
+.site-footer .footer-links {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10px;
-  max-width: 320px;
+  max-width: 280px;
   margin: 0 auto;
 }
 
-.site-footer a {
+.site-footer .footer-icon {
   display: grid;
-  min-height: 44px;
+  min-height: 52px;
   place-items: center;
   border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 14px;
   color: var(--ink);
   background: #ffffff;
-  font-size: 11px;
-  font-weight: 900;
   text-decoration: none;
   box-shadow: 0 8px 16px rgba(67, 63, 62, 0.04);
+  transition: transform 160ms ease, box-shadow 160ms ease;
 }
+
+.site-footer .footer-icon svg {
+  width: 22px;
+  height: 22px;
+  color: var(--ink);
+  transition: color 200ms ease;
+}
+
+.site-footer .footer-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 22px rgba(67, 63, 62, 0.08);
+}
+
+.site-footer .footer-instagram:hover svg { color: #e1306c; }
+.site-footer .footer-blog:hover svg { color: #03c75a; }
+.site-footer .footer-youtube:hover svg { color: #ff0000; }
 
 .site-footer small {
   display: block;
