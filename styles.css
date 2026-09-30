@@ -1803,18 +1803,94 @@ p {
   word-break: keep-all;
 }
 
+/* screenshots: swipe row — two shots visible, the third peeks in */
 .app-shots {
   display: flex;
   gap: 10px;
+  margin: 0 -20px;
+  padding: 2px 20px 12px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 20px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-shots::-webkit-scrollbar {
+  display: none;
 }
 
 .app-shots img {
-  width: min(42%, 150px);
+  flex: 0 0 auto;
+  width: min(40%, 150px);
   height: auto;
+  aspect-ratio: 400 / 866;
+  object-fit: cover;
+  scroll-snap-align: start;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #f3f1ea;
   box-shadow: 0 8px 16px rgba(67, 63, 62, 0.08);
+}
+
+/* added by /apps/shots.js */
+.shots-wrap {
+  position: relative;
+  display: grid;
+  gap: 8px;
+}
+
+.shots-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: -6px;
+}
+
+.shots-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(67, 63, 62, 0.16);
+  transition: background 200ms ease;
+}
+
+.shots-dots span.on {
+  background: rgba(67, 63, 62, 0.55);
+}
+
+.shots-btn {
+  position: absolute;
+  top: calc(50% - 22px);
+  display: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink);
+  box-shadow: 0 6px 16px rgba(67, 63, 62, 0.16);
+  cursor: pointer;
+}
+
+.shots-btn.prev {
+  left: -10px;
+}
+
+.shots-btn.next {
+  right: -10px;
+}
+
+.shots-btn[hidden] {
+  display: none !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .shots-btn {
+    display: grid;
+  }
 }
 
 .app-note {

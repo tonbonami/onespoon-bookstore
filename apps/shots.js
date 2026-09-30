@@ -1,24 +1,24 @@
-// 비교용: 스크린샷 줄마다 위치 점과 (마우스 환경용) 좌우 버튼을 붙인다.
+// 스크린샷 줄마다 위치 점과 (마우스 환경용) 좌우 버튼을 붙인다.
 const arrow = (d) =>
   `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
 
-document.querySelectorAll(".app-shots.swipe").forEach((row) => {
+document.querySelectorAll(".app-shots").forEach((row) => {
   const shots = [...row.querySelectorAll("img")];
   const wrap = document.createElement("div");
-  wrap.className = "swipe-wrap";
+  wrap.className = "shots-wrap";
   row.before(wrap);
   wrap.append(row);
 
   const dots = document.createElement("div");
-  dots.className = "swipe-dots";
+  dots.className = "shots-dots";
   dots.setAttribute("aria-hidden", "true");
   shots.forEach(() => dots.append(document.createElement("span")));
   wrap.append(dots);
 
   const prev = document.createElement("button");
   const next = document.createElement("button");
-  prev.className = "swipe-btn prev";
-  next.className = "swipe-btn next";
+  prev.className = "shots-btn prev";
+  next.className = "shots-btn next";
   prev.setAttribute("aria-label", "이전 화면");
   next.setAttribute("aria-label", "다음 화면");
   prev.innerHTML = arrow("m15 6-6 6 6 6");
