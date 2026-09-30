@@ -52,8 +52,8 @@
 - `"Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif`
 
 영문/숫자/제목 강조:
-- `Georgia, "Times New Roman", serif`
-- macOS·iOS에서 한글은 시스템 fallback으로 Gothic 계열로 렌더링되므로 명조처럼 보이지 않음.
+- `Georgia, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif`
+- Georgia에는 한글 글꼴이 없어서, 뒤에 `serif`만 두면 맥 크롬에서 한글이 명조(AppleMyungjo)로 넘어간다. 한글이 고딕으로 나오도록 고딕 글꼴을 Georgia 바로 뒤에 둔다.
 
 크기·굵기 가이드:
 - 페이지 H2 (섹션 제목): `font-size: 1.35rem`, `font-weight: 800~900`, Georgia 계열

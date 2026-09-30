@@ -10,5 +10,6 @@ node_modules/
 *.bak
 *.backup
 
-# Private commercial content (sold PDFs)
-books/
+# Private commercial content (sold PDFs) — only the /books/ page itself is public
+books/*
+!books/index.html

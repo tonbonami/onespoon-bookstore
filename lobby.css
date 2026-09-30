@@ -1,0 +1,317 @@
+/* 한스푼 스튜디오 로비 (/) — standalone; /books and /apps use styles.css */
+:root {
+  --bg: #fbfaf8;
+  --ink: #1d1d1f;
+  --muted: #6e6e73;
+  --faint: #8e8e93;
+  --books: #ffe9dc;
+  --books-ink: #7a4b33;
+  --apps: #ece8ff;
+  --apps-ink: #4b3b8f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.lobby {
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 960px);
+  min-height: 100vh;
+  min-height: 100svh;
+  margin: 0 auto;
+}
+
+/* ── header ───────────────────────────── */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 20px 0;
+  color: var(--ink);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
+
+.brand img {
+  display: block;
+  width: auto;
+  height: 30px;
+}
+
+/* ── intro ────────────────────────────── */
+.intro {
+  display: grid;
+  gap: 10px;
+  padding: 32px 20px 22px;
+}
+
+.intro h1 {
+  margin: 0;
+  font-size: clamp(34px, 9.4vw, 56px);
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: -0.035em;
+}
+
+.intro p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── rooms (bento cards) ──────────────── */
+.rooms {
+  display: grid;
+  gap: 12px;
+  padding: 0 16px;
+}
+
+.room {
+  position: relative;
+  display: block;
+  height: 236px;
+  overflow: hidden;
+  border-radius: 28px;
+  color: var(--ink);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 240ms ease;
+}
+
+.room:active {
+  transform: scale(0.985);
+}
+
+.room:focus-visible {
+  outline: 3px solid rgba(29, 29, 31, 0.28);
+  outline-offset: 3px;
+}
+
+.room-books {
+  background: var(--books);
+}
+
+.room-apps {
+  background: var(--apps);
+}
+
+.room-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 20px 20px 0;
+}
+
+.room-title {
+  display: grid;
+  gap: 2px;
+}
+
+.room-title strong {
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.room-title small {
+  font-size: 14px;
+}
+
+.room-books small {
+  color: var(--books-ink);
+}
+
+.room-apps small {
+  color: var(--apps-ink);
+}
+
+.room-go {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 240ms ease;
+}
+
+.room:hover .room-go {
+  transform: translateX(3px);
+}
+
+.room-covers {
+  position: absolute;
+  right: 0;
+  bottom: -20px;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.room-covers img {
+  width: min(92px, 26vw);
+  height: auto;
+  aspect-ratio: 92 / 130;
+  object-fit: cover;
+  border-radius: 4px 10px 10px 4px;
+  box-shadow: 0 10px 24px rgba(122, 75, 51, 0.18);
+  transition: transform 260ms ease;
+}
+
+.room:hover .room-covers img {
+  transform: translateY(-6px);
+}
+
+.room:hover .room-covers img:nth-child(2) {
+  transition-delay: 40ms;
+}
+
+.room:hover .room-covers img:nth-child(3) {
+  transition-delay: 80ms;
+}
+
+.room-icons {
+  position: absolute;
+  bottom: 22px;
+  left: 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 56px);
+  gap: 12px;
+}
+
+.room-icons img {
+  width: 56px;
+  height: 56px;
+  border-radius: 13px;
+  transition: transform 260ms ease;
+}
+
+.room:hover .room-icons img {
+  transform: translateY(-3px);
+}
+
+/* ── footer ───────────────────────────── */
+.foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: auto;
+  padding: 28px 20px calc(26px + env(safe-area-inset-bottom));
+}
+
+.foot small {
+  color: var(--faint);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.foot-links {
+  display: flex;
+  gap: 6px;
+}
+
+.foot-links a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: var(--ink);
+  transition: color 160ms ease, background 160ms ease;
+}
+
+.foot-links a:hover {
+  background: rgba(29, 29, 31, 0.05);
+}
+
+.sns-instagram:hover { color: #e1306c; }
+.sns-blog:hover { color: #03c75a; }
+.sns-youtube:hover { color: #ff0000; }
+
+/* ── wider screens: cards side by side ── */
+@media (min-width: 760px) {
+  .brand {
+    padding: 32px 32px 0;
+  }
+
+  .intro {
+    padding: 72px 32px 40px;
+  }
+
+  .rooms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    padding: 0 32px;
+  }
+
+  .room {
+    height: 340px;
+    border-radius: 32px;
+  }
+
+  .room:hover {
+    transform: translateY(-4px);
+  }
+
+  .room-head {
+    padding: 26px 26px 0;
+  }
+
+  .room-title strong {
+    font-size: 24px;
+  }
+
+  .room-covers {
+    bottom: -24px;
+    gap: 14px;
+  }
+
+  .room-covers img {
+    width: 118px;
+  }
+
+  .room-icons {
+    bottom: 30px;
+    left: 26px;
+    grid-template-columns: repeat(4, 64px);
+    gap: 14px;
+  }
+
+  .room-icons img {
+    width: 64px;
+    height: 64px;
+    border-radius: 15px;
+  }
+
+  .foot {
+    padding: 40px 32px 36px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .room,
+  .room-go,
+  .room-covers img,
+  .room-icons img {
+    transition: none;
+  }
+}
