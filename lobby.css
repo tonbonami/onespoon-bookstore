@@ -8,6 +8,8 @@
   --books-ink: #7a4b33;
   --apps: #ece8ff;
   --apps-ink: #4b3b8f;
+  --tutor: #f3ead9;
+  --tutor-ink: #7a6340;
 }
 
 * {
@@ -206,6 +208,46 @@ body {
   transform: translateY(-3px);
 }
 
+/* 프랑스푼 — a wide card under the two rooms, not a third room */
+.room-wide {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: auto;
+  padding: 18px 18px 18px 20px;
+  background: var(--tutor);
+}
+
+.room-wide-icon {
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 13px;
+  box-shadow: 0 4px 10px rgba(122, 99, 64, 0.16);
+}
+
+.room-wide .room-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-wide small {
+  color: var(--tutor-ink);
+}
+
+.room-badge {
+  margin-left: 4px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--tutor-ink);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0;
+  vertical-align: 3px;
+}
+
 /* ── footer ───────────────────────────── */
 .foot {
   display: flex;
@@ -297,6 +339,19 @@ body {
   }
 
   .room-icons img {
+    width: 64px;
+    height: 64px;
+    border-radius: 15px;
+  }
+
+  .room-wide {
+    grid-column: 1 / -1;
+    height: auto;
+    gap: 18px;
+    padding: 22px 26px;
+  }
+
+  .room-wide-icon {
     width: 64px;
     height: 64px;
     border-radius: 15px;

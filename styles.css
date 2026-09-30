@@ -1983,3 +1983,119 @@ p {
   font-weight: 800;
 }
 
+/* ── Studio: 프랑스푼 intro (/francespoon/) ─────────────────── */
+.fs-hero {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 34px 20px 24px;
+  text-align: center;
+}
+
+.fs-icon {
+  width: 96px;
+  height: 96px;
+  border-radius: 23%;
+  box-shadow: 0 10px 24px rgba(67, 63, 62, 0.16);
+}
+
+.fs-name h1 {
+  margin: 0;
+  font-size: clamp(1.7rem, 7vw, 2.1rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+
+.fs-badge {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: #f3ead9;
+  color: #7a6340;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  vertical-align: 6px;
+}
+
+.fs-name .app-kind {
+  margin-top: 4px;
+}
+
+.fs-line {
+  margin: 6px 0 4px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.fs-cta {
+  min-height: 48px;
+  padding: 0 26px;
+  font-size: 0.95rem;
+}
+
+.fs-price {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.fs-inapp {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 34ch;
+  margin-top: 6px;
+  padding: 14px 16px;
+  border: 1px solid #e6d7b8;
+  border-radius: 18px;
+  background: #fbf6ea;
+  color: #6b5533;
+  font-size: 13px;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.fs-inapp[hidden] {
+  display: none;
+}
+
+.fs-inapp p {
+  margin: 0;
+}
+
+.fs-inapp-url {
+  font-weight: 800;
+  user-select: all;
+}
+
+.fs-copy {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.fs-card {
+  margin: 0 16px;
+}
+
+.fs-legal {
+  margin: 18px 0 0;
+  text-align: center;
+  font-size: 12px;
+}
+
+.fs-legal a {
+  color: var(--muted);
+}
+
