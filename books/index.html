@@ -8,7 +8,7 @@
       name="description"
       content="한스푼 서점의 작은 온라인 서가. 책 소개, 가격, 추천 독자층과 신청 링크를 한곳에서 확인하세요."
     />
-    <link rel="stylesheet" href="/styles.css?v=32" />
+    <link rel="stylesheet" href="/styles.css?v=33" />
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
@@ -443,7 +443,7 @@
         <div class="order-heading">
           <p class="eyebrow">Order Form</p>
           <h2 id="orderTitle">30 Days in Paris 주문하기</h2>
-          <p>양식 작성 후 입금이 확인되면 6시간 안에 보내드릴게요.</p>
+          <p>① 주문 정보 보내기 → ② 아래 계좌로 입금 → 입금이 확인되면 6시간 안에 보내드릴게요.</p>
         </div>
 
         <form
@@ -570,6 +570,11 @@
 
           <div class="deposit-box" aria-label="입금 계좌 안내">
             <p class="deposit-eyebrow">💸 입금 계좌</p>
+            <div class="deposit-amount">
+              <span>입금하실 금액</span>
+              <strong id="depositAmount">위에서 책을 골라 주세요</strong>
+            </div>
+            <p class="deposit-amount-note" id="depositAmountNote" hidden></p>
             <div class="deposit-account">
               <small>신한은행 · 예금주 김우수</small>
               <div class="deposit-num">
@@ -577,12 +582,33 @@
                 <button type="button" class="deposit-copy" id="depositCopy" aria-label="계좌번호 복사">복사</button>
               </div>
             </div>
-            <p class="deposit-note">입금자명은 주문하신 성함과 동일하게 적어주세요.</p>
+            <p class="deposit-note">입금자명은 주문하신 성함과 같게 적어 주세요. 주문 정보를 보낸 뒤 이 계좌로 입금해 주셔야 교재가 발송돼요.</p>
           </div>
 
           <button class="submit-order" type="submit">주문 정보 보내기</button>
           <p class="order-status" id="orderStatus" role="status" aria-live="polite"></p>
         </form>
+        <div class="order-done" id="orderDone" hidden tabindex="-1" role="status" aria-live="polite">
+          <p class="order-done-eyebrow">✅ 주문 접수 완료</p>
+          <h3>이제 입금만 하시면 돼요</h3>
+          <p class="order-done-lead">아래 계좌로 입금해 주시면, 확인 후 6시간 안에 교재를 보내 드릴게요.</p>
+          <dl class="order-done-list">
+            <div><dt>주문한 책</dt><dd id="doneBook"></dd></div>
+            <div class="is-amount"><dt>입금하실 금액</dt><dd id="doneAmount"></dd></div>
+            <div>
+              <dt>입금 계좌</dt>
+              <dd>
+                <span class="done-account">신한은행 <strong id="doneAccount">110-234-710919</strong></span>
+                <button type="button" class="deposit-copy" id="doneCopy" aria-label="계좌번호 복사">복사</button>
+                <small>예금주 김우수</small>
+              </dd>
+            </div>
+            <div><dt>입금자명</dt><dd id="doneDepositor"></dd></div>
+            <div><dt>교재 받을 이메일</dt><dd id="doneEmail"></dd></div>
+          </dl>
+          <p class="order-done-tip">📸 이 화면을 캡처해 두시면 나중에 계좌를 다시 찾지 않아도 돼요.</p>
+          <button type="button" class="order-done-again" id="orderAgain">다른 책도 주문하기</button>
+        </div>
         <iframe class="google-form-target" name="googleFormTarget" title="Google Form submission"></iframe>
       </section>
 
@@ -624,6 +650,6 @@
       </div>
     </div>
 
-    <script src="/script.js?v=22"></script>
+    <script src="/script.js?v=23"></script>
   </body>
 </html>
