@@ -2,9 +2,28 @@ const FEATURED_DETAILS = {
   1: "#featured30Days",
   5: "#featuredNoFu3",
 };
-const DEFAULT_BOOK_ID = 1;
+const DEFAULT_BOOK_ID = 5;
 
 const books = [
+  {
+    id: 5,
+    title: "나의 첫 프랑스어 책 3.0",
+    category: "프랑스어 입문 · 노션 기반 종합 교재",
+    description:
+      "한 권으로 알파벳부터 어린왕자 원문까지. 발음과 문법을 중심 축으로 — 알파벳·자음·모음·리에종부터 명사·관사·시제·고급 문법·동사 변화까지 단단히 다지고, 어휘·회화·일상 표현·읽기까지 276페이지, 프랑스어 음성 601개에 담은 노션 기반 프랑스어 입문서 (A1~B1).",
+    price: "출시 기념가 20,000원 (10월 31일까지) ·\u00a0정가\u00a029,000원", // \u00a0: "· 정가 29,000원"이 줄바꿈으로 갈라지지 않게
+    audience: "한국어로 프랑스어를 처음 시작하는 입문자 (A1~B1)",
+    color: "#f5ede0",
+    cover: "/assets/nofu-book-3-cover.png?v=2",
+    formValue: "나의 첫 프랑스어 책 3.0",
+    previewPages: [
+      "/assets/preview-pages/nofu3-preview-01.png",
+      "/assets/preview-pages/nofu3-preview-02.png",
+      "/assets/preview-pages/nofu3-preview-03.png",
+      "/assets/preview-pages/nofu3-preview-04.png",
+      "/assets/preview-pages/nofu3-preview-05.png",
+    ],
+  },
   {
     id: 1,
     title: "30 Days in Paris",
@@ -44,25 +63,6 @@ const books = [
       "/assets/preview-pages/verbs-100-preview-01.png",
       "/assets/preview-pages/verbs-100-preview-02.png",
       "/assets/preview-pages/verbs-100-preview-03.png",
-    ],
-  },
-  {
-    id: 5,
-    title: "나의 첫 프랑스어 책 3.0",
-    category: "프랑스어 입문 · 노션 기반 종합 교재",
-    description:
-      "한 권으로 알파벳부터 어린왕자 원문까지. 발음과 문법을 중심 축으로 — 알파벳·자음·모음·리에종부터 명사·관사·시제·고급 문법·동사 변화까지 단단히 다지고, 어휘·회화·일상 표현·읽기까지 276페이지, 프랑스어 음성 601개에 담은 노션 기반 프랑스어 입문서 (A1~B1).",
-    price: "출시 기념가 20,000원 (10월 31일까지) ·\u00a0정가\u00a029,000원", // \u00a0: "· 정가 29,000원"이 줄바꿈으로 갈라지지 않게
-    audience: "한국어로 프랑스어를 처음 시작하는 입문자 (A1~B1)",
-    color: "#f5ede0",
-    cover: "/assets/nofu-book-3-cover.png?v=2",
-    formValue: "나의 첫 프랑스어 책 3.0",
-    previewPages: [
-      "/assets/preview-pages/nofu3-preview-01.png",
-      "/assets/preview-pages/nofu3-preview-02.png",
-      "/assets/preview-pages/nofu3-preview-03.png",
-      "/assets/preview-pages/nofu3-preview-04.png",
-      "/assets/preview-pages/nofu3-preview-05.png",
     ],
   },
 ];
