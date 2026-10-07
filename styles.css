@@ -2113,3 +2113,148 @@ p {
   color: var(--muted);
 }
 
+/* 입금 금액 + 주문 접수 완료 화면 (2026-10-07) */
+.order-form[hidden],
+.order-done[hidden],
+.deposit-amount-note[hidden] {
+  display: none !important;
+}
+
+.deposit-amount {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.deposit-amount span {
+  color: rgba(67, 63, 62, 0.66);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.deposit-amount strong {
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.deposit-amount strong.is-empty {
+  color: rgba(67, 63, 62, 0.5);
+  font-size: 0.86rem;
+}
+
+.deposit-amount-note {
+  margin: -4px 2px 12px;
+  color: rgba(67, 63, 62, 0.66);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.order-done {
+  display: grid;
+  gap: 14px;
+  padding: 26px 22px 24px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, var(--pastel-mint) 0%, var(--pastel-blue) 100%);
+  box-shadow: var(--shadow);
+  outline: none;
+}
+
+.order-done-eyebrow {
+  margin: 0;
+  color: #15803d;
+  font-size: 0.84rem;
+  font-weight: 900;
+}
+
+.order-done h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.35rem;
+  font-weight: 900;
+}
+
+.order-done-lead,
+.order-done-tip {
+  margin: 0;
+  color: rgba(67, 63, 62, 0.78);
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.order-done-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 4px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.order-done-list > div {
+  display: grid;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.order-done-list > div:last-child {
+  border-bottom: 0;
+}
+
+.order-done-list dt {
+  color: rgba(67, 63, 62, 0.6);
+  font-size: 0.76rem;
+  font-weight: 800;
+}
+
+.order-done-list dd {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.98rem;
+  font-weight: 800;
+  word-break: break-all;
+}
+
+.order-done-list .is-amount dd {
+  font-size: 1.3rem;
+  font-weight: 900;
+}
+
+.order-done-list dd small {
+  flex-basis: 100%;
+  color: rgba(67, 63, 62, 0.6);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.done-account strong {
+  font-family: Georgia, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.order-done-again {
+  justify-self: center;
+  min-height: 44px;
+  padding: 0 20px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 900;
+  cursor: pointer;
+}

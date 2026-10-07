@@ -168,6 +168,7 @@ function selectBook(id) {
   } else {
     allRadios.forEach((r) => (r.checked = false));
   }
+  updateDepositAmount();
 }
 
 function makePreviewPages(book) {
@@ -301,11 +302,109 @@ if (depositCopy && depositAccount) {
   });
 }
 
+// 책별 입금 금액 (가격이 바뀌면 여기와 books 배열의 price를 함께 고쳐 주세요)
+function getBookAmounts() {
+  return {
+  "나의 첫 프랑스어 책 3.0": {
+    amount: "20,000원",
+    note: "출시 기념가 (10월 31일까지) · 2.0 구매자는 15,000원 (메모에 \"2.0 구매\"를 적어 주세요)",
+  },
+  "30 Days in Paris": { amount: "20,000원", note: "" },
+  "프랑스어 필수동사 100": { amount: "9,000원", note: "" },
+  };
+}
+
+function getSelectedBookValue() {
+  const checked = document.querySelector('.book-pick input[name="entry.1833963440"]:checked');
+  return checked ? checked.value : "";
+}
+
+function updateDepositAmount() {
+  const amountEl = document.querySelector("#depositAmount");
+  const noteEl = document.querySelector("#depositAmountNote");
+  if (!amountEl) return;
+  const info = getBookAmounts()[getSelectedBookValue()];
+  amountEl.textContent = info ? info.amount : "위에서 책을 골라 주세요";
+  amountEl.classList.toggle("is-empty", !info);
+  if (noteEl) {
+    noteEl.textContent = info && info.note ? info.note : "";
+    noteEl.hidden = !(info && info.note);
+  }
+}
+
+document.querySelectorAll('.book-pick input[name="entry.1833963440"]').forEach((radio) => {
+  radio.addEventListener("change", updateDepositAmount);
+});
+updateDepositAmount();
+
+const orderDone = document.querySelector("#orderDone");
+
+function copyText(text, button) {
+  const done = () => {
+    button.textContent = "복사됨";
+    button.classList.add("is-copied");
+    window.setTimeout(() => {
+      button.textContent = "복사";
+      button.classList.remove("is-copied");
+    }, 1500);
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(done, done);
+  } else {
+    done();
+  }
+}
+
+const doneCopy = document.querySelector("#doneCopy");
+if (doneCopy) {
+  doneCopy.addEventListener("click", () => {
+    const account = document.querySelector("#doneAccount");
+    copyText(account ? account.textContent.trim() : "110-234-710919", doneCopy);
+  });
+}
+
+function showOrderDone({ bookValue, name, email }) {
+  if (!orderDone) {
+    orderStatus.textContent = "전송되었습니다. 위 계좌로 입금해 주시면 6시간 안에 보내드릴게요.";
+    return;
+  }
+  const info = getBookAmounts()[bookValue];
+  const setText = (sel, value) => {
+    const el = document.querySelector(sel);
+    if (el) el.textContent = value;
+  };
+  setText("#doneBook", bookValue || "-");
+  setText("#doneAmount", info ? info.amount : "-");
+  setText("#doneDepositor", name || "-");
+  setText("#doneEmail", email || "-");
+  orderForm.hidden = true;
+  orderDone.hidden = false;
+  orderDone.scrollIntoView({ behavior: "smooth", block: "start" });
+  orderDone.focus({ preventScroll: true });
+}
+
+const orderAgain = document.querySelector("#orderAgain");
+if (orderAgain && orderDone) {
+  orderAgain.addEventListener("click", () => {
+    orderDone.hidden = true;
+    orderForm.hidden = false;
+    orderStatus.textContent = "";
+    updateDepositAmount();
+    orderForm.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+}
+
 orderForm.addEventListener("submit", () => {
   syncEmailMirrors();
+  const bookValue = getSelectedBookValue();
+  const nameInput = orderForm.querySelector('input[name="entry.133598618"]');
+  const name = nameInput ? nameInput.value.trim() : "";
+  const email = orderEmail ? orderEmail.value.trim() : "";
   orderStatus.textContent = "주문 정보가 전송되고 있어요...";
   window.setTimeout(() => {
-    orderStatus.textContent = "전송되었습니다. 위 계좌로 입금해주시면 6시간 안에 보내드릴게요.";
+    orderStatus.textContent = "";
+    showOrderDone({ bookValue, name, email });
     orderForm.reset();
+    updateDepositAmount();
   }, 900);
 });
