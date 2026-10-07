@@ -152,7 +152,12 @@ p {
   letter-spacing: 0.005em;
 }
 
+.shelf-notice .nowrap {
+  white-space: nowrap;
+}
+
 .shelf-notice-dot {
+  flex: none;
   display: inline-block;
   width: 7px;
   height: 7px;
@@ -439,6 +444,7 @@ p {
   margin: 0;
   font-size: 0.92rem;
   font-weight: 700;
+  word-break: keep-all;
 }
 
 .primary-link {
@@ -1205,6 +1211,14 @@ p {
   color: rgba(67, 63, 62, 0.42);
   font-style: normal;
   font-weight: 800;
+}
+
+.order-form .field-hint {
+  color: rgba(67, 63, 62, 0.6);
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.6;
+  word-break: keep-all;
 }
 
 .order-form input[type="text"],
