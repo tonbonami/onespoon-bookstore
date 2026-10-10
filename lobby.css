@@ -422,6 +422,14 @@ body {
   color: #3d6fae;
 }
 
+.notice-update .notice-title {
+  word-break: keep-all;
+}
+
+.notice-update .upd-day:first-of-type {
+  margin-top: 12px;
+}
+
 .notice-sub {
   display: block;
   margin-top: 2px;
