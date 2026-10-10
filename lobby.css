@@ -407,6 +407,60 @@ body {
   font-weight: 700;
 }
 
+/* ── 업데이트 소식 ───────────────────────────── */
+.notice-update {
+  border-color: #cfe3f7;
+  background: #f6faff;
+  box-shadow: 0 8px 20px rgba(31, 99, 214, 0.07);
+}
+
+.notice-update .notice-tag {
+  background: #1f63d6;
+}
+
+.notice-update .notice-more {
+  color: #3d6fae;
+}
+
+.notice-sub {
+  display: block;
+  margin-top: 2px;
+  color: #5b6b80;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.upd-day + .upd-day {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #d6e3f1;
+}
+
+.upd-date {
+  color: #1f63d6;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.upd-day ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+}
+
+.upd-day li + li {
+  margin-top: 4px;
+}
+
+.upd-next {
+  margin-top: 12px !important;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #e8f1fc;
+  color: #2f5583;
+  font-size: 12.5px;
+}
+
 /* ── footer ───────────────────────────── */
 .foot {
   display: flex;
