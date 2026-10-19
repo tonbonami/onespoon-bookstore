@@ -27,6 +27,20 @@ const books = [
     ],
   },
   {
+    id: 7,
+    title: "나의 첫 스페인어 책 1.0",
+    category: "스페인어 입문 · 노션 기반 종합 교재",
+    description:
+      "알파벳부터 『어린 왕자』까지, 라틴아메리카 스페인어를 한 권으로. 발음 · 문법 · 동사 변화 · 회화 · 어휘 · 읽기 6영역, 문법 단원마다 「프랑스어와 비교」. 『어린 왕자』 27장 전체를 이 책만의 스페인어 번역과 음성으로.",
+    descriptionHtml:
+      '<strong class="lede-head">알파벳부터 『어린 왕자』까지, 라틴아메리카 스페인어를 한 권으로.</strong><br>발음 · 문법 · 동사 변화 · 회화 · 어휘 · 읽기 6영역 · 문법 단원마다 「프랑스어와 비교」<br>『어린 왕자』 27장 전체를 이 책만의 스페인어 번역과 음성으로 · 휴대폰 노션으로 바로',
+    price: "11월 중순 출시 예정입니다. 가격은 출시 때 함께 알려 드릴게요.",
+    audience: "스페인어를 처음 시작하는 분 · 프랑스어를 배운 뒤 두 번째 외국어를 찾는 분 (A1~B2)",
+    color: "#e9f2fb",
+    cover: "/assets/firstspanish-1-cover.png",
+    comingSoon: true,
+  },
+  {
     id: 1,
     title: "30 Days in Paris",
     category: "프랑스어 입문 · 듣고 따라 말하는 어휘책",
@@ -125,7 +139,7 @@ function selectBook(id) {
 
   detailBook.style.backgroundColor = book.color;
   if (book.cover) {
-    detailBook.innerHTML = `<img src="${book.cover}" alt="${book.title} 표지" /><span class="preview-badge">미리 보기</span>`;
+    detailBook.innerHTML = `<img src="${book.cover}" alt="${book.title} 표지" />${book.previewPages ? '<span class="preview-badge">미리 보기</span>' : ""}`;
     const img = detailBook.querySelector("img");
     img.addEventListener("error", () => {
       detailBook.innerHTML = `<span>${book.title}</span>${book.previewPages ? '<span class="preview-badge">미리 보기</span>' : ""}`;
@@ -155,6 +169,16 @@ function selectBook(id) {
   }
 
   orderTitle.textContent = `${book.title} 주문하기`;
+
+  const notifySection = document.querySelector("#notifySection");
+  const orderSection = document.querySelector("#orderFormSection");
+  const detailFormLink = document.querySelector("#detailForm");
+  if (notifySection) notifySection.style.display = book.comingSoon ? "" : "none";
+  if (orderSection) orderSection.style.display = book.comingSoon ? "none" : "";
+  if (detailFormLink) {
+    detailFormLink.textContent = book.comingSoon ? "출시 알림 신청하기" : "주문 양식 작성하기";
+    detailFormLink.setAttribute("href", book.comingSoon ? "#notifySection" : "#orderFormSection");
+  }
 
   const allRadios = document.querySelectorAll(
     '.book-pick input[name="entry.1833963440"]',
@@ -411,3 +435,15 @@ orderForm.addEventListener("submit", () => {
     updateDepositAmount();
   }, 900);
 });
+
+const notifyForm = document.querySelector("#notifyForm");
+const notifyStatus = document.querySelector("#notifyStatus");
+if (notifyForm) {
+  notifyForm.addEventListener("submit", () => {
+    if (notifyStatus) notifyStatus.textContent = "신청 정보를 보내고 있어요...";
+    window.setTimeout(() => {
+      notifyForm.reset();
+      if (notifyStatus) notifyStatus.textContent = "신청해 주셔서 고마워요. 11월 중순, 가장 먼저 알려 드릴게요.";
+    }, 900);
+  });
+}
