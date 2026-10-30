@@ -16,7 +16,7 @@ const books = [
     price: "출시 기념가 20,000원 (10월 31일까지) ·\u00a0정가\u00a029,000원", // \u00a0: "· 정가 29,000원"이 줄바꿈으로 갈라지지 않게
     audience: "한국어로 프랑스어를 처음 시작하는 입문자 (A1~B1)",
     color: "#f5ede0",
-    cover: "/assets/nofu-book-3-cover.png?v=2",
+    cover: "/assets/web/nofu-book-3-cover.webp",
     formValue: "나의 첫 프랑스어 책 3.0",
     previewPages: [
       "/assets/preview-pages/nofu3-preview-01.png",
@@ -37,7 +37,7 @@ const books = [
     price: "11월 중순 출시 예정입니다. 가격은 출시 때 함께 알려 드릴게요.",
     audience: "스페인어를 처음 시작하는 분 · 프랑스어를 배운 뒤 두 번째 외국어를 찾는 분 (A1~B2)",
     color: "#e9f2fb",
-    cover: "/assets/firstspanish-1-cover.png",
+    cover: "/assets/web/firstspanish-1-cover.webp",
     comingSoon: true,
   },
   {
@@ -49,7 +49,7 @@ const books = [
     price: "20,000원",
     audience: "프랑스어 입문 · 파리 여행 · 유학 · 일상 회화 준비자",
     color: "#E8F0FE",
-    cover: "/assets/30daysinparis_bookcover.png",
+    cover: "/assets/web/30daysinparis-cover.webp",
     formValue: "30 Days in Paris",
     previewPages: [
       "/assets/preview-pages/paris-preview-01.jpg",
@@ -73,7 +73,7 @@ const books = [
     price: "9,000원",
     audience: "프랑스어 입문 ~ 초중급 · 동사 활용을 빠르게 익히고 싶은 분",
     color: "#f5f0e8",
-    cover: "/assets/verbs-100-cover.png?v=2",
+    cover: "/assets/web/verbs-100-cover.webp",
     formValue: "프랑스어 필수동사 100",
     previewPages: [
       "/assets/preview-pages/verbs-100-preview-01.png",
@@ -117,7 +117,7 @@ function renderShelf() {
           <span class="book-spine" aria-hidden="true"></span>
           ${
             book.cover
-              ? `<img class="book-cover-image" src="${book.cover}" alt="${book.title} 표지" onerror="handleCoverError(this)" />`
+              ? `<img class="book-cover-image" src="${book.cover}" alt="${book.title} 표지" width="420" height="596" decoding="async" onerror="handleCoverError(this)" />`
               : ""
           }
           <span class="book-tag">${book.category}</span>
@@ -139,7 +139,7 @@ function selectBook(id) {
 
   detailBook.style.backgroundColor = book.color;
   if (book.cover) {
-    detailBook.innerHTML = `<img src="${book.cover}" alt="${book.title} 표지" />${book.previewPages ? '<span class="preview-badge">미리 보기</span>' : ""}`;
+    detailBook.innerHTML = `<img src="${book.cover}" alt="${book.title} 표지" width="420" height="596" />${book.previewPages ? '<span class="preview-badge">미리 보기</span>' : ""}`;
     const img = detailBook.querySelector("img");
     img.addEventListener("error", () => {
       detailBook.innerHTML = `<span>${book.title}</span>${book.previewPages ? '<span class="preview-badge">미리 보기</span>' : ""}`;
