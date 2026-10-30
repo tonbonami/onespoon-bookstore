@@ -14,7 +14,14 @@
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
       <style>.lede-head{color:#2b2b2b;font-size:1.08em}</style>
-  </head>
+    <style>
+    .order-form fieldset.news-optin{display:grid;gap:12px;padding:16px 16px 14px;border:1px solid #dbe7f6;border-radius:16px;background:#f6f9fd}
+    .order-form .news-optin-title{margin:0;color:rgba(67,63,62,.72);font-size:.86rem;font-weight:900}
+    .order-form label.news-optin-opt{display:flex;align-items:flex-start;gap:10px;cursor:pointer}
+    .order-form .news-optin-opt input{width:20px;height:20px;margin:1px 0 0;flex:none;accent-color:#3b82f6}
+    .order-form .news-optin-opt b{color:var(--ink);font-size:.92rem;font-weight:800;line-height:1.5;word-break:keep-all}
+  </style>
+</head>
   <body>
     <main class="page-shell">
       <nav class="studio-nav" aria-label="한스푼 스튜디오">
@@ -617,6 +624,19 @@
             <textarea name="entry.4057543" rows="4"></textarea>
             <small class="field-hint">2.0을 구매하신 분은 "2.0 구매"와 2.0 때 사용하신 이메일을 적어 주세요. 확인 후 안내해 드려요. (2.0 구매자는 15,000원)</small>
           </label>
+
+          <fieldset class="news-optin">
+            <p class="news-optin-title">📮 새 책·자료 소식 받기 <em>(선택)</em></p>
+            <label class="news-optin-opt">
+              <input type="checkbox" name="entry.1055582079" value="프랑스어 한스푼의 새 책·무료 자료 소식을 이메일로 받을게요" />
+              <b>프랑스어 한스푼의 새 책·무료 자료 소식을 이메일로 받을게요</b>
+            </label>
+            <label class="news-optin-opt">
+              <input type="checkbox" name="entry.1055582079" value="『나의 첫 스페인어 책』이 나오면 알려 주세요" />
+              <b>『나의 첫 스페인어 책』이 나오면 알려 주세요</b>
+            </label>
+            <small class="field-hint">체크하신 분께만 보내 드려요. 수집 항목: 이메일 / 목적: 새 책·자료 소식 안내 / 보관: 수신 거부 요청 시까지</small>
+          </fieldset>
 
           <input type="hidden" name="fvv" value="1" />
           <input type="hidden" name="pageHistory" value="0" />
