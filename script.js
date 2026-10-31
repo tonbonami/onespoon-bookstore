@@ -13,7 +13,7 @@ const books = [
       "알파벳부터 『어린 왕자』 원문까지, 한 권으로. 발음 · 문법 · 어휘 · 회화 · 동사 변화 · 읽기 6영역, 프랑스어 음성 900개 이상. 휴대폰 노션으로 바로 보는 프랑스어 입문서 (A1~B1).",
     descriptionHtml:
       '<strong class="lede-head">알파벳부터 『어린 왕자』 원문까지, 한 권으로.</strong><br>발음 · 문법 · 어휘 · 회화 · 동사 변화 · 읽기 6영역<br>프랑스어 음성 900개 이상 · 휴대폰 노션으로 바로',
-    price: "출시 기념가 20,000원 (10월 31일까지) ·\u00a0정가\u00a029,000원", // \u00a0: "· 정가 29,000원"이 줄바꿈으로 갈라지지 않게
+    price: "29,000원",
     audience: "한국어로 프랑스어를 처음 시작하는 입문자 (A1~B1)",
     color: "#f5ede0",
     cover: "/assets/web/nofu-book-3-cover.webp",
@@ -333,8 +333,8 @@ if (depositCopy && depositAccount) {
 function getBookAmounts() {
   return {
   "나의 첫 프랑스어 책 3.0": {
-    amount: "20,000원",
-    note: "출시 기념가 (10월 31일까지) · 2.0 구매자는 15,000원 (메모에 \"2.0 구매\"를 적어 주세요)",
+    amount: "29,000원",
+    note: "2.0 구매자는 15,000원 (메모에 \"2.0 구매\"를 적어 주세요)",
   },
   "30 Days in Paris": { amount: "20,000원", note: "" },
   "프랑스어 필수동사 100": { amount: "9,000원", note: "" },
