@@ -5,8 +5,12 @@
 //   node tools/guard/guard.mjs --save              지금 값을 기준값(baseline.json)으로 저장
 //
 // 실제 손님처럼 폰 화면으로 페이지를 열어, 주문이 구글폼에 닿는 데 필요한 것들을 모은다.
-// 주문은 절대 보내지 않는다: 구글폼 주소는 DNS부터 막고(브라우저 실행 옵션), 한 번 더 브라우저 안에서 막은 뒤
-// "보내려던 내용"만 읽는다. Vercel 방문자 통계도 막아서 점검이 방문자로 잡히지 않는다.
+// 주문은 절대 보내지 않는다. 세 겹으로 막는다:
+//   1) 크롬이 점검 대상 사이트 말고는 어떤 주소도 찾지 못한다(DNS 허용 목록).
+//   2) 사이트 밖으로 가는 요청과 GET이 아닌 요청은 브라우저가 보내기 전에 끊는다(Fetch 가로채기).
+//   3) 그래도 사이트 밖에서 응답이 오면 그 자리에서 점검을 멈춘다.
+// 구글폼 쪽 질문 구조는 공개 양식 페이지(viewform)를 읽기만 해서 대조한다.
+// Vercel 방문자 통계도 막아서 점검이 방문자로 잡히지 않는다.
 import { spawn, spawnSync } from "node:child_process";
 import { mkdtempSync, readFileSync, writeFileSync, existsSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -24,6 +28,7 @@ const BASELINE = join(HERE, "baseline.json");
 const args = process.argv.slice(2);
 const argValue = (flag, fallback) => (args.includes(flag) ? args[args.indexOf(flag) + 1] : fallback);
 const BASE = argValue("--base", "https://onespoon-studio.vercel.app").replace(/\/$/, "");
+const BASE_URL = new URL(BASE);
 const SAVE = args.includes("--save");
 const CHROME = argValue("--chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
 
@@ -34,8 +39,17 @@ const PAGES = ["/", "/books/", "/apps/", "/francespoon/"];
 // 서점에서 바로가기로 쓰일 수 있는 칸. 사이트 안 링크가 가리키는 칸은 자동으로 더한다.
 const BOOKS_ANCHORS = ["orderFormSection", "notifySection", "bookDetail", "featuredNoFu3", "featured30Days", "bookShelf"];
 const BOOK_ENTRY = "entry.1833963440";
+const TEST_EMAIL = "guard-check@example.com";
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const isSite = (url) => {
+  try {
+    const u = new URL(url);
+    return u.host === BASE_URL.host || u.protocol === "data:" || u.protocol === "blob:";
+  } catch {
+    return false;
+  }
+};
 
 // ── 브라우저 ───────────────────────────────────
 function launchChrome() {
@@ -49,8 +63,8 @@ function launchChrome() {
       "--no-first-run",
       "--no-default-browser-check",
       "--disable-extensions",
-      // 1차 차단: 구글폼 주소는 아예 찾지 못하게
-      "--host-resolver-rules=MAP docs.google.com ~NOTFOUND",
+      // 1겹: 점검 대상 사이트 말고는 어떤 주소도 찾지 못하게
+      `--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE ${BASE_URL.hostname}`,
       "about:blank",
     ],
     { stdio: "ignore" },
@@ -96,6 +110,8 @@ async function openTab(port) {
     });
   const tab = {
     send,
+    blocked: [], // 보내기 전에 끊은 요청 (주소·방식·본문)
+    leaked: [], // 사이트 밖에서 응답이 온 요청 — 하나라도 있으면 점검 중단
     on: (fn) => listeners.push(fn),
     off: (fn) => listeners.splice(listeners.indexOf(fn), 1),
     close: async () => {
@@ -103,7 +119,7 @@ async function openTab(port) {
       await fetch(`http://127.0.0.1:${port}/json/close/${target.id}`).catch(() => {});
     },
     async eval(expression) {
-      const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+      const r = await send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true, userGesture: true });
       if (r.exceptionDetails) throw new Error(r.exceptionDetails.exception?.description || r.exceptionDetails.text);
       return r.result.value;
     },
@@ -118,14 +134,35 @@ async function openTab(port) {
       await sleep(600);
     },
   };
+
+  // 2겹: 모든 요청을 보내기 전에 세워서, 사이트 안의 GET만 보낸다
+  tab.on((e) => {
+    if (e.method === "Fetch.requestPaused") {
+      const { requestId, request } = e.params;
+      const allow = ["GET", "HEAD"].includes(request.method) && isSite(request.url) && !request.url.includes("/_vercel/insights");
+      if (allow) {
+        send("Fetch.continueRequest", { requestId }).catch(() => {});
+      } else {
+        tab.blocked.push({ url: request.url, method: request.method, body: request.postData || "" });
+        send("Fetch.failRequest", { requestId, errorReason: "BlockedByClient" }).catch(() => {});
+      }
+    }
+    // 3겹: 사이트 밖에서 응답이 왔다면 무엇인가 새어 나간 것
+    if (e.method === "Network.responseReceived" && !isSite(e.params.response.url)) tab.leaked.push(e.params.response.url);
+  });
+  await send("Fetch.enable", { patterns: [{ urlPattern: "*", requestStage: "Request" }] });
   await send("Page.enable");
   await send("Runtime.enable");
   await send("Network.enable");
   await send("Network.setCacheDisabled", { cacheDisabled: true });
-  // 2차 차단: 구글폼 + 방문자 통계
-  await send("Network.setBlockedURLs", { urls: ["*docs.google.com/forms*", "*/_vercel/insights*"] });
   await send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+  await send("Emulation.setFocusEmulationEnabled", { enabled: true });
+  await send("Browser.grantPermissions", { origin: BASE_URL.origin, permissions: ["clipboardReadWrite", "clipboardSanitizedWrite"] }).catch(() => {});
   return tab;
+}
+
+function assertNoLeak(tab) {
+  if (tab.leaked.length) throw new Error(`사이트 밖으로 요청이 나갔어요: ${tab.leaked.join(", ")} — 점검을 멈춥니다.`);
 }
 
 // ── 모으기 ─────────────────────────────────────
@@ -161,19 +198,28 @@ async function collectMeta(tab) {
   return { meta, linkedAnchors: [...links].sort() };
 }
 
-// 주문서 구조: 폼 주소, 칸 이름, 고를 수 있는 값
-const FORMS_JS = `(() => Object.fromEntries([...document.forms].filter((f) => /docs\\.google\\.com\\/forms/.test(f.action)).map((f) => [f.id || f.action, {
-  action: f.action,
-  method: (f.getAttribute("method") || "").toUpperCase(),
-  target: f.target,
-  targetFrame: !!document.querySelector('iframe[name="' + f.target + '"]'),
-  fields: [...f.elements].filter((el) => el.name).map((el) => {
-    if (el.tagName === "SELECT") return el.name + " | 고르기 | " + [...el.options].map((o) => o.value).join(" / ") + (el.required ? " | 필수" : "");
-    const kind = el.tagName === "TEXTAREA" ? "textarea" : el.type;
-    const val = ["radio", "checkbox", "hidden"].includes(kind) && el.value ? " = " + el.value : "";
-    return el.name + " | " + kind + val + (el.required ? " | 필수" : "");
-  }).sort(),
-}])))()`;
+// 주문서 구조: 폼 주소, 칸 이름, 고를 수 있는 값. 라디오·체크 칸은 이름별 한 무리로 본다.
+const FORMS_JS = `(() => Object.fromEntries([...document.forms].filter((f) => /docs\\.google\\.com\\/forms/.test(f.action)).map((f) => {
+  const groups = new Map();
+  for (const el of f.elements) {
+    if (!el.name) continue;
+    const kind = el.tagName === "SELECT" ? "고르기" : el.tagName === "TEXTAREA" ? "textarea" : el.type;
+    const g = groups.get(el.name) || { kinds: new Set(), values: [], required: false };
+    g.kinds.add(kind);
+    if (kind === "고르기") g.values.push(...[...el.options].map((o) => o.value));
+    else if (["radio", "checkbox", "hidden"].includes(kind) && el.value) g.values.push(el.value);
+    g.required = g.required || el.required;
+    groups.set(el.name, g);
+  }
+  const frames = document.querySelectorAll('iframe[name="' + f.target + '"]');
+  return [f.id || f.action, {
+    action: f.action,
+    method: (f.getAttribute("method") || "").toUpperCase(),
+    target: f.target,
+    targetFrame: frames.length === 1 ? "하나 있음" : "iframe " + frames.length + "개",
+    fields: [...groups].map(([name, g]) => [name, [...g.kinds].join("+"), g.values.sort().join(" / "), g.required ? "필수" : ""].filter(Boolean).join(" | ")).sort(),
+  }];
+})))()`;
 
 async function collectBooks(tab) {
   await tab.go(BASE + "/books/");
@@ -193,15 +239,18 @@ async function collectBooks(tab) {
     return out;
   })()`);
 
-  // 계좌 상자와 복사 버튼 (복사 버튼은 실제로 눌러 본다)
+  // 계좌 상자와 복사 버튼: 실제로 눌러 보고, 클립보드에 무엇이 들어갔는지 읽는다
   const account = await tab.eval(`(async () => {
     const text = (sel) => document.querySelector(sel)?.textContent.trim() ?? "(없음)";
     const press = async (sel) => {
       const b = document.querySelector(sel);
       if (!b) return "(버튼 없음)";
+      try { await navigator.clipboard.writeText(""); } catch {}
       b.click();
-      await new Promise((ok) => setTimeout(ok, 200));
-      return b.textContent.trim() === "복사됨" ? "눌림 → 복사됨" : "눌러도 반응 없음: " + b.textContent.trim();
+      await new Promise((ok) => setTimeout(ok, 250));
+      let copied = "(클립보드를 읽지 못함)";
+      try { copied = await navigator.clipboard.readText(); } catch {}
+      return (b.textContent.trim() === "복사됨" ? "눌림 → 복사됨" : "반응 없음: " + b.textContent.trim()) + " · 복사된 값 " + copied;
     };
     return {
       주문서_계좌: text("#depositAccount"),
@@ -228,6 +277,7 @@ async function collectBooks(tab) {
     }
     return out;
   })()`);
+  assertNoLeak(tab);
   return { forms, choices, amounts, account, shelf };
 }
 
@@ -237,8 +287,9 @@ async function collectAnchors(tab, linked) {
   return tab.eval(`Object.fromEntries(${JSON.stringify(ids)}.map((id) => [id, document.getElementById(id) ? "있음" : "없음"]))`);
 }
 
-// 실제 손님처럼 채워서 보내 보되, 요청은 막고 보내려던 내용만 읽는다
-const FILL_JS = (formSel) => `(() => {
+// 실제 손님처럼 채워서 제출해 보되, 요청은 보내기 전에 끊고 보내려던 내용만 읽는다.
+// checkboxes: true면 선택 체크 칸을 모두 체크, false면 모두 비운 채로.
+const FILL_JS = (formSel, checkboxes) => `(() => {
   const f = document.querySelector(${JSON.stringify(formSel)});
   const done = new Set();
   for (const el of f.elements) {
@@ -249,12 +300,12 @@ const FILL_JS = (formSel) => `(() => {
       const group = f.querySelectorAll('input[name="' + el.name + '"]');
       if (![...group].some((r) => r.checked)) el.click();
     } else if (el.type === "checkbox") {
-      if (!el.checked) el.click();
+      if (el.checked !== ${checkboxes}) el.click();
     } else if (el.tagName === "SELECT") {
       const opt = [...el.options].find((o) => o.value);
       if (opt) el.value = opt.value;
     } else if (el.type === "email") {
-      el.value = "guard-check@example.com";
+      el.value = ${JSON.stringify(TEST_EMAIL)};
     } else if (el.type !== "hidden") {
       el.value = "가드 점검";
     }
@@ -265,32 +316,25 @@ const FILL_JS = (formSel) => `(() => {
   return true;
 })()`;
 
-async function trySubmit(tab, formSel, before) {
-  const seen = [];
-  const watch = (e) => {
-    const url = e.params?.request?.url || e.params?.response?.url || "";
-    if (e.method === "Network.requestWillBeSent" && /docs\.google\.com\/forms/.test(url)) seen.push({ id: e.params.requestId, url, body: e.params.request.postData || "", state: "보냄 시도" });
-    if (e.method === "Network.loadingFailed") seen.filter((s) => s.id === e.params.requestId).forEach((s) => (s.state = "막힘"));
-    if (e.method === "Network.responseReceived" && /docs\.google\.com\/forms/.test(url)) seen.filter((s) => s.id === e.params.requestId).forEach((s) => (s.state = "새어 나감!"));
-  };
-  tab.on(watch);
+async function trySubmit(tab, formSel, before, checkboxes) {
   await tab.go(BASE + "/books/");
+  tab.blocked.length = 0;
   if (before) await tab.eval(before);
-  await tab.eval(FILL_JS(formSel));
-  for (let i = 0; i < 50 && !seen.length; i++) await sleep(100);
+  await tab.eval(FILL_JS(formSel, checkboxes));
+  const isForm = (b) => b.method === "POST" || /google\.com|forms\.gle/.test(b.url);
+  for (let i = 0; i < 50 && !tab.blocked.some(isForm); i++) await sleep(100);
   await sleep(1600); // 완료 화면이 뜨는 시간(900ms) + 여유
-  tab.off(watch);
-  if (seen.some((s) => s.state === "새어 나감!")) throw new Error("구글폼 요청이 막히지 않았어요. 점검을 멈춥니다.");
-  if (!seen.length) return { 전송: "보내려는 요청이 없음(필수 칸 막힘?)" };
-  const s = seen[0];
+  assertNoLeak(tab);
+  const sent = tab.blocked.filter(isForm);
+  if (!sent.length) return { 전송: "보내려는 요청이 없음(필수 칸 막힘?)" };
+  const s = sent[0];
   const params = new URLSearchParams(s.body);
-  const keys = [...params.keys()].sort();
   return {
-    전송: s.state,
+    전송: sent.length === 1 ? `${s.method} 한 번 · 보내기 전에 막음` : `${sent.length}번 보내려 함 · 모두 막음`,
     주소: s.url,
-    칸: keys,
+    칸: [...params.keys()].sort(),
     책: params.get(BOOK_ENTRY),
-    이메일복사칸: ["entry.1769994956", "entry.680763611"].filter((k) => params.has(k)).map((k) => `${k}=${params.get(k) === "guard-check@example.com" ? "이메일과 같음" : "다름: " + params.get(k)}`),
+    이메일복사칸: ["entry.1769994956", "entry.680763611"].filter((k) => params.has(k)).map((k) => `${k}=${params.get(k) === TEST_EMAIL ? "이메일과 같음" : "다름: " + params.get(k)}`),
     완료화면: await tab.eval(`(() => {
       const box = document.querySelector("#orderDone");
       if (!box || box.hidden) return null;
@@ -302,15 +346,79 @@ async function trySubmit(tab, formSel, before) {
 
 async function collectSubmits(tab, choices) {
   const out = {};
-  for (const value of choices) {
-    out[`주문: ${value}`] = await trySubmit(tab, "#orderForm", `document.querySelector('input[name="${BOOK_ENTRY}"][value="${value}"]').click()`);
-  }
+  const pick = (value) => `document.querySelector('input[name="${BOOK_ENTRY}"][value="${value}"]').click()`;
+  for (const value of choices) out[`주문: ${value}`] = await trySubmit(tab, "#orderForm", pick(value), true);
+  // 선택 체크 칸을 비운 손님도 주문이 되는지
+  out[`주문: ${choices[0]} (선택 칸 비움)`] = await trySubmit(tab, "#orderForm", pick(choices[0]), false);
   // 출시 알림: 곧 나올 책을 눌러 알림 양식을 띄운 뒤
   out["출시 알림"] = await trySubmit(tab, "#notifyForm", `(() => {
     const card = [...document.querySelectorAll(".book-card")].find((c) => { c.click(); return getComputedStyle(document.querySelector("#notifySection")).display !== "none"; });
     return !!card;
-  })()`);
+  })()`, true);
   return out;
+}
+
+// 구글폼 쪽: 공개 양식 페이지를 읽기만 해서(제출 없음) 지금 질문 구조를 가져온다
+async function readGoogleForm(action) {
+  const url = action.replace(/\/formResponse$/, "/viewform");
+  const html = await (await fetch(url, { headers: { "user-agent": "Mozilla/5.0", "accept-language": "ko" } })).text();
+  const at = html.indexOf("FB_PUBLIC_LOAD_DATA_ = ");
+  if (at < 0) return null;
+  const start = at + "FB_PUBLIC_LOAD_DATA_ = ".length;
+  let depth = 0;
+  let end = start;
+  let inStr = false;
+  for (; end < html.length; end++) {
+    const c = html[end];
+    if (inStr) {
+      if (c === "\\") end++;
+      else if (c === '"') inStr = false;
+    } else if (c === '"') inStr = true;
+    else if (c === "[") depth++;
+    else if (c === "]" && --depth === 0) break;
+  }
+  const data = JSON.parse(html.slice(start, end + 1));
+  const out = {};
+  for (const item of data[1][1] || []) {
+    for (const q of item[4] || []) {
+      const options = (q[1] || []).map((o) => (o[4] ? "(기타 직접 입력)" : o[0]));
+      out[`entry.${q[0]}`] = { 질문: item[1], 필수: q[2] === 1, 선택지: options };
+    }
+  }
+  return out;
+}
+
+async function collectGoogleForms(forms, submits) {
+  const structure = {};
+  const mismatch = [];
+  for (const [id, form] of Object.entries(forms)) {
+    const gf = await readGoogleForm(form.action);
+    if (!gf) {
+      structure[id] = "구글폼 공개 페이지를 읽지 못함";
+      continue;
+    }
+    structure[id] = Object.entries(gf).map(([entry, q]) => [entry, q.질문, q.필수 ? "필수" : "", q.선택지.join(" / ")].filter(Boolean).join(" | ")).sort();
+    // 사이트가 보내는 칸·값이 구글폼에 실제로 있는지
+    for (const line of form.fields) {
+      const [name, kind, values] = line.split(" | ");
+      if (!name.startsWith("entry.")) continue;
+      if (!gf[name]) {
+        mismatch.push(`${id}: 사이트의 ${name} 칸이 구글폼에 없음`);
+        continue;
+      }
+      if (/radio|checkbox|고르기/.test(kind) && gf[name].선택지.length) {
+        for (const v of (values || "").split(" / ").filter(Boolean)) {
+          if (!gf[name].선택지.includes(v)) mismatch.push(`${id}: ${name} 값 "${v}"이 구글폼 선택지에 없음`);
+        }
+      }
+    }
+    // 구글폼 필수 질문을 사이트가 실제로 보내는지 (선택 칸 비운 주문 기준)
+    const sample = Object.entries(submits).find(([k, v]) => v.주소 === form.action && k.includes("비움")) || Object.entries(submits).find(([, v]) => v.주소 === form.action);
+    for (const [entry, q] of Object.entries(gf)) {
+      if (q.필수 && sample && !sample[1].칸.includes(entry)) mismatch.push(`${id}: 구글폼 필수 질문 "${q.질문}"(${entry})을 사이트가 보내지 않음`);
+    }
+  }
+  return { structure, mismatch };
 }
 
 // ── 비교 ───────────────────────────────────────
@@ -324,6 +432,8 @@ const LABELS = {
   shelf: "서가 → 주문서 연결",
   anchors: "바로가기 칸(/books/#…)",
   submits: "보내려던 내용(전송은 막음)",
+  googleForms: "구글폼 쪽 질문 구조",
+  googleMismatch: "사이트 ↔ 구글폼 어긋남",
 };
 
 const short = (v) => {
@@ -331,24 +441,32 @@ const short = (v) => {
   return s.length > 140 ? s.slice(0, 140) + "…" : s;
 };
 
+// 배열은 순서는 보지 않고, 같은 값이 몇 번 들어 있는지까지 비교한다
+function countOf(list) {
+  const m = new Map();
+  for (const x of list) m.set(JSON.stringify(x), (m.get(JSON.stringify(x)) || 0) + 1);
+  return m;
+}
+
 function diff(a, b, path, out) {
   if (JSON.stringify(a) === JSON.stringify(b)) return;
   if (a === undefined) return out.push(`${path}: 새로 생김 → ${short(b)}`);
   if (b === undefined) return out.push(`${path}: 사라짐 (전에는 ${short(a)})`);
-  if (a && b && typeof a === "object" && typeof b === "object" && !Array.isArray(a) && !Array.isArray(b)) {
-    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) diff(a[k], b[k], `${path} › ${k}`, out);
+  if (Array.isArray(a) && Array.isArray(b)) {
+    const ca = countOf(a);
+    const cb = countOf(b);
+    for (const k of new Set([...ca.keys(), ...cb.keys()])) {
+      const x = ca.get(k) || 0;
+      const y = cb.get(k) || 0;
+      if (x === y) continue;
+      if (!y) out.push(`${path}: 사라짐 → ${k}`);
+      else if (!x) out.push(`${path}: 새로 생김 → ${k}`);
+      else out.push(`${path}: ${k} 개수 ${x} → ${y}`);
+    }
     return;
   }
-  if (Array.isArray(a) && Array.isArray(b)) {
-    const gone = a.filter((x) => !b.some((y) => JSON.stringify(y) === JSON.stringify(x)));
-    const added = b.filter((x) => !a.some((y) => JSON.stringify(y) === JSON.stringify(x)));
-    if (!gone.length && !added.length) {
-      if (a.length === b.length) return; // 순서만 다름
-      out.push(`${path}: 같은 항목의 개수가 달라짐 (${a.length} → ${b.length})`);
-      return;
-    }
-    gone.forEach((x) => out.push(`${path}: 사라짐 → ${JSON.stringify(x)}`));
-    added.forEach((x) => out.push(`${path}: 새로 생김 → ${JSON.stringify(x)}`));
+  if (a && b && typeof a === "object" && typeof b === "object") {
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b)])) diff(a[k], b[k], `${path} › ${k}`, out);
     return;
   }
   out.push(`${path}: ${JSON.stringify(a)} → ${JSON.stringify(b)}`);
@@ -365,13 +483,18 @@ try {
   const books = await collectBooks(tab);
   const anchors = await collectAnchors(tab, linkedAnchors);
   const submits = await collectSubmits(tab, books.choices);
-  const now = { status, meta, forms: books.forms, choices: books.choices, amounts: books.amounts, account: books.account, shelf: books.shelf, anchors, submits };
+  const google = await collectGoogleForms(books.forms, submits);
+  const now = {
+    status, meta, forms: books.forms, choices: books.choices, amounts: books.amounts, account: books.account,
+    shelf: books.shelf, anchors, submits, googleForms: google.structure, googleMismatch: google.mismatch,
+  };
 
   if (SAVE) {
     // 기준값은 운영본에서 뜨므로 운영 중인 main의 커밋을 적는다
     const git = spawnSync("git", ["rev-parse", "--short", "origin/main"], { cwd: HERE, encoding: "utf8" }).stdout.trim();
     writeFileSync(BASELINE, JSON.stringify({ 저장한때: new Date().toISOString(), 주소: BASE, 커밋: git, ...now }, null, 2) + "\n");
     console.log(`기준값을 저장했어요: ${BASELINE}`);
+    if (google.mismatch.length) console.log(`주의: 지금 운영본도 구글폼과 어긋난 곳이 있어요\n  ${google.mismatch.join("\n  ")}`);
     process.exitCode = 0;
   } else {
     const base = JSON.parse(readFileSync(BASELINE, "utf8"));
@@ -391,7 +514,7 @@ try {
   console.error(`점검 실패: ${e.message}`);
   process.exitCode = 2;
 } finally {
-  if (tab) await tab.close();
+  if (tab) await tab.close().catch(() => {});
   proc.kill();
   await sleep(300);
   rmSync(dir, { recursive: true, force: true });
