@@ -228,7 +228,19 @@ function closePreview() {
 }
 
 renderShelf();
-selectBook(DEFAULT_BOOK_ID);
+
+// 처음 열 책: 책별 페이지(/books/<slug>/)면 그 책, /books/?book=<slug> 링크도 그 책, 아니면 기본 책
+const startSlug = document.body.dataset.book || new URLSearchParams(location.search).get("book");
+const startBook = books.find((book) => book.slug === startSlug);
+selectBook(startBook ? startBook.id : DEFAULT_BOOK_ID);
+
+// 책 하나를 보고 들어온 손님에게는 그 책 소개부터 보여 준다 (#orderFormSection 같은 바로가기가 있으면 그쪽이 먼저)
+if (startBook && !location.hash) {
+  const card = shelf.querySelector(`.book-card[data-id="${startBook.id}"]`);
+  if (card) card.scrollIntoView({ behavior: "instant", block: "nearest", inline: "center" });
+  const detail = document.querySelector("#bookDetail");
+  window.scrollTo({ top: detail.getBoundingClientRect().top + window.scrollY - 12, behavior: "instant" });
+}
 
 shelf.addEventListener("click", (event) => {
   const card = event.target.closest(".book-card");

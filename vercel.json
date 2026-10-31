@@ -1,0 +1,3 @@
+{
+  "buildCommand": "node tools/build-pages.mjs"
+}

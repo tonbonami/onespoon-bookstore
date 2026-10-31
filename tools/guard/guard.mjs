@@ -316,8 +316,8 @@ const FILL_JS = (formSel, checkboxes) => `(() => {
   return true;
 })()`;
 
-async function trySubmit(tab, formSel, before, checkboxes) {
-  await tab.go(BASE + "/books/");
+async function trySubmit(tab, formSel, before, checkboxes, path = "/books/") {
+  await tab.go(BASE + path);
   tab.blocked.length = 0;
   if (before) await tab.eval(before);
   await tab.eval(FILL_JS(formSel, checkboxes));
@@ -356,6 +356,46 @@ async function collectSubmits(tab, choices) {
     return !!card;
   })()`, true);
   return out;
+}
+
+// 책별 페이지(/books/<slug>/): 기준값과 비교하지 않고, /books/와 똑같이 주문이 되는지만 본다.
+// 책별 페이지가 아직 없는 운영본(개편 전)에서는 건너뛴다.
+async function collectBookPages(tab, books, submits) {
+  await tab.go(BASE + "/books/");
+  const list = await tab.eval(`(window.HANSPOON_BOOKS || []).map((b) => ({ slug: b.slug, title: b.title, formValue: b.formValue || "", soon: b.status === "출시예정" }))`);
+  const issues = [];
+  for (const b of list) {
+    const path = `/books/${b.slug}/`;
+    const res = await fetch(BASE + path);
+    if (res.status !== 200) {
+      issues.push(`${path}: 열리지 않음 (${res.status})`);
+      continue;
+    }
+    await tab.go(BASE + path);
+    const page = await tab.eval(`(() => {
+      const og = (p) => document.querySelector('meta[property="' + p + '"]')?.content || "";
+      const checked = document.querySelector('input[name="${BOOK_ENTRY}"]:checked');
+      const shown = (sel) => { const el = document.querySelector(sel); return !!el && getComputedStyle(el).display !== "none"; };
+      return { title: document.title, ogTitle: og("og:title"), ogUrl: og("og:url"), ogImage: og("og:image"), checked: checked ? checked.value : "", order: shown("#orderFormSection"), notify: shown("#notifySection") };
+    })()`);
+    const forms = await tab.eval(FORMS_JS);
+    if (JSON.stringify(forms) !== JSON.stringify(submits.forms)) issues.push(`${path}: 주문서 구조가 /books/와 다름`);
+    if (!page.title.includes(b.title) || page.ogTitle !== b.title) issues.push(`${path}: 제목·공유 제목이 책과 다름 (${page.title} / ${page.ogTitle})`);
+    if (!page.ogUrl.endsWith(path)) issues.push(`${path}: og:url이 이 주소가 아님 (${page.ogUrl})`);
+    const img = page.ogImage ? await fetch(page.ogImage.replace(/^https:\/\/onespoon-studio\.vercel\.app/, BASE)).then((r) => r.status).catch(() => 0) : 0;
+    if (img !== 200) issues.push(`${path}: 공유 그림이 열리지 않음 (${page.ogImage})`);
+    if (b.soon && !(page.notify && !page.order)) issues.push(`${path}: 출시 예정 책인데 출시 알림이 먼저 뜨지 않음`);
+    if (!b.soon && (page.checked !== b.formValue || !page.order)) issues.push(`${path}: 주문서에 이 책(${b.formValue})이 골라져 있지 않음 (${page.checked})`);
+    // 책별 페이지에서 주문해도 /books/에서 주문한 것과 똑같이 보내지는지
+    if (!b.soon) {
+      const sent = await trySubmit(tab, "#orderForm", null, true, path);
+      const same = submits.sent[`주문: ${b.formValue}`];
+      if (!same) issues.push(`${path}: /books/에서 이 책 주문 기록을 찾지 못함`);
+      else if (JSON.stringify(sent) !== JSON.stringify(same)) issues.push(`${path}: 보내려던 내용이 /books/와 다름 ${short(sent)}`);
+    }
+  }
+  assertNoLeak(tab);
+  return issues;
 }
 
 // 구글폼 쪽: 공개 양식 페이지를 읽기만 해서(제출 없음) 지금 질문 구조를 가져온다
@@ -436,6 +476,8 @@ const LABELS = {
   googleMismatch: "사이트 ↔ 구글폼 어긋남",
 };
 
+const ADDITIVE = ["status", "meta", "anchors"];
+
 const short = (v) => {
   const s = JSON.stringify(v);
   return s.length > 140 ? s.slice(0, 140) + "…" : s;
@@ -484,6 +526,7 @@ try {
   const anchors = await collectAnchors(tab, linkedAnchors);
   const submits = await collectSubmits(tab, books.choices);
   const google = await collectGoogleForms(books.forms, submits);
+  const bookPages = await collectBookPages(tab, books, { forms: books.forms, sent: submits });
   const now = {
     status, meta, forms: books.forms, choices: books.choices, amounts: books.amounts, account: books.account,
     shelf: books.shelf, anchors, submits, googleForms: google.structure, googleMismatch: google.mismatch,
@@ -503,10 +546,17 @@ try {
     for (const [key, label] of Object.entries(LABELS)) {
       const out = [];
       diff(base[key], now[key], label, out);
-      console.log(`${out.length ? "✗" : "✓"} ${label}`);
-      out.forEach((line) => console.log(`    ${line}`));
-      failed += out.length;
+      // 주소·공유 태그·바로가기 칸은 새로 생기는 건 괜찮다(옛 링크가 죽지 않으므로). 사라지거나 바뀌면 실패.
+      const notes = ADDITIVE.includes(key) ? out.filter((line) => line.includes(": 새로 생김")) : [];
+      const fails = out.filter((line) => !notes.includes(line));
+      console.log(`${fails.length ? "✗" : "✓"} ${label}`);
+      fails.forEach((line) => console.log(`    ${line}`));
+      notes.forEach((line) => console.log(`    (새로 생김, 괜찮음) ${line.replace(": 새로 생김", ":")}`));
+      failed += fails.length;
     }
+    console.log(`${bookPages.length ? "✗" : "✓"} 책별 페이지(/books/<책>/)가 /books/와 똑같이 주문되는지`);
+    bookPages.forEach((line) => console.log(`    ${line}`));
+    failed += bookPages.length;
     console.log(failed ? `\n다른 곳 ${failed}개 — 합치지 마세요.` : "\n모두 기준값과 같아요.");
     process.exitCode = failed ? 1 : 0;
   }
