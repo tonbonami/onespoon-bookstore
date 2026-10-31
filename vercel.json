@@ -1,3 +1,4 @@
 {
-  "buildCommand": "node tools/build-pages.mjs"
+  "buildCommand": "node tools/build-pages.mjs",
+  "outputDirectory": "."
 }
