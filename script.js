@@ -464,6 +464,15 @@ function showOrderDone({ bookValue, name, email }) {
   };
   setText("#doneBook", bookValue || "-");
   setText("#doneAmount", info ? info.amount : "-");
+  // 이전 판 구매자 금액은 그 책(3.0)을 주문했을 때만 금액 아래에 같이
+  const doneNote = document.querySelector("#doneAmountNote");
+  const upgradeBook = books.find((book) => book.formValue === bookValue && book.upgrade);
+  if (doneNote) {
+    doneNote.textContent = upgradeBook
+      ? `${upgradeBook.upgrade.from} 구매자는 ${won(upgradeBook.upgrade.price)} (메모에 '${upgradeBook.upgrade.from} 구매')`
+      : "";
+    doneNote.hidden = !upgradeBook;
+  }
   setText("#doneDepositor", name || "-");
   setText("#doneEmail", email || "-");
   orderForm.hidden = true;

@@ -2380,6 +2380,16 @@ body.modal-open .order-bar {
   font-weight: 900;
 }
 
+.order-done-list .is-amount .done-amount-note {
+  color: rgba(67, 63, 62, 0.65);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.order-done-list .done-amount-note[hidden] {
+  display: none;
+}
+
 .order-done-list dd small {
   flex-basis: 100%;
   color: rgba(67, 63, 62, 0.6);
