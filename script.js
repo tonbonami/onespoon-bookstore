@@ -8,6 +8,9 @@ const isOnSale = (book) => book.status === "판매중" && book.formValue && book
 const priceLine = (book) => book.priceText || won(book.price);
 const upgradeNote = ({ from, price }) => `${from} 구매자는 ${won(price)} (메모에 "${from} 구매"를 적어 주세요)`;
 
+// 서가 카드의 언어 칩 (books-data.js의 lang)
+const LANGS = { fr: "🇫🇷 프랑스어", es: "🇪🇸 스페인어", en: "🇬🇧 영어", ko: "🇰🇷 한국어" };
+
 // 책 소개의 '종류'·'받는 방법' 줄 (books-data.js의 format)
 const FORMATS = {
   notion: { label: "노션 교재 · 휴대폰·태블릿·PC", delivery: "입금 확인 후 6시간 안에 노션 가입 이메일로 초대" },
@@ -98,6 +101,7 @@ function renderShelf() {
           }
           <span class="book-tag">${book.category}</span>
           <span class="book-title">${book.title}</span>
+          ${LANGS[book.lang] ? `<span class="book-lang">${LANGS[book.lang]}</span>` : ""}
         </button>
       `,
     )
