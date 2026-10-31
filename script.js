@@ -8,6 +8,12 @@ const isOnSale = (book) => book.status === "판매중" && book.formValue && book
 const priceLine = (book) => book.priceText || won(book.price);
 const upgradeNote = ({ from, price }) => `${from} 구매자는 ${won(price)} (메모에 "${from} 구매"를 적어 주세요)`;
 
+// 책 소개의 '종류'·'받는 방법' 줄 (books-data.js의 format)
+const FORMATS = {
+  notion: { label: "노션 교재 · 휴대폰·태블릿·PC", delivery: "입금 확인 후 6시간 안에 노션 가입 이메일로 초대" },
+  pdf: { label: "PDF 책 · 노션 필요 없음", delivery: "입금 확인 후 6시간 안에 메일로 PDF" },
+};
+
 // 주문서의 책 카드: 판매 중인 책만, 서가 순서대로
 function renderBookPicks() {
   const grid = document.querySelector("#bookPickGrid");
@@ -56,8 +62,11 @@ const detailBook = document.querySelector("#detailBook");
 const detailCategory = document.querySelector("#detailCategory");
 const detailTitle = document.querySelector("#detailTitle");
 const detailDescription = document.querySelector("#detailDescription");
+const detailFormat = document.querySelector("#detailFormat");
+const detailDelivery = document.querySelector("#detailDelivery");
 const detailPrice = document.querySelector("#detailPrice");
 const detailAudience = document.querySelector("#detailAudience");
+const detailPreview = document.querySelector("#detailPreview");
 const orderTitle = document.querySelector("#orderTitle");
 const previewModal = document.querySelector("#previewModal");
 const previewTitle = document.querySelector("#previewTitle");
@@ -118,9 +127,20 @@ function selectBook(id) {
   detailTitle.textContent = book.title;
   if (book.descriptionHtml) detailDescription.innerHTML = book.descriptionHtml;
   else detailDescription.textContent = book.description;
+  const format = FORMATS[book.format] || { label: "-", delivery: "-" };
+  detailFormat.textContent = format.label;
+  detailDelivery.textContent = format.delivery;
   detailPrice.textContent = priceLine(book);
+  if (book.upgrade) {
+    const note = document.createElement("small");
+    note.className = "meta-note";
+    note.textContent = `${book.upgrade.from} 구매자 ${won(book.upgrade.price)}`;
+    detailPrice.append(note);
+  }
   detailAudience.textContent = book.audience;
   detailBook.disabled = !book.previewPages;
+  detailPreview.hidden = !book.previewPages;
+  if (book.previewPages) detailPreview.textContent = `미리 보기 · ${book.previewPages.length}쪽`;
 
   document.querySelectorAll(".book-card").forEach((card) => {
     card.classList.toggle("is-active", Number(card.dataset.id) === id);
@@ -163,7 +183,62 @@ function selectBook(id) {
     allRadios.forEach((r) => (r.checked = false));
   }
   updateDepositAmount();
+  updateOrderBar(book);
 }
+
+// ── 폰 하단 주문 띠 ─────────────────────────────
+// 책 소개의 주문 버튼을 지나 내려왔고, 주문서(출시 알림)가 화면에 없을 때만 보인다.
+const orderBar = document.querySelector("#orderBar");
+const phone = window.matchMedia("(max-width: 760px)");
+if (orderBar) document.body.classList.add("has-order-bar");
+
+function updateOrderBar(book) {
+  if (!orderBar) return;
+  document.querySelector("#orderBarCover").src = book.cover;
+  document.querySelector("#orderBarTitle").textContent = book.title;
+  document.querySelector("#orderBarPrice").textContent = isComingSoon(book) ? "곧 출시" : won(book.price);
+  const go = document.querySelector("#orderBarGo");
+  go.textContent = isComingSoon(book) ? "출시 알림 받기" : "주문하기";
+  go.setAttribute("href", isComingSoon(book) ? "#notifySection" : "#orderFormSection");
+  refreshOrderBar();
+}
+
+function refreshOrderBar() {
+  if (!orderBar) return;
+  const box = (sel) => document.querySelector(sel)?.getBoundingClientRect();
+  const onScreen = (sel) => {
+    const b = box(sel);
+    return !!b && b.height > 0 && b.bottom > 0 && b.top < window.innerHeight;
+  };
+  const passedDetail = box("#detailForm").bottom < 0;
+  const done = !document.querySelector("#orderDone").hidden;
+  orderBar.hidden = !(phone.matches && passedDetail && !done && !onScreen("#orderFormSection") && !onScreen("#notifySection"));
+}
+
+let orderBarTick = false;
+window.addEventListener(
+  "scroll",
+  () => {
+    if (orderBarTick) return;
+    orderBarTick = true;
+    window.requestAnimationFrame(() => {
+      orderBarTick = false;
+      refreshOrderBar();
+    });
+  },
+  { passive: true },
+);
+window.addEventListener("resize", refreshOrderBar);
+
+// 띠를 누르면 주문서의 책 선택을 지금 보고 있던 책으로 다시 맞춘 뒤 내려간다
+document.querySelector("#orderBarGo")?.addEventListener("click", () => {
+  if (!selectedBook.formValue) return;
+  const radio = document.querySelector(`.book-pick input[name="entry.1833963440"][value="${selectedBook.formValue}"]`);
+  if (radio) {
+    radio.checked = true;
+    updateDepositAmount();
+  }
+});
 
 function makePreviewPages(book) {
   if (book.previewPages?.length) {
@@ -257,6 +332,7 @@ arrows.forEach((arrow) => {
 });
 
 detailBook.addEventListener("click", openPreview);
+detailPreview.addEventListener("click", openPreview);
 previewClose.addEventListener("click", closePreview);
 previewModal.addEventListener("click", (event) => {
   if (event.target === previewModal) closePreview();

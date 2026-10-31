@@ -467,6 +467,132 @@ p {
   opacity: 0.5;
 }
 
+.book-meta .meta-note {
+  display: block;
+  margin-top: 2px;
+  color: rgba(67, 63, 62, 0.55);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.ghost-link {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  padding: 0 20px;
+  border: 1.5px solid rgba(67, 63, 62, 0.16);
+  border-radius: 999px;
+  color: var(--ink);
+  background: #ffffff;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.ghost-link[hidden] {
+  display: none;
+}
+
+/* 폰 하단 주문 띠 (script.js가 보이고 숨김) */
+.order-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+  border-top: 1px solid var(--line);
+  background: rgba(252, 251, 244, 0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 -10px 28px rgba(67, 63, 62, 0.08);
+  animation: orderBarIn 220ms ease both;
+}
+
+.order-bar[hidden],
+body.modal-open .order-bar {
+  display: none;
+}
+
+@keyframes orderBarIn {
+  from {
+    transform: translateY(100%);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.order-bar-cover {
+  flex: none;
+  width: 36px;
+  height: 51px;
+  object-fit: cover;
+  border-radius: 3px 6px 6px 3px;
+  box-shadow: 0 4px 10px rgba(67, 63, 62, 0.16);
+}
+
+.order-bar-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  gap: 1px;
+}
+
+.order-bar-text strong {
+  overflow: hidden;
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.order-bar-text small {
+  color: rgba(67, 63, 62, 0.6);
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.order-bar-go {
+  display: inline-flex;
+  flex: none;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 18px;
+  border-radius: 999px;
+  color: #ffffff;
+  background: var(--ink);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+@media (max-width: 760px) {
+  /* 띠가 맨 아래 글을 가리지 않게 (서점에서만) */
+  body.has-order-bar {
+    padding-bottom: 72px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .order-bar {
+    animation: none;
+  }
+}
+
 /* Featured detail container (only shown for the featured book) */
 .featured-detail[hidden] {
   display: none;
@@ -1633,9 +1759,14 @@ p {
   }
 
   .book-meta div {
-    grid-template-columns: 1fr;
-    gap: 4px;
-    text-align: center;
+    grid-template-columns: 72px 1fr;
+    gap: 10px;
+    align-items: start;
+    padding: 10px 0;
+  }
+
+  .book-meta dd {
+    font-size: 0.88rem;
   }
 }
 

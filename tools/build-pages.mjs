@@ -37,6 +37,7 @@ for (const b of books) {
     if (seen.has(`${key}:${b[key]}`)) problems.push(`${key} 겹침: ${b[key]}`);
     seen.add(`${key}:${b[key]}`);
   }
+  if (!["notion", "pdf"].includes(b.format)) problems.push(`${name}: format은 "notion" 또는 "pdf" (${b.format})`);
   if (!["판매중", "출시예정"].includes(b.status)) problems.push(`${name}: status는 "판매중" 또는 "출시예정" (${b.status})`);
   if (b.status === "판매중") {
     if (!b.formValue) problems.push(`${name}: 판매중인데 formValue(구글폼 선택값) 없음`);
