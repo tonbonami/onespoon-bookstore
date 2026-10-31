@@ -12,7 +12,9 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SITE = "https://onespoon-studio.vercel.app";
+const PROD = "https://onespoon-studio.vercel.app";
+// 공개 미리보기처럼 다른 주소로 올릴 때는 SITE_URL을 주면 공유 카드 주소·그림이 그 주소를 가리킨다(카톡 카드 시험용)
+const SITE = (process.env.SITE_URL || PROD).replace(/\/$/, "");
 const SHARE_START = "<!-- 공유 카드:";
 const SHARE_END = "<!-- /공유 카드 -->";
 
@@ -59,6 +61,11 @@ if (problems.length) {
 }
 
 // ── 책별 페이지 만들기 ─────────────────────────
+// 미리보기 주소로 올릴 때는 /books/ 자신의 공유 카드도 그 주소로 (빌드 기계 안의 복사본만 바뀜)
+if (SITE !== PROD) {
+  writeFileSync(join(ROOT, "books/index.html"), source.slice(0, start) + source.slice(start, end).replaceAll(PROD, SITE) + source.slice(end));
+}
+
 const attr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 const text = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
