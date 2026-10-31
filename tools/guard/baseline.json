@@ -1,0 +1,249 @@
+{
+  "저장한때": "2026-10-31T15:22:24.851Z",
+  "주소": "https://onespoon-studio.vercel.app",
+  "커밋": "676d93c",
+  "status": {
+    "/": "200 → /",
+    "/books/": "200 → /books",
+    "/books": "200 → /books",
+    "/apps/": "200 → /apps",
+    "/apps": "200 → /apps",
+    "/francespoon/": "200 → /francespoon",
+    "/francespoon": "200 → /francespoon"
+  },
+  "meta": {
+    "/": {
+      "title": "한스푼 스튜디오",
+      "description": "프랑스어 책을 파는 한스푼 서점과, 니꼴라가 만든 iOS 앱을 모은 한스푼 앱이 있는 작은 스튜디오예요.",
+      "og:title": "한스푼 스튜디오",
+      "og:description": "프랑스어 책과 iOS 앱을 한곳에 모았어요."
+    },
+    "/books/": {
+      "title": "한스푼 서점",
+      "description": "한스푼 서점의 작은 온라인 서가. 책 소개, 가격, 추천 독자층과 신청 링크를 한곳에서 확인하세요."
+    },
+    "/apps/": {
+      "title": "한스푼 앱",
+      "description": "니꼴라가 만든 iOS 앱 일곱 개. 노을 On, Sundle, 별지기, Chord ON, Piano ON, 하루온, 사이담. 일곱 개 모두 광고와 구독이 없어요.",
+      "og:title": "한스푼 앱",
+      "og:description": "니꼴라가 만든 iOS 앱 일곱 개예요. 일곱 개 모두 광고와 구독이 없어요."
+    },
+    "/francespoon/": {
+      "title": "프랑스푼 · 한스푼 스튜디오",
+      "description": "AI 튜터 Marie와 프랑스어로 대화하는 웹앱. 틀린 표현은 살짝 고쳐 주고, 복습 카드로 남아 다시 나와요. 지금은 무료 베타예요.",
+      "og:title": "프랑스푼",
+      "og:description": "틀려도 괜찮아요. Marie가 살짝 고쳐 줘요."
+    }
+  },
+  "forms": {
+    "notifyForm": {
+      "action": "https://docs.google.com/forms/d/e/1FAIpQLSf2ICP1xsGxaeqi2wFTooHkAPir7I41nbdAWXdN-6Lqx-M2gw/formResponse",
+      "method": "POST",
+      "target": "googleFormTarget",
+      "targetFrame": true,
+      "fields": [
+        "entry.1436900146 | textarea",
+        "entry.1588540065 | email | 필수",
+        "entry.1871630436 | text | 필수",
+        "entry.599108026 | radio = 기타",
+        "entry.599108026 | radio = 수능·DELE",
+        "entry.599108026 | radio = 여행·이주",
+        "entry.599108026 | radio = 처음 배우는 외국어 | 필수",
+        "entry.599108026 | radio = 프랑스어 다음 언어"
+      ]
+    },
+    "orderForm": {
+      "action": "https://docs.google.com/forms/d/e/1FAIpQLSdETXW6feUq4w9xeZ7Ep1Ie25HNOVzS6WYr9TAe-HtsJVxnig/formResponse",
+      "method": "POST",
+      "target": "googleFormTarget",
+      "targetFrame": true,
+      "fields": [
+        "entry.1055582079 | checkbox = 『나의 첫 스페인어 책』이 나오면 알려 주세요",
+        "entry.1055582079 | checkbox = 프랑스어 한스푼의 새 책·무료 자료 소식을 이메일로 받을게요",
+        "entry.133598618 | text | 필수",
+        "entry.1450577507 | radio = 남자 | 필수",
+        "entry.1450577507 | radio = 여자",
+        "entry.1769994956 | hidden",
+        "entry.1833963440 | radio = 30 Days in Paris | 필수",
+        "entry.1833963440 | radio = 나의 첫 프랑스어 책 3.0",
+        "entry.1833963440 | radio = 프랑스어 필수동사 100",
+        "entry.219325845 | 고르기 |  / YouTube / Instagram / 네이버 블로그 / 네이버 검색 / 구글 검색 / 지인 소개 / 기타 | 필수",
+        "entry.260030586 | 고르기 |  / 프랑스어 이제 막 시작 / 프랑스어 발음은 가능 / 프랑스어 문법 공부한 적 있음 / 프랑스어 회화도 가능 / 프랑스어의 달인 | 필수",
+        "entry.272771426 | radio = 고등학생",
+        "entry.272771426 | radio = 대학생",
+        "entry.272771426 | radio = 중학생 | 필수",
+        "entry.272771426 | radio = 직장인",
+        "entry.4057543 | textarea",
+        "entry.614950738 | 고르기 |  / 아이폰 / 안드로이드 폰 / 아이패드 / 안드로이드 태블릿 / PC / 기타 | 필수",
+        "entry.680763611 | hidden",
+        "entry.768368871 | email | 필수",
+        "fvv | hidden = 1",
+        "pageHistory | hidden = 0"
+      ]
+    }
+  },
+  "choices": [
+    "30 Days in Paris",
+    "나의 첫 프랑스어 책 3.0",
+    "프랑스어 필수동사 100"
+  ],
+  "amounts": {
+    "나의 첫 프랑스어 책 3.0": {
+      "금액": "29,000원",
+      "안내": "2.0 구매자는 15,000원 (메모에 \"2.0 구매\"를 적어 주세요)"
+    },
+    "30 Days in Paris": {
+      "금액": "20,000원",
+      "안내": ""
+    },
+    "프랑스어 필수동사 100": {
+      "금액": "9,000원",
+      "안내": ""
+    }
+  },
+  "account": {
+    "주문서_계좌": "110-234-710919",
+    "주문서_은행예금주": "신한은행 · 예금주 김우수",
+    "주문서_복사버튼": "눌림 → 복사됨",
+    "완료화면_계좌": "110-234-710919",
+    "완료화면_복사버튼": "눌림 → 복사됨"
+  },
+  "shelf": {
+    "나의 첫 프랑스어 책 3.0": {
+      "고른값": "나의 첫 프랑스어 책 3.0",
+      "주문서": "보임",
+      "출시알림": "숨김"
+    },
+    "나의 첫 스페인어 책 1.0": {
+      "고른값": "",
+      "주문서": "숨김",
+      "출시알림": "보임"
+    },
+    "30 Days in Paris": {
+      "고른값": "30 Days in Paris",
+      "주문서": "보임",
+      "출시알림": "숨김"
+    },
+    "프랑스어 필수 동사 100": {
+      "고른값": "프랑스어 필수동사 100",
+      "주문서": "보임",
+      "출시알림": "숨김"
+    }
+  },
+  "anchors": {
+    "bookDetail": "있음",
+    "bookShelf": "있음",
+    "featured30Days": "있음",
+    "featuredNoFu3": "있음",
+    "notifySection": "있음",
+    "orderFormSection": "있음"
+  },
+  "submits": {
+    "주문: 30 Days in Paris": {
+      "전송": "막힘",
+      "주소": "https://docs.google.com/forms/d/e/1FAIpQLSdETXW6feUq4w9xeZ7Ep1Ie25HNOVzS6WYr9TAe-HtsJVxnig/formResponse",
+      "칸": [
+        "entry.1055582079",
+        "entry.1055582079",
+        "entry.133598618",
+        "entry.1450577507",
+        "entry.1769994956",
+        "entry.1833963440",
+        "entry.219325845",
+        "entry.260030586",
+        "entry.272771426",
+        "entry.4057543",
+        "entry.614950738",
+        "entry.680763611",
+        "entry.768368871",
+        "fvv",
+        "pageHistory"
+      ],
+      "책": "30 Days in Paris",
+      "이메일복사칸": [
+        "entry.1769994956=이메일과 같음",
+        "entry.680763611=이메일과 같음"
+      ],
+      "완료화면": {
+        "책": "30 Days in Paris",
+        "금액": "20,000원",
+        "계좌": "110-234-710919"
+      }
+    },
+    "주문: 나의 첫 프랑스어 책 3.0": {
+      "전송": "막힘",
+      "주소": "https://docs.google.com/forms/d/e/1FAIpQLSdETXW6feUq4w9xeZ7Ep1Ie25HNOVzS6WYr9TAe-HtsJVxnig/formResponse",
+      "칸": [
+        "entry.1055582079",
+        "entry.1055582079",
+        "entry.133598618",
+        "entry.1450577507",
+        "entry.1769994956",
+        "entry.1833963440",
+        "entry.219325845",
+        "entry.260030586",
+        "entry.272771426",
+        "entry.4057543",
+        "entry.614950738",
+        "entry.680763611",
+        "entry.768368871",
+        "fvv",
+        "pageHistory"
+      ],
+      "책": "나의 첫 프랑스어 책 3.0",
+      "이메일복사칸": [
+        "entry.1769994956=이메일과 같음",
+        "entry.680763611=이메일과 같음"
+      ],
+      "완료화면": {
+        "책": "나의 첫 프랑스어 책 3.0",
+        "금액": "29,000원",
+        "계좌": "110-234-710919"
+      }
+    },
+    "주문: 프랑스어 필수동사 100": {
+      "전송": "막힘",
+      "주소": "https://docs.google.com/forms/d/e/1FAIpQLSdETXW6feUq4w9xeZ7Ep1Ie25HNOVzS6WYr9TAe-HtsJVxnig/formResponse",
+      "칸": [
+        "entry.1055582079",
+        "entry.1055582079",
+        "entry.133598618",
+        "entry.1450577507",
+        "entry.1769994956",
+        "entry.1833963440",
+        "entry.219325845",
+        "entry.260030586",
+        "entry.272771426",
+        "entry.4057543",
+        "entry.614950738",
+        "entry.680763611",
+        "entry.768368871",
+        "fvv",
+        "pageHistory"
+      ],
+      "책": "프랑스어 필수동사 100",
+      "이메일복사칸": [
+        "entry.1769994956=이메일과 같음",
+        "entry.680763611=이메일과 같음"
+      ],
+      "완료화면": {
+        "책": "프랑스어 필수동사 100",
+        "금액": "9,000원",
+        "계좌": "110-234-710919"
+      }
+    },
+    "출시 알림": {
+      "전송": "막힘",
+      "주소": "https://docs.google.com/forms/d/e/1FAIpQLSf2ICP1xsGxaeqi2wFTooHkAPir7I41nbdAWXdN-6Lqx-M2gw/formResponse",
+      "칸": [
+        "entry.1436900146",
+        "entry.1588540065",
+        "entry.1871630436",
+        "entry.599108026"
+      ],
+      "책": null,
+      "이메일복사칸": [],
+      "완료화면": null
+    }
+  }
+}
