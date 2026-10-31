@@ -511,32 +511,8 @@
         >
           <fieldset class="book-pick">
             <legend>📚 주문하실 책 <em>필수</em></legend>
-            <div class="book-pick-grid">
-              <label class="book-pick-card">
-                <input type="radio" name="entry.1833963440" value="나의 첫 프랑스어 책 3.0" />
-                <img src="/assets/web/nofu-book-3-cover.webp" alt="" width="420" height="596" loading="lazy" decoding="async" />
-                <span>
-                  <strong>나의 첫 프랑스어 책 3.0</strong>
-                  <small>A1~B1 종합 노션 교재 · 29,000원</small>
-                </span>
-              </label>
-              <label class="book-pick-card">
-                <input type="radio" name="entry.1833963440" value="30 Days in Paris" required />
-                <img src="/assets/web/30daysinparis-cover.webp" alt="" width="420" height="594" loading="lazy" decoding="async" />
-                <span>
-                  <strong>30 Days in Paris</strong>
-                  <small>PDF · 노션 필요 없음 · 20,000원</small>
-                </span>
-              </label>
-              <label class="book-pick-card">
-                <input type="radio" name="entry.1833963440" value="프랑스어 필수동사 100" />
-                <img src="/assets/web/verbs-100-cover.webp" alt="" width="420" height="595" loading="lazy" decoding="async" />
-                <span>
-                  <strong>프랑스어 필수동사 100</strong>
-                  <small>PDF · 노션 필요 없음 · 9,000원</small>
-                </span>
-              </label>
-            </div>
+            <!-- 책 카드는 /books-data.js에서 만들어진다 (가격·구글폼 선택값은 그 파일 한 곳에서만) -->
+            <div class="book-pick-grid" id="bookPickGrid"></div>
           </fieldset>
 
           <label>
@@ -618,7 +594,7 @@
           <label>
             <span>메모 (니꼴라에게 하고 싶은 말)</span>
             <textarea name="entry.4057543" rows="4"></textarea>
-            <small class="field-hint">2.0을 구매하신 분은 "2.0 구매"와 2.0 때 사용하신 이메일을 적어 주세요. 확인 후 안내해 드려요. (2.0 구매자는 15,000원)</small>
+            <small class="field-hint" id="memoHint" hidden></small>
           </label>
 
           <fieldset class="news-optin">
@@ -719,6 +695,7 @@
       </div>
     </div>
 
-    <script src="/script.js?v=29"></script>
+    <script src="/books-data.js?v=1"></script>
+    <script src="/script.js?v=30"></script>
   </body>
 </html>

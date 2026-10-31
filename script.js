@@ -1,87 +1,54 @@
-const FEATURED_DETAILS = {
-  1: "#featured30Days",
-  5: "#featuredNoFu3",
-};
+// 책 정보·가격·구글폼 선택값은 /books-data.js 한 곳에서 온다
+const books = window.HANSPOON_BOOKS || [];
 const DEFAULT_BOOK_ID = 5;
 
-const books = [
-  {
-    id: 5,
-    title: "나의 첫 프랑스어 책 3.0",
-    category: "프랑스어 입문 · 노션 기반 종합 교재",
-    description:
-      "알파벳부터 『어린 왕자』 원문까지, 한 권으로. 발음 · 문법 · 어휘 · 회화 · 동사 변화 · 읽기 6영역, 프랑스어 음성 900개 이상. 휴대폰 노션으로 바로 보는 프랑스어 입문서 (A1~B1).",
-    descriptionHtml:
-      '<strong class="lede-head">알파벳부터 『어린 왕자』 원문까지, 한 권으로.</strong><br>발음 · 문법 · 어휘 · 회화 · 동사 변화 · 읽기 6영역<br>프랑스어 음성 900개 이상 · 휴대폰 노션으로 바로',
-    price: "29,000원",
-    audience: "한국어로 프랑스어를 처음 시작하는 입문자 (A1~B1)",
-    color: "#f5ede0",
-    cover: "/assets/web/nofu-book-3-cover.webp",
-    formValue: "나의 첫 프랑스어 책 3.0",
-    previewPages: [
-      "/assets/preview-pages/nofu3-preview-01.png",
-      "/assets/preview-pages/nofu3-preview-02.png",
-      "/assets/preview-pages/nofu3-preview-03.png",
-      "/assets/preview-pages/nofu3-preview-04.png",
-      "/assets/preview-pages/nofu3-preview-05.png",
-    ],
-  },
-  {
-    id: 7,
-    title: "나의 첫 스페인어 책 1.0",
-    category: "스페인어 입문 · 노션 기반 종합 교재",
-    description:
-      "알파벳부터 『어린 왕자』까지, 라틴아메리카 스페인어를 한 권으로. 발음 · 문법 · 동사 변화 · 회화 · 어휘 · 읽기 6영역, 문법 단원마다 「프랑스어와 비교」. 『어린 왕자』 27장 전체를 이 책만의 스페인어 번역과 음성으로.",
-    descriptionHtml:
-      '<strong class="lede-head">알파벳부터 『어린 왕자』까지, 라틴아메리카 스페인어를 한 권으로.</strong><br>발음 · 문법 · 동사 변화 · 회화 · 어휘 · 읽기 6영역 · 문법 단원마다 「프랑스어와 비교」<br>『어린 왕자』 27장 전체를 이 책만의 스페인어 번역과 음성으로 · 휴대폰 노션으로 바로',
-    price: "11월 중순 출시 예정입니다. 가격은 출시 때 함께 알려 드릴게요.",
-    audience: "스페인어를 처음 시작하는 분 · 프랑스어를 배운 뒤 두 번째 외국어를 찾는 분 (A1~B2)",
-    color: "#e9f2fb",
-    cover: "/assets/web/firstspanish-1-cover.webp",
-    comingSoon: true,
-  },
-  {
-    id: 1,
-    title: "30 Days in Paris",
-    category: "PDF 책 · 노션 필요 없음 · 듣고 따라 말하는 어휘책",
-    description:
-      "30일 동안 파리에 머무는 한 사람의 시점을 따라가며, 카페·시장·사무실·행정 창구에서 실제로 쓰이는 프랑스어를 한 스푼씩 떠먹는 책. 외워야 한다는 부담 없이, 들으면서 따라 말하는 사이에 600개의 표현이 자연스럽게 자리 잡습니다.",
-    price: "20,000원",
-    audience: "프랑스어 입문 · 파리 여행 · 유학 · 일상 회화 준비자",
-    color: "#E8F0FE",
-    cover: "/assets/web/30daysinparis-cover.webp",
-    formValue: "30 Days in Paris",
-    previewPages: [
-      "/assets/preview-pages/paris-preview-01.jpg",
-      "/assets/preview-pages/paris-preview-02.jpg",
-      "/assets/preview-pages/paris-preview-03.jpg",
-      "/assets/preview-pages/paris-preview-04.jpg",
-      "/assets/preview-pages/paris-preview-05.jpg",
-      "/assets/preview-pages/paris-preview-06.jpg",
-      "/assets/preview-pages/paris-preview-07.jpg",
-      "/assets/preview-pages/paris-preview-08.jpg",
-      "/assets/preview-pages/paris-preview-09.jpg",
-      "/assets/preview-pages/paris-preview-10.jpg",
-    ],
-  },
-  {
-    id: 6,
-    title: "프랑스어 필수 동사 100",
-    category: "PDF 책 · 노션 필요 없음 · 빈도순 필수 동사",
-    description:
-      "가장 많이 사용하는 프랑스어 동사 100개를 빈도순으로. 주요 동사 변화표와 예문 300개를 수록한 핵심 동사 학습서. être · avoir · aller · faire 부터 시작합니다.",
-    price: "9,000원",
-    audience: "프랑스어 입문 ~ 초중급 · 동사 활용을 빠르게 익히고 싶은 분",
-    color: "#f5f0e8",
-    cover: "/assets/web/verbs-100-cover.webp",
-    formValue: "프랑스어 필수동사 100",
-    previewPages: [
-      "/assets/preview-pages/verbs-100-preview-01.png",
-      "/assets/preview-pages/verbs-100-preview-02.png",
-      "/assets/preview-pages/verbs-100-preview-03.png",
-    ],
-  },
-];
+const won = (n) => `${n.toLocaleString("ko-KR")}원`;
+const isComingSoon = (book) => book.status === "출시예정";
+const isOnSale = (book) => book.status === "판매중" && book.formValue && book.price;
+const priceLine = (book) => book.priceText || won(book.price);
+const upgradeNote = ({ from, price }) => `${from} 구매자는 ${won(price)} (메모에 "${from} 구매"를 적어 주세요)`;
+
+// 주문서의 책 카드: 판매 중인 책만, 서가 순서대로
+function renderBookPicks() {
+  const grid = document.querySelector("#bookPickGrid");
+  if (!grid) return;
+  grid.innerHTML = books
+    .filter(isOnSale)
+    .map(
+      (book, index) => `
+              <label class="book-pick-card">
+                <input type="radio" name="entry.1833963440" value="${book.formValue}"${index === 0 ? " required" : ""} />
+                <img src="${book.cover}" alt="" width="${book.coverSize[0]}" height="${book.coverSize[1]}" loading="lazy" decoding="async" />
+                <span>
+                  <strong>${book.formValue}</strong>
+                  <small>${book.pickLabel} · ${won(book.price)}</small>
+                </span>
+              </label>`,
+    )
+    .join("");
+}
+
+// 메모 칸 아래 이전 판 구매자 안내
+function renderMemoHint() {
+  const hint = document.querySelector("#memoHint");
+  const book = books.find((item) => item.upgrade);
+  if (!hint || !book) return;
+  const { from, price } = book.upgrade;
+  hint.textContent = `${from}을 구매하신 분은 "${from} 구매"와 ${from} 때 사용하신 이메일을 적어 주세요. 확인 후 안내해 드려요. (${from} 구매자는 ${won(price)})`;
+  hint.hidden = false;
+}
+
+renderBookPicks();
+renderMemoHint();
+
+// 상품 데이터를 못 읽었으면 빈 주문서로 주문이 사라지지 않게 보내기 버튼을 막는다
+if (!books.length) {
+  document.querySelectorAll('#orderForm button[type="submit"], #notifyForm button[type="submit"]').forEach((button) => {
+    button.disabled = true;
+  });
+  const status = document.querySelector("#orderStatus");
+  if (status) status.textContent = "책 목록을 불러오지 못했어요. 새로고침한 뒤 다시 주문해 주세요.";
+}
 
 const shelf = document.querySelector("#bookShelf");
 const detailContent = document.querySelector("#detailContent");
@@ -151,7 +118,7 @@ function selectBook(id) {
   detailTitle.textContent = book.title;
   if (book.descriptionHtml) detailDescription.innerHTML = book.descriptionHtml;
   else detailDescription.textContent = book.description;
-  detailPrice.textContent = book.price;
+  detailPrice.textContent = priceLine(book);
   detailAudience.textContent = book.audience;
   detailBook.disabled = !book.previewPages;
 
@@ -162,7 +129,7 @@ function selectBook(id) {
   document.querySelectorAll(".featured-detail").forEach((el) => {
     el.hidden = true;
   });
-  const featuredSelector = FEATURED_DETAILS[book.id];
+  const featuredSelector = book.featured;
   if (featuredSelector) {
     const featured = document.querySelector(featuredSelector);
     if (featured) featured.hidden = false;
@@ -173,11 +140,11 @@ function selectBook(id) {
   const notifySection = document.querySelector("#notifySection");
   const orderSection = document.querySelector("#orderFormSection");
   const detailFormLink = document.querySelector("#detailForm");
-  if (notifySection) notifySection.style.display = book.comingSoon ? "" : "none";
-  if (orderSection) orderSection.style.display = book.comingSoon ? "none" : "";
+  if (notifySection) notifySection.style.display = isComingSoon(book) ? "" : "none";
+  if (orderSection) orderSection.style.display = isComingSoon(book) ? "none" : "";
   if (detailFormLink) {
-    detailFormLink.textContent = book.comingSoon ? "출시 알림 신청하기" : "주문 양식 작성하기";
-    detailFormLink.setAttribute("href", book.comingSoon ? "#notifySection" : "#orderFormSection");
+    detailFormLink.textContent = isComingSoon(book) ? "출시 알림 신청하기" : "주문 양식 작성하기";
+    detailFormLink.setAttribute("href", isComingSoon(book) ? "#notifySection" : "#orderFormSection");
   }
 
   const allRadios = document.querySelectorAll(
@@ -331,14 +298,11 @@ if (depositCopy && depositAccount) {
 
 // 책별 입금 금액 (가격이 바뀌면 여기와 books 배열의 price를 함께 고쳐 주세요)
 function getBookAmounts() {
-  return {
-  "나의 첫 프랑스어 책 3.0": {
-    amount: "29,000원",
-    note: "2.0 구매자는 15,000원 (메모에 \"2.0 구매\"를 적어 주세요)",
-  },
-  "30 Days in Paris": { amount: "20,000원", note: "" },
-  "프랑스어 필수동사 100": { amount: "9,000원", note: "" },
-  };
+  return Object.fromEntries(
+    books
+      .filter(isOnSale)
+      .map((book) => [book.formValue, { amount: won(book.price), note: book.upgrade ? upgradeNote(book.upgrade) : "" }]),
+  );
 }
 
 function getSelectedBookValue() {
