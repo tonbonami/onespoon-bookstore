@@ -359,6 +359,16 @@ body {
   letter-spacing: -0.02em;
 }
 
+.notice-who {
+  margin: 0 0 8px;
+  padding-left: 20px;
+  font-size: 13.5px;
+}
+
+.notice-who li + li {
+  margin-top: 2px;
+}
+
 .notice-body ol {
   margin: 10px 0 0;
   padding-left: 20px;
