@@ -5,11 +5,18 @@
 // <body data-book="<slug>">를 달아 그 책이 골라진 채로 열리게 한다. 주문서·가격은 books-data.js를 같이 쓴다.
 // 상품 데이터가 이상하면(선택값·가격 빠짐, slug 겹침, 표지 없음) 여기서 멈춘다.
 // 그러면 배포가 실패하고 운영 중인 사이트는 이전 버전 그대로 남는다.
+// 판매 중인 책의 formValue가 실제 구글폼 '주문하실 책 이름' 선택지에 없어도 멈춘다(오타 하나로 주문이 사라지지 않게).
 // 만든 파일(books/<slug>/index.html)은 .gitignore의 books/* 에 걸려 저장소에 올라가지 않는다.
+//
+// Vercel에서 돌 때(VERCEL=1)만: 배포되는 books/index.html 복사본의 ?v= 캐시 번호를 파일 내용으로 자동으로 붙인다.
+// 그래서 books-data.js·script.js·styles.css를 고칠 때 ?v= 숫자를 손으로 올리지 않아도 된다.
+// 내 컴퓨터에서 돌리면 books/index.html 원본은 건드리지 않는다.
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import vm from "node:vm";
+import { readGoogleForm } from "./google-form.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const PROD = "https://onespoon-studio.vercel.app";
@@ -56,15 +63,43 @@ if (start < 0 || end < start) problems.push(`books/index.html에서 공유 카�
 if (!source.includes("<title>한스푼 서점</title>")) problems.push("books/index.html의 <title>한스푼 서점</title>을 찾지 못함");
 if (!/<body>/.test(source)) problems.push("books/index.html의 <body>를 찾지 못함");
 
+// 구글폼에 실제로 있는 선택값인지 (공개 양식을 읽기만 함). 구글폼을 못 읽으면 경고만 하고 넘어간다(급한 배포를 막지 않게).
+const BOOK_ENTRY = "entry.1833963440";
+const orderAction = source.match(/id="orderForm"\s+action="([^"]+\/formResponse)"/)?.[1];
+if (!orderAction) problems.push("books/index.html에서 주문서(orderForm)의 구글폼 주소를 찾지 못함");
+else {
+  const form = await readGoogleForm(orderAction).catch((e) => {
+    console.warn(`주의: 구글폼을 읽지 못해 선택값 확인을 건너뜀 (${e.message})`);
+    return undefined;
+  });
+  if (form === null) console.warn("주의: 구글폼 질문 구조를 읽지 못해 선택값 확인을 건너뜀");
+  else if (form && !form[BOOK_ENTRY]) problems.push(`구글폼에 '주문하실 책 이름'(${BOOK_ENTRY}) 질문이 없음`);
+  else if (form) {
+    for (const b of books.filter((x) => x.status === "판매중" && x.formValue)) {
+      if (!form[BOOK_ENTRY].선택지.includes(b.formValue)) {
+        problems.push(`${b.title}: formValue "${b.formValue}"이 구글폼 선택지에 없음 (지금 선택지: ${form[BOOK_ENTRY].선택지.join(" / ")})`);
+      }
+    }
+  }
+}
+
 if (problems.length) {
   console.error(`책별 페이지를 만들지 않았어요. 상품 데이터를 고쳐 주세요:\n  ${problems.join("\n  ")}`);
   process.exit(1);
 }
 
+// 캐시 번호: 파일 내용이 바뀌면 주소도 바뀌게
+const hashOf = (file) => createHash("sha1").update(readFileSync(join(ROOT, file))).digest("hex").slice(0, 10);
+const VERSIONS = Object.fromEntries(["books-data.js", "script.js", "styles.css"].map((f) => [f, hashOf(f)]));
+const stampVersions = (html) =>
+  Object.entries(VERSIONS).reduce((out, [file, v]) => out.replace(new RegExp(`/${file.replace(".", "\\.")}\\?v=[^"]+`, "g"), `/${file}?v=${v}`), html);
+
 // ── 책별 페이지 만들기 ─────────────────────────
-// 미리보기 주소로 올릴 때는 /books/ 자신의 공유 카드도 그 주소로 (빌드 기계 안의 복사본만 바뀜)
-if (SITE !== PROD) {
-  writeFileSync(join(ROOT, "books/index.html"), source.slice(0, start) + source.slice(start, end).replaceAll(PROD, SITE) + source.slice(end));
+// 배포되는 /books/ 복사본: 캐시 번호 자동 + 미리보기 주소면 공유 카드도 그 주소로 (Vercel 빌드 기계 안에서만)
+if (process.env.VERCEL) {
+  const books_html = source.slice(0, start) + source.slice(start, end).replaceAll(PROD, SITE) + source.slice(end);
+  writeFileSync(join(ROOT, "books/index.html"), stampVersions(books_html));
+  console.log(`캐시 번호: ${Object.entries(VERSIONS).map(([f, v]) => `${f}?v=${v}`).join(", ")}`);
 }
 
 const attr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
@@ -85,7 +120,7 @@ for (const b of books) {
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     `;
-  const html = (source.slice(0, start) + share + source.slice(end))
+  const html = stampVersions(source.slice(0, start) + share + source.slice(end))
     .replace("<title>한스푼 서점</title>", `<title>${text(b.title)} · 한스푼 서점</title>`)
     .replace(/(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${attr(b.shareText)}$2`)
     .replace("<body>", `<body data-book="${b.slug}">`);

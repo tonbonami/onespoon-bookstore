@@ -313,8 +313,10 @@ const startSlug = document.body.dataset.book || new URLSearchParams(location.sea
 const startBook = books.find((book) => book.slug === startSlug);
 selectBook(startBook ? startBook.id : DEFAULT_BOOK_ID);
 
-// 책 하나를 보고 들어온 손님에게는 그 책 소개부터 보여 준다 (#orderFormSection 같은 바로가기가 있으면 그쪽이 먼저)
-if (startBook && !location.hash) {
+// 책 하나를 보고 들어온 손님에게는 그 책 소개부터 보여 준다 (#orderFormSection 같은 바로가기가 있으면 그쪽이 먼저).
+// 처음 들어왔을 때만: 뒤로 가기·새로고침은 브라우저가 기억한 위치를 그대로 둔다.
+const navigationType = performance.getEntriesByType("navigation")[0]?.type;
+if (startBook && !location.hash && navigationType !== "back_forward" && navigationType !== "reload") {
   const card = shelf.querySelector(`.book-card[data-id="${startBook.id}"]`);
   if (card) card.scrollIntoView({ behavior: "instant", block: "nearest", inline: "center" });
   const detail = document.querySelector("#bookDetail");
@@ -413,6 +415,10 @@ function updateDepositAmount() {
     noteEl.textContent = info && info.note ? info.note : "";
     noteEl.hidden = !(info && info.note);
   }
+  // 메모 칸의 이전 판 구매자 안내는 그 책을 골랐을 때만
+  const memoHint = document.querySelector("#memoHint");
+  const picked = books.find((book) => book.formValue === getSelectedBookValue());
+  if (memoHint && memoHint.textContent) memoHint.hidden = !(picked && picked.upgrade);
 }
 
 document.querySelectorAll('.book-pick input[name="entry.1833963440"]').forEach((radio) => {
