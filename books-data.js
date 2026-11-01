@@ -11,6 +11,7 @@
 // 칸 설명
 //   price       입금 금액(원). 없으면 주문서에 나오지 않는다(출시 예정 책).
 //   priceText   책 상세의 가격 줄을 따로 쓸 때만(예: 출시 기념가). 없으면 price로 쓴다.
+//   badge       출시 예정 책의 서가 카드에 표시할 파스텔 배지 문구. 없으면 "출시 예정".
 //   upgrade     이전 판 구매자 할인 { from: "2.0", price: 15000 } — 입금 안내와 메모 칸 안내에 쓰인다.
 //   pickLabel   주문서 책 카드의 작은 글. 뒤에 " · 가격"이 붙는다.
 //   lang        서가 카드의 언어 칩: "fr" 프랑스어 · "es" 스페인어 · "en" 영어 · "ko" 한국어
@@ -78,6 +79,7 @@ window.HANSPOON_BOOKS = [
     color: "#e9f2fb",
     cover: "/assets/web/firstspanish-1-cover.webp",
     coverSize: [420, 596],
+    badge: "11월 중순 출시",
     priceText: "11월 중순 출시 예정입니다. 가격은 출시 때 함께 알려 드릴게요.",
   },
   {

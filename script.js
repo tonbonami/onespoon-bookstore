@@ -75,7 +75,6 @@ const previewPages = document.querySelector("#previewPages");
 const previewClose = document.querySelector("#previewClose");
 const orderForm = document.querySelector("#orderForm");
 const orderStatus = document.querySelector("#orderStatus");
-const arrows = document.querySelectorAll(".shelf-arrow");
 let selectedBook = books[0];
 
 function handleCoverError(img) {
@@ -91,16 +90,25 @@ function renderShelf() {
     .filter((book) => !isPaused(book))
     .map(
       (book) => `
-        <button class="book-card${book.cover ? " has-cover" : ""}" type="button" style="background:${book.color}" data-id="${book.id}">
-          <span class="book-spine" aria-hidden="true"></span>
-          ${
-            book.cover
-              ? `<img class="book-cover-image" src="${book.cover}" alt="${book.title} 표지" width="420" height="596" decoding="async" onerror="handleCoverError(this)" />`
-              : ""
-          }
-          <span class="book-tag">${book.category}</span>
-          <span class="book-title">${book.title}</span>
-          ${LANGS[book.lang] ? `<span class="book-lang">${LANGS[book.lang]}</span>` : ""}
+        <button class="book-card${book.cover ? " has-cover" : ""}" type="button" data-id="${book.id}" aria-pressed="${book.id === (selectedBook ? selectedBook.id : DEFAULT_BOOK_ID) ? "true" : "false"}">
+          <span class="book-cover-wrap" style="--book-color:${book.color};background:${book.color}">
+            ${
+              book.cover
+                ? `<img class="book-cover-image" src="${book.cover}" alt="${book.title} 표지" width="420" height="596" decoding="async" onerror="handleCoverError(this)" />`
+                : ""
+            }
+            <span class="book-cover-fallback" aria-hidden="true">${book.title}</span>
+            ${LANGS[book.lang] ? `<span class="book-lang">${LANGS[book.lang]}</span>` : ""}
+            <span class="book-check" aria-hidden="true">✓</span>
+          </span>
+          <span class="book-info">
+            <span class="book-title">${book.title}</span>
+            <span class="book-price-line">${
+              isOnSale(book)
+                ? won(book.price)
+                : `<span class="book-badge">${book.badge || "출시 예정"}</span>`
+            }</span>
+          </span>
         </button>
       `,
     )
@@ -146,7 +154,9 @@ function selectBook(id) {
   if (book.previewPages) detailPreview.textContent = `미리 보기 · ${book.previewPages.length}쪽`;
 
   document.querySelectorAll(".book-card").forEach((card) => {
-    card.classList.toggle("is-active", Number(card.dataset.id) === id);
+    const isActive = Number(card.dataset.id) === id;
+    card.classList.toggle("is-active", isActive);
+    card.setAttribute("aria-pressed", isActive ? "true" : "false");
   });
 
   document.querySelectorAll(".featured-detail").forEach((el) => {
@@ -340,12 +350,28 @@ shelf.addEventListener("click", (event) => {
   document.querySelector("#bookDetail").scrollIntoView({ behavior: "smooth", block: "start" });
 });
 
-arrows.forEach((arrow) => {
-  arrow.addEventListener("click", () => {
-    const direction = arrow.classList.contains("left") ? -1 : 1;
-    shelf.scrollBy({ left: direction * 260, behavior: "smooth" });
+function setupCollapseButtons() {
+  document.querySelectorAll(".collapse-toggle-btn").forEach((button) => {
+    button.addEventListener("click", () => {
+      const targetId = button.getAttribute("aria-controls");
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      const isExpanded = button.getAttribute("aria-expanded") === "true";
+      if (isExpanded) {
+        target.hidden = true;
+        button.setAttribute("aria-expanded", "false");
+        button.textContent = button.dataset.labelClosed;
+        button.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      } else {
+        target.hidden = false;
+        button.setAttribute("aria-expanded", "true");
+        button.textContent = button.dataset.labelOpen;
+      }
+    });
   });
-});
+}
+
+setupCollapseButtons();
 
 detailBook.addEventListener("click", openPreview);
 detailPreview.addEventListener("click", openPreview);

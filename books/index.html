@@ -45,33 +45,15 @@
       </nav>
       <section class="hero" aria-labelledby="page-title">
         <h1 id="page-title" class="sr-only">한스푼 서점</h1>
-        <img class="hero-logo" src="/assets/web/hanspoon-bookstore-logo.webp" alt="한스푼 서점 - A Spoonful of French" width="900" height="600" />
-        <p class="intro">
-          오늘, 여러분의 프랑스어 한스푼은?
-        </p>
-        <img class="hero-spoon" src="/assets/web/spoon-cropped.webp" alt="" aria-hidden="true" width="330" height="101" />
+        <img class="hero-logo" src="/assets/web/hanspoon-bookstore-logo-shop.webp" alt="한스푼 서점" width="671" height="268" />
       </section>
 
       <section class="shelf-section" aria-labelledby="shelf-title">
         <div class="section-heading">
-          <h2 id="shelf-title">오늘의 서가</h2>
-          <span>옆으로 밀어서 보기 →</span>
+          <h2 id="shelf-title">책 고르기</h2>
         </div>
 
-        <p class="shelf-notice shelf-notice-es">
-          <span class="shelf-notice-dot" aria-hidden="true" style="background:#2F7FC1"></span>
-          <span>나의 첫 스페인어 책 <span class="nowrap">· 11월 중순 출시 예정</span></span>
-        </p>
-
-        <div class="shelf-wrap">
-          <button class="shelf-arrow left" type="button" aria-label="왼쪽으로 보기">
-            ‹
-          </button>
-          <div class="book-shelf" id="bookShelf" tabindex="0" aria-label="책 목록"></div>
-          <button class="shelf-arrow right" type="button" aria-label="오른쪽으로 보기">
-            ›
-          </button>
-        </div>
+        <div class="book-shelf" id="bookShelf" aria-label="책 목록"></div>
       </section>
 
       <section class="book-detail" id="bookDetail" aria-live="polite">
@@ -140,6 +122,18 @@
           </div>
         </section>
 
+        <div class="collapse-action">
+          <button
+            type="button"
+            class="collapse-toggle-btn"
+            aria-expanded="false"
+            aria-controls="featured30DaysMore"
+            data-label-closed="30일 구성 자세히 보기 · 하루 흐름, 6단계 여정, 오디오, FAQ ↓"
+            data-label-open="상세 소개 접기 ↑"
+          >30일 구성 자세히 보기 · 하루 흐름, 6단계 여정, 오디오, FAQ ↓</button>
+        </div>
+
+        <div id="featured30DaysMore" class="collapse-content" hidden>
         <section class="flow-section" aria-labelledby="flowTitle">
           <div class="section-heading">
             <h2 id="flowTitle">하루의 흐름</h2>
@@ -285,6 +279,7 @@
             <p>일상의 한 모서리에서 만나는 프랑스어를 한 스푼씩 담아 전하는 학습 콘텐츠 크리에이터. <em>30 Days in Paris</em>는 그 마음을 책 한 권에 정리한 결과로, 단어를 외우는 일이 아니라 단어가 살아 있는 장면을 함께 그리는 일에 더 마음을 쓰는 책입니다.</p>
           </div>
         </section>
+        </div>
       </div>
 
       <div class="featured-detail" id="featuredNoFu3" hidden>
@@ -300,6 +295,18 @@
           <p style="margin:14px 0 0;font-size:13.5px;color:#777">추가 비용 없이 교재 안에 바로 들어가요.</p>
         </section>
 
+        <div class="collapse-action">
+          <button
+            type="button"
+            class="collapse-toggle-btn"
+            aria-expanded="false"
+            aria-controls="featuredNoFu3More"
+            data-label-closed="교재 구성 자세히 보기 · 6영역, 학습법, 오디오, FAQ ↓"
+            data-label-open="상세 소개 접기 ↑"
+          >교재 구성 자세히 보기 · 6영역, 학습법, 오디오, FAQ ↓</button>
+        </div>
+
+        <div id="featuredNoFu3More" class="collapse-content" hidden>
         <section class="why-section" aria-labelledby="whyNoFuTitle">
           <div class="section-heading">
             <h2 id="whyNoFuTitle">왜 이 책인가</h2>
@@ -487,6 +494,7 @@
             <p>일상의 한 모서리에서 만나는 프랑스어를 한 스푼씩 담아 전하는 학습 콘텐츠 크리에이터. <em>나의 첫 프랑스어 책</em>은 입문자가 한 권으로 알파벳부터 어린 왕자 원문 한 권을 끝낼 수 있도록, 발음과 문법을 중심에 두고 어휘 · 회화 · 읽기까지 함께 담아 만든 노션 기반 디지털 교재입니다. 빠른 회화보다, 발음과 문법의 뿌리를 단단히 내리는 일에 더 마음을 쓰는 책.</p>
           </div>
         </section>
+        </div>
       </div>
 
       <section class="order-section" id="notifySection" aria-labelledby="notifyTitle" style="display:none">
