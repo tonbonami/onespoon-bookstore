@@ -16,3 +16,5 @@ books/*
 
 # 배포 빌드가 만드는 주소 목록
 /sitemap.xml
+# 배포 빌드가 만드는 대문(서점). 스튜디오 대문 원본은 studio/index.html
+/index.html

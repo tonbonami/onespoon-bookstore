@@ -34,9 +34,10 @@ const SAVE = args.includes("--save");
 const CHROME = argValue("--chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
 
 // 주소가 그대로 열려야 하는 곳 (블로그·인스타·메일에 걸린 링크)
-const PATHS = ["/", "/books/", "/books", "/apps/", "/apps", "/francespoon/", "/francespoon"];
+const PATHS = ["/", "/books/", "/books", "/studio/", "/studio", "/apps/", "/apps", "/francespoon/", "/francespoon"];
 // 공유 미리보기를 볼 페이지
-const PAGES = ["/", "/books/", "/apps/", "/francespoon/"];
+// 2026-11-01 대문 교체: /는 서점 대문, 스튜디오 대문은 /studio/ (기준값의 meta도 그렇게 옮겨 둠)
+const PAGES = ["/", "/books/", "/studio/", "/apps/", "/francespoon/"];
 // 서점에서 바로가기로 쓰일 수 있는 칸. 사이트 안 링크가 가리키는 칸은 자동으로 더한다.
 const BOOKS_ANCHORS = ["orderFormSection", "notifySection", "bookDetail", "featuredNoFu3", "featured30Days", "bookShelf"];
 const BOOK_ENTRY = "entry.1833963440";
@@ -401,6 +402,19 @@ async function collectBookPages(tab, books, submits) {
       else if (JSON.stringify(sent) !== JSON.stringify(same)) issues.push(`${path}: 보내려던 내용이 /books/와 다름 ${short(sent)}`);
     }
   }
+  // 대문(/)은 서점이다: /books/와 주문서 구조·처음 골라진 책·보내려던 내용이 같아야 한다
+  await tab.go(BASE + "/books/");
+  const booksChecked = await tab.eval(`document.querySelector('input[name="${BOOK_ENTRY}"]:checked')?.value || ""`);
+  await tab.go(BASE + "/");
+  const frontForms = await tab.eval(FORMS_JS);
+  const frontChecked = await tab.eval(`document.querySelector('input[name="${BOOK_ENTRY}"]:checked')?.value || ""`);
+  if (JSON.stringify(frontForms) !== JSON.stringify(submits.forms)) issues.push("/: 대문 주문서 구조가 /books/와 다름");
+  if (frontChecked !== booksChecked) issues.push(`/: 처음 골라진 책이 /books/와 다름 (${frontChecked} / ${booksChecked})`);
+  if (frontChecked) {
+    const sent = await trySubmit(tab, "#orderForm", null, true, "/");
+    const same = submits.sent[`주문: ${frontChecked}`];
+    if (!same || JSON.stringify(sent) !== JSON.stringify(same)) issues.push(`/: 대문에서 보내려던 내용이 /books/와 다름 ${short(sent)}`);
+  }
   assertNoLeak(tab);
   return issues;
 }
@@ -566,7 +580,7 @@ try {
       notes.forEach((line) => console.log(`    (새로 생김, 괜찮음) ${line.replace(": 새로 생김", ":")}`));
       failed += fails.length;
     }
-    console.log(`${bookPages.length ? "✗" : "✓"} 책별 페이지(/books/<책>/)가 /books/와 똑같이 주문되는지`);
+    console.log(`${bookPages.length ? "✗" : "✓"} 대문(/)·책별 페이지(/books/<책>/)가 /books/와 똑같이 주문되는지`);
     bookPages.forEach((line) => console.log(`    ${line}`));
     failed += bookPages.length;
     console.log(failed ? `\n다른 곳 ${failed}개 — 합치지 마세요.` : "\n모두 기준값과 같아요.");

@@ -12,6 +12,10 @@
 // 검색엔진용 상품 정보(JSON-LD)를 붙인다. 화면은 script.js가 열자마자 같은 내용으로 다시 그린다.
 // sitemap.xml도 여기서 만든다(판매 중지 책은 뺀다). robots.txt는 저장소 맨 위에 있다.
 //
+// 대문(/)도 여기서 만든다: 대문은 서점이다(books/index.html + 3.0 소개). 저장소의 index.html은 이 빌드가 만드는 파일이라
+// .gitignore에 걸려 있다. 스튜디오 대문은 studio/index.html(/studio/)이고, 거기 입금 공지(<details class="notice">)가
+// 있으면 서점 대문 맨 위에도 똑같이 붙인다. 공지를 고치거나 지울 곳은 studio/index.html 한 곳이다.
+//
 // Vercel에서 돌 때(VERCEL=1)만: 배포되는 books/index.html 복사본의 ?v= 캐시 번호를 파일 내용으로 자동으로 붙인다.
 // 그래서 books-data.js·script.js·styles.css를 고칠 때 ?v= 숫자를 손으로 올리지 않아도 된다.
 // 내 컴퓨터에서 돌리면 books/index.html 원본은 건드리지 않는다.
@@ -34,6 +38,9 @@ vm.runInNewContext(readFileSync(join(ROOT, "books-data.js"), "utf8"), sandbox);
 const books = sandbox.window.HANSPOON_BOOKS || [];
 const FORMATS = sandbox.window.HANSPOON_FORMATS || {};
 const DEFAULT_BOOK_ID = 5; // /books/를 열면 먼저 보이는 책 (script.js의 DEFAULT_BOOK_ID와 같게)
+// 대문(/) 검색 제목·설명. /books/는 대문과 같은 페이지라 대표 주소(canonical)를 대문으로 둔다.
+const FRONT_TITLE = "한스푼 서점 · 프랑스어 입문 노션 교재 『나의 첫 프랑스어 책 3.0』";
+const FRONT_DESCRIPTION = "알파벳부터 『어린 왕자』 원문까지, 한 권으로. 프랑스어 입문 노션 교재 『나의 첫 프랑스어 책 3.0』과 프랑스어 PDF 책을 파는 프랑스어 한스푼의 서점이에요.";
 
 const attr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
 const text = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
@@ -125,6 +132,8 @@ if (!source.includes("</head>")) problems.push("books/index.html의 </head>를 �
 for (const [slot, re] of Object.entries(DETAIL_SLOTS)) {
   if (!re.test(source)) problems.push(`books/index.html에서 책 소개를 미리 써 넣을 자리(${slot})를 찾지 못함`);
 }
+if (!existsSync(join(ROOT, "studio/index.html"))) problems.push("스튜디오 대문 studio/index.html이 없음");
+if (!source.includes("</nav>")) problems.push("books/index.html의 </nav>(위쪽 스튜디오·앱 링크)를 찾지 못함");
 for (const b of books) {
   if (b.featured && !source.includes(`id="${b.featured.slice(1)}" hidden>`)) problems.push(`${b.title}: books/index.html에서 ${b.featured} 상세 소개를 찾지 못함`);
   if (!FORMATS[b.format]) problems.push(`${b.title}: books-data.js의 HANSPOON_FORMATS에 "${b.format}"이 없음`);
@@ -157,7 +166,7 @@ if (problems.length) {
 
 // 캐시 번호: 파일 내용이 바뀌면 주소도 바뀌게
 const hashOf = (file) => createHash("sha1").update(readFileSync(join(ROOT, file))).digest("hex").slice(0, 10);
-const VERSIONS = Object.fromEntries(["books-data.js", "script.js", "styles.css"].map((f) => [f, hashOf(f)]));
+const VERSIONS = Object.fromEntries(["books-data.js", "script.js", "styles.css", "notice.css"].map((f) => [f, hashOf(f)]));
 const stampVersions = (html) =>
   Object.entries(VERSIONS).reduce((out, [file, v]) => out.replace(new RegExp(`/${file.replace(".", "\\.")}\\?v=[^"]+`, "g"), `/${file}?v=${v}`), html);
 
@@ -195,9 +204,40 @@ for (const b of books) {
   console.log(`만듦: /books/${b.slug}/  (${b.title})`);
 }
 
+// ── 대문(/) ─────────────────────────────────
+// 서점 페이지 그대로 + 대문 제목·설명·대표 주소 + 3.0 소개 미리 써 넣기 + 스튜디오의 입금 공지(있으면)
+{
+  const first = books.find((b) => b.id === DEFAULT_BOOK_ID) || books[0];
+  const studio = readFileSync(join(ROOT, "studio/index.html"), "utf8");
+  const notice = studio.match(/<details class="notice">[\s\S]*?<\/details>/)?.[0];
+  const share = `<!-- 공유 카드: tools/build-pages.mjs가 만든 대문 (손으로 고치지 말고 books/index.html을 고치세요) -->
+    <link rel="canonical" href="${SITE}/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="한스푼 서점" />
+    <meta property="og:title" content="한스푼 서점" />
+    <meta property="og:description" content="${attr(FRONT_DESCRIPTION)}" />
+    <meta property="og:url" content="${SITE}/" />
+    <meta property="og:image" content="${SITE}/assets/og/books.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    `;
+  let front = source.slice(0, start) + share + source.slice(end);
+  front = front
+    .replace("<title>한스푼 서점</title>", `<title>${text(FRONT_TITLE)}</title>`)
+    .replace(/(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${attr(FRONT_DESCRIPTION)}$2`);
+  if (notice) {
+    front = front
+      .replace("</head>", `  <link rel="stylesheet" href="/notice.css?v=x" />\n  </head>`)
+      .replace("</nav>", () => `</nav>\n\n      ${notice}`);
+  }
+  writeFileSync(join(ROOT, "index.html"), prerender(stampVersions(front), first));
+  console.log(`만듦: /  (대문 = 서점, ${first.title} 소개${notice ? " + 입금 공지" : ""})`);
+}
+
 // ── sitemap.xml ───────────────────────────────
 // 검색엔진에 알릴 주소 목록. 판매 중지 책은 뺀다(다시 팔면 자동으로 들어감).
-const pages = ["/", "/books/", ...books.filter((b) => b.status !== "판매중지").map((b) => `/books/${b.slug}/`), "/apps/", "/francespoon/"];
+const pages = ["/", ...books.filter((b) => b.status !== "판매중지").map((b) => `/books/${b.slug}/`), "/apps/", "/francespoon/"];
 writeFileSync(
   join(ROOT, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${SITE}${p}</loc></url>`).join("\n")}\n</urlset>\n`,
