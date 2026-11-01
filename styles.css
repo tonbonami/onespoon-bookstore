@@ -146,7 +146,8 @@ p {
 
 .book-shelf {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  /* 넓은 화면: 책 수만큼 칸(최대 4칸, script.js renderShelf가 정함). 폰은 아래 760px 규칙에서 2열 */
+  grid-template-columns: repeat(var(--shelf-columns, 4), minmax(0, 1fr));
   gap: 16px 12px;
   padding: 0 24px;
 }

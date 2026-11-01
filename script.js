@@ -113,6 +113,7 @@ function renderShelf() {
       `,
     )
     .join("");
+  shelf.style.setProperty("--shelf-columns", Math.min(shelf.children.length, 4) || 4);
 }
 
 function selectBook(id) {
