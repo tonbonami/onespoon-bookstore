@@ -469,6 +469,9 @@ const LABELS = {
 
 const ADDITIVE = ["status", "meta", "anchors"];
 
+const HOSTS = /https:\/\/(hanspoonbooks\.com|onespoon-studio\.vercel\.app|onespoon-bookstore\.vercel\.app|onespoon-studio-preview\.vercel\.app)/g;
+const sameHost = (meta) => JSON.parse(JSON.stringify(meta || {}).replace(HOSTS, "(본 주소)").replaceAll(BASE, "(본 주소)"));
+
 // 판매를 멈춘 책(books-data.js status "판매중지")은 서가·주문서에서 일부러 뺀 것이라 기준값에서도 빼고 비교한다.
 // 기준값 파일은 그대로 두므로, "판매중"으로 되돌리면 그 책도 다시 비교된다.
 function withoutPaused(base, paused) {
@@ -571,7 +574,8 @@ try {
     let failed = 0;
     for (const [key, label] of Object.entries(LABELS)) {
       const out = [];
-      diff(base[key], now[key], label, out);
+      // 공유 미리보기의 주소는 어느 주소로 띄웠든(미리보기·옛 주소·새 주소) 같은 것으로 본다
+      diff(key === "meta" ? sameHost(base[key]) : base[key], key === "meta" ? sameHost(now[key]) : now[key], label, out);
       // 주소·공유 태그·바로가기 칸은 새로 생기는 건 괜찮다(옛 링크가 죽지 않으므로). 사라지거나 바뀌면 실패.
       const notes = ADDITIVE.includes(key) ? out.filter((line) => line.includes(": 새로 생김")) : [];
       const fails = out.filter((line) => !notes.includes(line));

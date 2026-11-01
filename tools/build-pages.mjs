@@ -133,6 +133,11 @@ for (const [slot, re] of Object.entries(DETAIL_SLOTS)) {
   if (!re.test(source)) problems.push(`books/index.html에서 책 소개를 미리 써 넣을 자리(${slot})를 찾지 못함`);
 }
 if (!existsSync(join(ROOT, "studio/index.html"))) problems.push("스튜디오 대문 studio/index.html이 없음");
+// 저장소 맨 위 index.html은 이 빌드가 만드는 파일이다. 손으로 만든(고친) 것이 있으면 덮어써서 고친 내용이 사라지므로 멈춘다.
+const FRONT_MARK = "<!-- 공유 카드: tools/build-pages.mjs가 만든 대문";
+if (existsSync(join(ROOT, "index.html")) && !readFileSync(join(ROOT, "index.html"), "utf8").includes(FRONT_MARK)) {
+  problems.push("맨 위 index.html은 배포 빌드가 만드는 서점 대문이라 손으로 고치면 안 돼요. 입금 공지는 studio/index.html, 서점은 books/index.html에서 고치고 index.html은 지워 주세요");
+}
 if (!source.includes("</nav>")) problems.push("books/index.html의 </nav>(위쪽 스튜디오·앱 링크)를 찾지 못함");
 for (const b of books) {
   if (b.featured && !source.includes(`id="${b.featured.slice(1)}" hidden>`)) problems.push(`${b.title}: books/index.html에서 ${b.featured} 상세 소개를 찾지 못함`);
@@ -160,7 +165,7 @@ else {
 }
 
 if (problems.length) {
-  console.error(`책별 페이지를 만들지 않았어요. 상품 데이터를 고쳐 주세요:\n  ${problems.join("\n  ")}`);
+  console.error(`배포 페이지를 만들지 않았어요(운영 중인 사이트는 이전 그대로). 아래를 고쳐 주세요:\n  ${problems.join("\n  ")}`);
   process.exit(1);
 }
 
@@ -209,8 +214,8 @@ for (const b of books) {
 {
   const first = books.find((b) => b.id === DEFAULT_BOOK_ID) || books[0];
   const studio = readFileSync(join(ROOT, "studio/index.html"), "utf8");
-  const notice = studio.match(/<details class="notice">[\s\S]*?<\/details>/)?.[0];
-  const share = `<!-- 공유 카드: tools/build-pages.mjs가 만든 대문 (손으로 고치지 말고 books/index.html을 고치세요) -->
+  const notice = studio.match(/<details\b(?=[^>]*\bclass="notice")[^>]*>[\s\S]*?<\/details>/)?.[0];
+  const share = `${FRONT_MARK} (손으로 고치지 말고 books/index.html을 고치세요) -->
     <link rel="canonical" href="${SITE}/" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="한스푼 서점" />
@@ -232,12 +237,13 @@ for (const b of books) {
       .replace("</nav>", () => `</nav>\n\n      ${notice}`);
   }
   writeFileSync(join(ROOT, "index.html"), prerender(stampVersions(front), first));
-  console.log(`만듦: /  (대문 = 서점, ${first.title} 소개${notice ? " + 입금 공지" : ""})`);
+  console.log(`만듦: /  (대문 = 서점, ${first.title} 소개)`);
+  console.log(notice ? "  입금 공지: studio/index.html의 공지를 대문 맨 위에 붙임" : '  입금 공지: 없음(studio/index.html에 <details class="notice">가 없어 대문에 붙이지 않음)');
 }
 
 // ── sitemap.xml ───────────────────────────────
 // 검색엔진에 알릴 주소 목록. 판매 중지 책은 뺀다(다시 팔면 자동으로 들어감).
-const pages = ["/", ...books.filter((b) => b.status !== "판매중지").map((b) => `/books/${b.slug}/`), "/apps/", "/francespoon/"];
+const pages = ["/", ...books.filter((b) => b.status !== "판매중지").map((b) => `/books/${b.slug}/`), "/studio/", "/apps/", "/francespoon/"];
 writeFileSync(
   join(ROOT, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${SITE}${p}</loc></url>`).join("\n")}\n</urlset>\n`,

@@ -14,17 +14,24 @@
   "meta": {
     "/": {
       "title": "한스푼 서점 · 프랑스어 입문 노션 교재 『나의 첫 프랑스어 책 3.0』",
-      "description": "알파벳부터 『어린 왕자』 원문까지, 한 권으로. 프랑스어 입문 노션 교재 『나의 첫 프랑스어 책 3.0』과 프랑스어 PDF 책을 파는 프랑스어 한스푼의 서점이에요."
+      "description": "알파벳부터 『어린 왕자』 원문까지, 한 권으로. 프랑스어 입문 노션 교재 『나의 첫 프랑스어 책 3.0』과 프랑스어 PDF 책을 파는 프랑스어 한스푼의 서점이에요.",
+      "og:title": "한스푼 서점",
+      "og:url": "https://hanspoonbooks.com/",
+      "og:image": "https://hanspoonbooks.com/assets/og/books.jpg",
+      "canonical": "https://hanspoonbooks.com/"
     },
     "/books/": {
       "title": "한스푼 서점",
-      "description": "한스푼 서점의 작은 온라인 서가. 책 소개, 가격, 추천 독자층과 신청 링크를 한곳에서 확인하세요."
+      "description": "한스푼 서점의 작은 온라인 서가. 책 소개, 가격, 추천 독자층과 신청 링크를 한곳에서 확인하세요.",
+      "canonical": "https://hanspoonbooks.com/",
+      "og:url": "https://hanspoonbooks.com/"
     },
     "/studio/": {
       "title": "한스푼 스튜디오",
       "description": "프랑스어 책을 파는 한스푼 서점과, 니꼴라가 만든 iOS 앱을 모은 한스푼 앱이 있는 작은 스튜디오예요.",
       "og:title": "한스푼 스튜디오",
-      "og:description": "프랑스어 책과 iOS 앱을 한곳에 모았어요."
+      "og:description": "프랑스어 책과 iOS 앱을 한곳에 모았어요.",
+      "canonical": "https://hanspoonbooks.com/studio/"
     },
     "/apps/": {
       "title": "한스푼 앱",
@@ -293,6 +300,7 @@
     "orderForm: 사이트의 entry.768368871 칸이 구글폼에 없음"
   ],
   "고친것": [
-    "2026-11-01 대문 교체(hanspoonbooks.com 6단계): meta의 스튜디오 대문을 '/'에서 '/studio/'로 옮기고, '/'에는 서점 대문 제목·설명을 넣음. 주문·폼·금액·계좌 기준값은 그대로."
+    "2026-11-01 대문 교체(hanspoonbooks.com 6단계): meta의 스튜디오 대문을 '/'에서 '/studio/'로 옮기고, '/'에는 서점 대문 제목·설명을 넣음. 주문·폼·금액·계좌 기준값은 그대로.",
+    "2026-11-01 대문 교체 리뷰(Codex): 새 대문·/books/·/studio/의 대표 주소와 공유 카드 주소를 기준값에 넣음(주소 앞부분은 비교 때 같은 것으로 봄)."
   ]
 }
