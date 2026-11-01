@@ -8,6 +8,10 @@
 // 판매 중인 책의 formValue가 실제 구글폼 '주문하실 책 이름' 선택지에 없어도 멈춘다(오타 하나로 주문이 사라지지 않게).
 // 만든 파일(books/<slug>/index.html)은 .gitignore의 books/* 에 걸려 저장소에 올라가지 않는다.
 //
+// 검색 로봇용: 책별 페이지마다 그 책의 소개·가격·주문서 제목을 원본 HTML에 미리 써 넣고(로봇은 자바스크립트를 잘 못 돌림),
+// 검색엔진용 상품 정보(JSON-LD)를 붙인다. 화면은 script.js가 열자마자 같은 내용으로 다시 그린다.
+// sitemap.xml도 여기서 만든다(판매 중지 책은 뺀다). robots.txt는 저장소 맨 위에 있다.
+//
 // Vercel에서 돌 때(VERCEL=1)만: 배포되는 books/index.html 복사본의 ?v= 캐시 번호를 파일 내용으로 자동으로 붙인다.
 // 그래서 books-data.js·script.js·styles.css를 고칠 때 ?v= 숫자를 손으로 올리지 않아도 된다.
 // 내 컴퓨터에서 돌리면 books/index.html 원본은 건드리지 않는다.
@@ -19,7 +23,7 @@ import vm from "node:vm";
 import { readGoogleForm } from "./google-form.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const PROD = "https://onespoon-studio.vercel.app";
+const PROD = "https://hanspoonbooks.com";
 // 공개 미리보기처럼 다른 주소로 올릴 때는 SITE_URL을 주면 공유 카드 주소·그림이 그 주소를 가리킨다(카톡 카드 시험용)
 const SITE = (process.env.SITE_URL || PROD).replace(/\/$/, "");
 const SHARE_START = "<!-- 공유 카드:";
@@ -28,6 +32,61 @@ const SHARE_END = "<!-- /공유 카드 -->";
 const sandbox = { window: {} };
 vm.runInNewContext(readFileSync(join(ROOT, "books-data.js"), "utf8"), sandbox);
 const books = sandbox.window.HANSPOON_BOOKS || [];
+const FORMATS = sandbox.window.HANSPOON_FORMATS || {};
+const DEFAULT_BOOK_ID = 5; // /books/를 열면 먼저 보이는 책 (script.js의 DEFAULT_BOOK_ID와 같게)
+
+const attr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+const text = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+const won = (n) => `${n.toLocaleString("ko-KR")}원`;
+
+// 책 소개 칸을 그 책 것으로 미리 써 넣는다. script.js의 selectBook과 같은 내용이어야 한다.
+const DETAIL_SLOTS = {
+  cover: /(<button\s+class="detail-book"\s+id="detailBook"[^>]*>)(<\/button>)/,
+  category: /(<p class="eyebrow" id="detailCategory">)[^<]*(<\/p>)/,
+  title: /(<h2 id="detailTitle">)[^<]*(<\/h2>)/,
+  description: /(<p class="lede" id="detailDescription">)[\s\S]*?(<\/p>)/,
+  format: /(<dd id="detailFormat">)[^<]*(<\/dd>)/,
+  delivery: /(<dd id="detailDelivery">)[^<]*(<\/dd>)/,
+  price: /(<dd id="detailPrice">)[^<]*(<\/dd>)/,
+  audience: /(<dd id="detailAudience">)[^<]*(<\/dd>)/,
+  orderTitle: /(<h2 id="orderTitle">)[^<]*(<\/h2>)/,
+  orderLink: /(<a class="primary-link" id="detailForm")/,
+  pausedNote: /(<p class="paused-note" id="detailPaused") hidden>(<\/p>)/,
+  orderSection: /(<section class="order-section" id="orderFormSection")/,
+  notifySection: /(<section class="order-section" id="notifySection"[^>]*?) style="display:none">/,
+};
+function prerender(html, b) {
+  const paused = b.status === "판매중지";
+  const soon = b.status === "출시예정";
+  const format = FORMATS[b.format] || { label: "-", delivery: "-" };
+  const fill = (slot, inner) => {
+    html = html.replace(DETAIL_SLOTS[slot], (m, open, close) => open + inner + close);
+  };
+  fill("cover", b.cover ? `<img src="${attr(b.cover)}" alt="${attr(b.title)} 표지" width="420" height="596" />${b.previewPages ? '<span class="preview-badge">미리 보기</span>' : ""}` : "");
+  fill("category", text(b.category));
+  fill("title", text(b.title));
+  fill("description", b.descriptionHtml || text(b.description));
+  fill("format", text(format.label));
+  fill("delivery", text(format.delivery));
+  fill("price", paused ? "잠시 판매를 쉬고 있어요" : text(b.priceText || won(b.price)) + (b.upgrade ? `<small class="meta-note">${text(b.upgrade.from)} 구매자 ${won(b.upgrade.price)}</small>` : ""));
+  fill("audience", text(b.audience));
+  fill("orderTitle", `${text(b.title)} 주문하기`);
+  if (b.featured && !paused) html = html.replace(`id="${b.featured.slice(1)}" hidden>`, `id="${b.featured.slice(1)}">`);
+  if (paused) {
+    html = html.replace(DETAIL_SLOTS.orderLink, '$1 style="display:none"');
+    html = html.replace(DETAIL_SLOTS.pausedNote, (m, open, close) => `${open}>${text(b.pausedText || "개정판 준비 중이에요")}${close}`);
+  }
+  if (paused || soon) html = html.replace(DETAIL_SLOTS.orderSection, '$1 style="display:none"');
+  if (soon) html = html.replace(DETAIL_SLOTS.notifySection, "$1>");
+  return html;
+}
+
+// 검색엔진용 상품 정보. 가격은 판매 중인 책만(출시 예정·판매 중지 책에는 값이 없어서 넣지 않는다).
+function productData(b, url, image) {
+  const data = { "@context": "https://schema.org", "@type": "Product", name: b.title, description: b.shareText, image: [image, SITE + b.cover], url };
+  if (b.status === "판매중") data.offers = { "@type": "Offer", price: b.price, priceCurrency: "KRW", availability: "https://schema.org/InStock", url };
+  return `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>\n  `;
+}
 
 // ── 상품 데이터 검사 ───────────────────────────
 const problems = [];
@@ -62,6 +121,14 @@ const end = source.indexOf(SHARE_END);
 if (start < 0 || end < start) problems.push(`books/index.html에서 공유 카드 표시(${SHARE_START} … ${SHARE_END})를 찾지 못함`);
 if (!source.includes("<title>한스푼 서점</title>")) problems.push("books/index.html의 <title>한스푼 서점</title>을 찾지 못함");
 if (!/<body>/.test(source)) problems.push("books/index.html의 <body>를 찾지 못함");
+if (!source.includes("</head>")) problems.push("books/index.html의 </head>를 찾지 못함");
+for (const [slot, re] of Object.entries(DETAIL_SLOTS)) {
+  if (!re.test(source)) problems.push(`books/index.html에서 책 소개를 미리 써 넣을 자리(${slot})를 찾지 못함`);
+}
+for (const b of books) {
+  if (b.featured && !source.includes(`id="${b.featured.slice(1)}" hidden>`)) problems.push(`${b.title}: books/index.html에서 ${b.featured} 상세 소개를 찾지 못함`);
+  if (!FORMATS[b.format]) problems.push(`${b.title}: books-data.js의 HANSPOON_FORMATS에 "${b.format}"이 없음`);
+}
 
 // 구글폼에 실제로 있는 선택값인지 (공개 양식을 읽기만 함). 구글폼을 못 읽으면 경고만 하고 넘어간다(급한 배포를 막지 않게).
 const BOOK_ENTRY = "entry.1833963440";
@@ -98,12 +165,10 @@ const stampVersions = (html) =>
 // 배포되는 /books/ 복사본: 캐시 번호 자동 + 미리보기 주소면 공유 카드도 그 주소로 (Vercel 빌드 기계 안에서만)
 if (process.env.VERCEL) {
   const books_html = source.slice(0, start) + source.slice(start, end).replaceAll(PROD, SITE) + source.slice(end);
-  writeFileSync(join(ROOT, "books/index.html"), stampVersions(books_html));
+  const first = books.find((b) => b.id === DEFAULT_BOOK_ID) || books[0];
+  writeFileSync(join(ROOT, "books/index.html"), stampVersions(prerender(books_html, first)));
   console.log(`캐시 번호: ${Object.entries(VERSIONS).map(([f, v]) => `${f}?v=${v}`).join(", ")}`);
 }
-
-const attr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-const text = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;");
 
 for (const b of books) {
   const url = `${SITE}/books/${b.slug}/`;
@@ -120,11 +185,21 @@ for (const b of books) {
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     `;
-  const html = stampVersions(source.slice(0, start) + share + source.slice(end))
-    .replace("<title>한스푼 서점</title>", `<title>${text(b.title)} · 한스푼 서점</title>`)
+  const html = prerender(stampVersions(source.slice(0, start) + share + source.slice(end)), b)
+    .replace("</head>", `${productData(b, url, image)}</head>`)
+    .replace("<title>한스푼 서점</title>", `<title>${text(b.searchTitle || b.title)} | 한스푼 서점</title>`)
     .replace(/(<meta\s+name="description"\s+content=")[^"]*(")/, `$1${attr(b.shareText)}$2`)
     .replace("<body>", `<body data-book="${b.slug}">`);
   mkdirSync(join(ROOT, "books", b.slug), { recursive: true });
   writeFileSync(join(ROOT, "books", b.slug, "index.html"), html);
   console.log(`만듦: /books/${b.slug}/  (${b.title})`);
 }
+
+// ── sitemap.xml ───────────────────────────────
+// 검색엔진에 알릴 주소 목록. 판매 중지 책은 뺀다(다시 팔면 자동으로 들어감).
+const pages = ["/", "/books/", ...books.filter((b) => b.status !== "판매중지").map((b) => `/books/${b.slug}/`), "/apps/", "/francespoon/"];
+writeFileSync(
+  join(ROOT, "sitemap.xml"),
+  `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${SITE}${p}</loc></url>`).join("\n")}\n</urlset>\n`,
+);
+console.log(`만듦: /sitemap.xml (${pages.length}개 주소)`);

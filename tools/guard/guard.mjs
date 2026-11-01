@@ -28,7 +28,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const BASELINE = join(HERE, "baseline.json");
 const args = process.argv.slice(2);
 const argValue = (flag, fallback) => (args.includes(flag) ? args[args.indexOf(flag) + 1] : fallback);
-const BASE = argValue("--base", "https://onespoon-studio.vercel.app").replace(/\/$/, "");
+const BASE = argValue("--base", "https://hanspoonbooks.com").replace(/\/$/, "");
 const BASE_URL = new URL(BASE);
 const SAVE = args.includes("--save");
 const CHROME = argValue("--chrome", "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome");
@@ -384,7 +384,7 @@ async function collectBookPages(tab, books, submits) {
     if (JSON.stringify(forms) !== JSON.stringify(submits.forms)) issues.push(`${path}: 주문서 구조가 /books/와 다름`);
     if (!page.title.includes(b.title) || page.ogTitle !== b.title) issues.push(`${path}: 제목·공유 제목이 책과 다름 (${page.title} / ${page.ogTitle})`);
     if (!page.ogUrl.endsWith(path)) issues.push(`${path}: og:url이 이 주소가 아님 (${page.ogUrl})`);
-    const img = page.ogImage ? await fetch(page.ogImage.replace(/^https:\/\/onespoon-studio\.vercel\.app/, BASE)).then((r) => r.status).catch(() => 0) : 0;
+    const img = page.ogImage ? await fetch(page.ogImage.replace(/^https:\/\/(onespoon-studio\.vercel\.app|hanspoonbooks\.com)/, BASE)).then((r) => r.status).catch(() => 0) : 0;
     if (img !== 200) issues.push(`${path}: 공유 그림이 열리지 않음 (${page.ogImage})`);
     if (b.paused) {
       // 판매를 멈춘 책: 옛 링크는 열리고, 주문서·출시 알림·주문 버튼 대신 짧은 안내만 보여야 한다

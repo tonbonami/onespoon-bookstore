@@ -12,11 +12,8 @@ const upgradeNote = ({ from, price }) => `${from} 구매자는 ${won(price)} (�
 // 서가 카드의 언어 칩 (books-data.js의 lang)
 const LANGS = { fr: "🇫🇷 프랑스어", es: "🇪🇸 스페인어", en: "🇬🇧 영어", ko: "🇰🇷 한국어" };
 
-// 책 소개의 '종류'·'받는 방법' 줄 (books-data.js의 format)
-const FORMATS = {
-  notion: { label: "노션 교재 · 휴대폰·태블릿·PC", delivery: "입금 확인 후 6시간 안에 노션 가입 이메일로 초대" },
-  pdf: { label: "PDF 책 · 노션 필요 없음", delivery: "입금 확인 후 6시간 안에 메일로 PDF" },
-};
+// 책 소개의 '종류'·'받는 방법' 줄 (books-data.js의 HANSPOON_FORMATS, 책마다 format으로 고른다)
+const FORMATS = window.HANSPOON_FORMATS || {};
 
 // 주문서의 책 카드: 판매 중인 책만, 서가 순서대로
 function renderBookPicks() {

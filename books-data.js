@@ -20,6 +20,14 @@
 //   slug        책별 주소 /books/<slug>/ (영어 소문자·숫자·-만). 배포할 때 tools/build-pages.mjs가 페이지를 만든다.
 //   format      "notion"(노션 교재) 또는 "pdf"(PDF 책). 책 소개의 '종류'와 '받는 방법' 줄이 여기서 나온다.
 //   shareText   카톡·인스타로 책 주소를 보낼 때 공유 카드에 나오는 한 줄. 가격은 넣지 않는다(카드가 오래 남음).
+//   searchTitle 검색 결과에 뜨는 책별 페이지 제목. 뒤에 " | 한스푼 서점"이 붙는다. 없으면 title.
+
+// 책 소개의 '종류'·'받는 방법' 줄 (책마다 format으로 고른다). 화면(script.js)과 배포 빌드가 함께 쓴다.
+window.HANSPOON_FORMATS = {
+  notion: { label: "노션 교재 · 휴대폰·태블릿·PC", delivery: "입금 확인 후 6시간 안에 노션 가입 이메일로 초대" },
+  pdf: { label: "PDF 책 · 노션 필요 없음", delivery: "입금 확인 후 6시간 안에 메일로 PDF" },
+};
+
 window.HANSPOON_BOOKS = [
   {
     id: 5,
@@ -29,6 +37,7 @@ window.HANSPOON_BOOKS = [
     lang: "fr",
     status: "판매중",
     title: "나의 첫 프랑스어 책 3.0",
+    searchTitle: "나의 첫 프랑스어 책 3.0 · 프랑스어 입문 노션 교재",
     category: "프랑스어 입문 · 노션 기반 종합 교재",
     description:
       "알파벳부터 『어린 왕자』 원문까지, 한 권으로. 발음 · 문법 · 어휘 · 회화 · 동사 변화 · 읽기 6영역, 프랑스어 음성 900개 이상. 휴대폰 노션으로 바로 보는 프랑스어 입문서 (A1~B1).",
@@ -59,6 +68,7 @@ window.HANSPOON_BOOKS = [
     lang: "es",
     status: "출시예정",
     title: "나의 첫 스페인어 책 1.0",
+    searchTitle: "나의 첫 스페인어 책 1.0 · 스페인어 입문 노션 교재",
     category: "스페인어 입문 · 노션 기반 종합 교재",
     description:
       "알파벳부터 『어린 왕자』까지, 라틴아메리카 스페인어를 한 권으로. 발음 · 문법 · 동사 변화 · 회화 · 어휘 · 읽기 6영역, 문법 단원마다 「프랑스어와 비교」. 『어린 왕자』 27장 전체를 이 책만의 스페인어 번역과 음성으로.",
@@ -111,6 +121,7 @@ window.HANSPOON_BOOKS = [
     lang: "fr",
     status: "판매중",
     title: "프랑스어 필수 동사 100",
+    searchTitle: "프랑스어 필수 동사 100 · PDF 책",
     category: "PDF 책 · 노션 필요 없음 · 빈도순 필수 동사",
     description:
       "가장 많이 사용하는 프랑스어 동사 100개를 빈도순으로. 주요 동사 변화표와 예문 300개를 수록한 핵심 동사 학습서. être · avoir · aller · faire 부터 시작합니다.",

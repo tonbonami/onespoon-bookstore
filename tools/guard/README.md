@@ -3,7 +3,7 @@
 서점 개편 중에 주문·입금 연결이 깨지지 않았는지 기계로 비교한다. 개편 전 운영본(태그 `pre-renewal-2026-11-01`, 커밋 676d93c · 3.0 정가 29,000원 적용 직후)의 값을 `baseline.json`에 저장해 두었다.
 
 ```bash
-node tools/guard/guard.mjs                               # 운영본 ↔ 기준값
+node tools/guard/guard.mjs                               # 운영본(https://hanspoonbooks.com) ↔ 기준값
 node tools/guard/guard.mjs --base http://localhost:4174  # 작업본 ↔ 기준값
 ```
 
