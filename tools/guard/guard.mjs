@@ -363,7 +363,7 @@ async function collectSubmits(tab, choices) {
 // 책별 페이지가 아직 없는 운영본(개편 전)에서는 건너뛴다.
 async function collectBookPages(tab, books, submits) {
   await tab.go(BASE + "/books/");
-  const list = await tab.eval(`(window.HANSPOON_BOOKS || []).map((b) => ({ slug: b.slug, title: b.title, formValue: b.formValue || "", soon: b.status === "출시예정" }))`);
+  const list = await tab.eval(`(window.HANSPOON_BOOKS || []).map((b) => ({ slug: b.slug, title: b.title, formValue: b.formValue || "", soon: b.status === "출시예정", paused: b.status === "판매중지" }))`);
   const issues = [];
   for (const b of list) {
     const path = `/books/${b.slug}/`;
@@ -377,7 +377,8 @@ async function collectBookPages(tab, books, submits) {
       const og = (p) => document.querySelector('meta[property="' + p + '"]')?.content || "";
       const checked = document.querySelector('input[name="${BOOK_ENTRY}"]:checked');
       const shown = (sel) => { const el = document.querySelector(sel); return !!el && getComputedStyle(el).display !== "none"; };
-      return { title: document.title, ogTitle: og("og:title"), ogUrl: og("og:url"), ogImage: og("og:image"), checked: checked ? checked.value : "", order: shown("#orderFormSection"), notify: shown("#notifySection") };
+      const pausedNote = document.querySelector("#detailPaused");
+      return { title: document.title, ogTitle: og("og:title"), ogUrl: og("og:url"), ogImage: og("og:image"), checked: checked ? checked.value : "", order: shown("#orderFormSection"), notify: shown("#notifySection"), pausedNote: pausedNote && !pausedNote.hidden ? pausedNote.textContent.trim() : "", orderButton: shown("#detailForm") };
     })()`);
     const forms = await tab.eval(FORMS_JS);
     if (JSON.stringify(forms) !== JSON.stringify(submits.forms)) issues.push(`${path}: 주문서 구조가 /books/와 다름`);
@@ -385,6 +386,11 @@ async function collectBookPages(tab, books, submits) {
     if (!page.ogUrl.endsWith(path)) issues.push(`${path}: og:url이 이 주소가 아님 (${page.ogUrl})`);
     const img = page.ogImage ? await fetch(page.ogImage.replace(/^https:\/\/onespoon-studio\.vercel\.app/, BASE)).then((r) => r.status).catch(() => 0) : 0;
     if (img !== 200) issues.push(`${path}: 공유 그림이 열리지 않음 (${page.ogImage})`);
+    if (b.paused) {
+      // 판매를 멈춘 책: 옛 링크는 열리고, 주문서·출시 알림·주문 버튼 대신 짧은 안내만 보여야 한다
+      if (page.order || page.notify || page.orderButton || !page.pausedNote) issues.push(`${path}: 판매 중지 책인데 주문 안내가 그대로 보이거나 안내 문구가 없음`);
+      continue;
+    }
     if (b.soon && !(page.notify && !page.order)) issues.push(`${path}: 출시 예정 책인데 출시 알림이 먼저 뜨지 않음`);
     if (!b.soon && (page.checked !== b.formValue || !page.order)) issues.push(`${path}: 주문서에 이 책(${b.formValue})이 골라져 있지 않음 (${page.checked})`);
     // 책별 페이지에서 주문해도 /books/에서 주문한 것과 똑같이 보내지는지
@@ -449,6 +455,38 @@ const LABELS = {
 
 const ADDITIVE = ["status", "meta", "anchors"];
 
+// 판매를 멈춘 책(books-data.js status "판매중지")은 서가·주문서에서 일부러 뺀 것이라 기준값에서도 빼고 비교한다.
+// 기준값 파일은 그대로 두므로, "판매중"으로 되돌리면 그 책도 다시 비교된다.
+function withoutPaused(base, paused) {
+  if (!paused.length) return base;
+  const b = structuredClone(base);
+  const values = new Set(paused.map((p) => p.formValue).filter(Boolean));
+  b.choices = (b.choices || []).filter((v) => !values.has(v));
+  // 주문서 칸 목록의 책 선택 줄("entry.… | radio | 책1 / 책2 / … | 필수")에서도 뺀다
+  for (const form of Object.values(b.forms || {})) {
+    form.fields = form.fields.map((line) => {
+      const parts = line.split(" | ");
+      if (parts[0] !== BOOK_ENTRY || parts.length < 3) return line;
+      parts[2] = parts[2].split(" / ").filter((v) => !values.has(v)).join(" / ");
+      return parts.join(" | ");
+    });
+  }
+  for (const p of paused) {
+    if (b.amounts) delete b.amounts[p.formValue];
+    if (b.shelf) delete b.shelf[p.title];
+    if (b.submits) delete b.submits[`주문: ${p.formValue}`];
+  }
+  // "선택 칸 비움" 주문은 첫 번째 책으로 한다. 그 책이 빠졌으면 다음 첫 책의 기록에 '비움'의 칸 목록을 얹어 기대값을 만든다.
+  const emptyKey = Object.keys(b.submits || {}).find((k) => k.endsWith("(선택 칸 비움)"));
+  if (emptyKey && values.has(emptyKey.slice(4, -" (선택 칸 비움)".length)) && b.choices.length) {
+    const first = b.choices[0];
+    const record = b.submits[`주문: ${first}`];
+    if (record) b.submits[`주문: ${first} (선택 칸 비움)`] = { ...record, 칸: b.submits[emptyKey].칸 };
+    delete b.submits[emptyKey];
+  }
+  return b;
+}
+
 const short = (v) => {
   const s = JSON.stringify(v);
   return s.length > 140 ? s.slice(0, 140) + "…" : s;
@@ -498,6 +536,8 @@ try {
   const submits = await collectSubmits(tab, books.choices);
   const google = await collectGoogleForms(books.forms, submits);
   const bookPages = await collectBookPages(tab, books, { forms: books.forms, sent: submits });
+  await tab.go(BASE + "/books/");
+  const paused = await tab.eval(`(window.HANSPOON_BOOKS || []).filter((b) => b.status === "판매중지").map((b) => ({ title: b.title, formValue: b.formValue || "" }))`);
   const now = {
     status, meta, forms: books.forms, choices: books.choices, amounts: books.amounts, account: books.account,
     shelf: books.shelf, anchors, submits, googleForms: google.structure, googleMismatch: google.mismatch,
@@ -511,8 +551,9 @@ try {
     if (google.mismatch.length) console.log(`주의: 지금 운영본도 구글폼과 어긋난 곳이 있어요\n  ${google.mismatch.join("\n  ")}`);
     process.exitCode = 0;
   } else {
-    const base = JSON.parse(readFileSync(BASELINE, "utf8"));
+    const base = withoutPaused(JSON.parse(readFileSync(BASELINE, "utf8")), paused);
     console.log(`점검 대상: ${BASE}\n기준값: ${base.저장한때} (${base.주소}, ${base.커밋})\n`);
+    for (const p of paused) console.log(`(판매 중지, 의도한 변경) ${p.title} — 서가·주문서에서 빠져서 기준값 비교에서 뺐어요\n`);
     let failed = 0;
     for (const [key, label] of Object.entries(LABELS)) {
       const out = [];

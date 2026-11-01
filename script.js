@@ -5,6 +5,7 @@ const DEFAULT_BOOK_ID = 5;
 const won = (n) => `${n.toLocaleString("ko-KR")}원`;
 const isComingSoon = (book) => book.status === "출시예정";
 const isOnSale = (book) => book.status === "판매중" && book.formValue && book.price;
+const isPaused = (book) => book.status === "판매중지";
 const priceLine = (book) => book.priceText || won(book.price);
 const upgradeNote = ({ from, price }) => `${from} 구매자는 ${won(price)} (메모에 "${from} 구매"를 적어 주세요)`;
 
@@ -90,6 +91,7 @@ window.handleCoverError = handleCoverError;
 
 function renderShelf() {
   shelf.innerHTML = books
+    .filter((book) => !isPaused(book))
     .map(
       (book) => `
         <button class="book-card${book.cover ? " has-cover" : ""}" type="button" style="background:${book.color}" data-id="${book.id}">
@@ -134,8 +136,8 @@ function selectBook(id) {
   const format = FORMATS[book.format] || { label: "-", delivery: "-" };
   detailFormat.textContent = format.label;
   detailDelivery.textContent = format.delivery;
-  detailPrice.textContent = priceLine(book);
-  if (book.upgrade) {
+  detailPrice.textContent = isPaused(book) ? "잠시 판매를 쉬고 있어요" : priceLine(book);
+  if (book.upgrade && !isPaused(book)) {
     const note = document.createElement("small");
     note.className = "meta-note";
     note.textContent = `${book.upgrade.from} 구매자 ${won(book.upgrade.price)}`;
@@ -154,7 +156,7 @@ function selectBook(id) {
     el.hidden = true;
   });
   const featuredSelector = book.featured;
-  if (featuredSelector) {
+  if (featuredSelector && !isPaused(book)) {
     const featured = document.querySelector(featuredSelector);
     if (featured) featured.hidden = false;
   }
@@ -165,7 +167,14 @@ function selectBook(id) {
   const orderSection = document.querySelector("#orderFormSection");
   const detailFormLink = document.querySelector("#detailForm");
   if (notifySection) notifySection.style.display = isComingSoon(book) ? "" : "none";
-  if (orderSection) orderSection.style.display = isComingSoon(book) ? "none" : "";
+  if (orderSection) orderSection.style.display = isComingSoon(book) || isPaused(book) ? "none" : "";
+  // 판매를 멈춘 책: 주문 버튼 대신 짧은 안내만
+  const pausedNote = document.querySelector("#detailPaused");
+  if (pausedNote) {
+    pausedNote.hidden = !isPaused(book);
+    pausedNote.textContent = isPaused(book) ? book.pausedText || "개정판 준비 중이에요" : "";
+  }
+  if (detailFormLink) detailFormLink.style.display = isPaused(book) ? "none" : "";
   if (detailFormLink) {
     detailFormLink.textContent = isComingSoon(book) ? "출시 알림 신청하기" : "주문 양식 작성하기";
     detailFormLink.setAttribute("href", isComingSoon(book) ? "#notifySection" : "#orderFormSection");
@@ -209,6 +218,10 @@ function updateOrderBar(book) {
 
 function refreshOrderBar() {
   if (!orderBar) return;
+  if (isPaused(selectedBook)) {
+    orderBar.hidden = true;
+    return;
+  }
   const box = (sel) => document.querySelector(sel)?.getBoundingClientRect();
   const onScreen = (sel) => {
     const b = box(sel);

@@ -492,6 +492,24 @@ p {
   font-weight: 700;
 }
 
+/* 판매를 멈춘 책(books-data.js status "판매중지")의 주문 버튼 자리 */
+.paused-note {
+  display: inline-flex;
+  align-items: center;
+  margin: 0;
+  padding: 12px 22px;
+  border: 1px solid rgba(253, 186, 116, 0.6);
+  border-radius: 999px;
+  background: #ffedd5;
+  color: rgba(67, 63, 62, 0.85);
+  font-size: 0.92rem;
+  font-weight: 800;
+}
+
+.paused-note[hidden] {
+  display: none;
+}
+
 .detail-actions {
   display: flex;
   flex-wrap: wrap;
