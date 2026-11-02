@@ -22,6 +22,9 @@
 //   format      "notion"(노션 교재) 또는 "pdf"(PDF 책). 책 소개의 '종류'와 '받는 방법' 줄이 여기서 나온다.
 //   shareText   카톡·인스타로 책 주소를 보낼 때 공유 카드에 나오는 한 줄. 가격은 넣지 않는다(카드가 오래 남음).
 //   searchTitle 검색 결과에 뜨는 책별 페이지 제목. 뒤에 " | 한스푼 서점"이 붙는다. 없으면 title.
+//   reviews     책 소개 아래 후기 칸. 구글폼으로 받은 후기 중 우댕이 고른 것만, 많아야 6개.
+//               { stars: 5, text: "후기 글", who: "직장인 김○○", date: "2026.11" } — stars는 1~5 정수, date는 "연.월".
+//               비어 있으면 후기 칸이 아예 안 보인다. 별점 평균은 내지 않는다(후기 수가 적어서).
 
 // 책 소개의 '종류'·'받는 방법' 줄 (책마다 format으로 고른다). 화면(script.js)과 배포 빌드가 함께 쓴다.
 window.HANSPOON_FORMATS = {
@@ -45,6 +48,7 @@ window.HANSPOON_BOOKS = [
     descriptionHtml:
       '<strong class="lede-head">알파벳부터 『어린 왕자』 원문까지, 한 권으로.</strong><br>발음 · 문법 · 어휘 · 회화 · 동사 변화 · 읽기 6영역<br>프랑스어 음성 900개 이상 · 휴대폰 노션으로 바로',
     audience: "한국어로 프랑스어를 처음 시작하는 입문자 (A1~B1)",
+    reviews: [],
     color: "#f5ede0",
     cover: "/assets/web/nofu-book-3-cover.webp",
     coverSize: [420, 596],
@@ -76,6 +80,7 @@ window.HANSPOON_BOOKS = [
     descriptionHtml:
       '<strong class="lede-head">알파벳부터 『어린 왕자』까지, 라틴아메리카 스페인어를 한 권으로.</strong><br>발음 · 문법 · 동사 변화 · 회화 · 어휘 · 읽기 6영역 · 문법 단원마다 「프랑스어와 비교」<br>『어린 왕자』 27장 전체를 이 책만의 스페인어 번역과 음성으로 · 휴대폰 노션으로 바로',
     audience: "스페인어를 처음 시작하는 분 · 프랑스어를 배운 뒤 두 번째 외국어를 찾는 분 (A1~B2)",
+    reviews: [],
     color: "#e9f2fb",
     cover: "/assets/web/firstspanish-1-cover.webp",
     coverSize: [420, 596],
@@ -95,6 +100,7 @@ window.HANSPOON_BOOKS = [
     description:
       "30일 동안 파리에 머무는 한 사람의 시점을 따라가며, 카페·시장·사무실·행정 창구에서 실제로 쓰이는 프랑스어를 한 스푼씩 떠먹는 책. 외워야 한다는 부담 없이, 들으면서 따라 말하는 사이에 600개의 표현이 자연스럽게 자리 잡습니다.",
     audience: "프랑스어 입문 · 파리 여행 · 유학 · 일상 회화 준비자",
+    reviews: [],
     color: "#E8F0FE",
     cover: "/assets/web/30daysinparis-cover.webp",
     coverSize: [420, 594],
@@ -128,6 +134,7 @@ window.HANSPOON_BOOKS = [
     description:
       "프랑스어 영화·드라마 자막에서 가장 많이 쓰는 동사 150개를 빈도순으로. 현재형 6인칭, 과거분사·복합과거, 동사마다 예문 4개(모두 600개)와 프랑스어 음성 750개. 🔊 듣기를 누르거나 QR을 찍으면 휴대폰에서 바로 들을 수 있어요.",
     audience: "프랑스어 입문 ~ 초중급 · 동사 활용을 빠르게 익히고 싶은 분",
+    reviews: [],
     color: "#f5f0e8",
     cover: "/assets/web/verbs-150-cover.webp",
     coverSize: [420, 595],

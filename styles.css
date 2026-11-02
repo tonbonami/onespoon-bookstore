@@ -343,6 +343,63 @@ p {
 }
 
 /* Book detail (basic card) */
+/* 후기 (books-data.js reviews) — 책 소개 아래, 많아야 6개 */
+.review-section {
+  margin: 0 0 32px;
+}
+
+.review-section[hidden] {
+  display: none;
+}
+
+.review-list {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0 24px;
+  list-style: none;
+}
+
+.review-card {
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 6px 14px rgba(67, 63, 62, 0.04);
+}
+
+.review-stars {
+  margin: 0 0 8px;
+  color: #f5b301;
+  font-size: 15px;
+  letter-spacing: 2px;
+}
+
+.review-stars .off {
+  color: rgba(67, 63, 62, 0.16);
+}
+
+.review-text {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+.review-who {
+  margin: 0;
+  color: rgba(67, 63, 62, 0.6);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+@media (min-width: 761px) {
+  .review-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .book-detail {
   margin: 0 24px 28px;
   padding: 28px;

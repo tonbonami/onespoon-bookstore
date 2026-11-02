@@ -61,6 +61,8 @@ const DETAIL_SLOTS = {
   pausedNote: /(<p class="paused-note" id="detailPaused") hidden>(<\/p>)/,
   orderSection: /(<section class="order-section" id="orderFormSection")/,
   notifySection: /(<section class="order-section" id="notifySection"[^>]*?) style="display:none">/,
+  reviewSection: /(<section class="review-section" id="bookReviews"[^>]*?) hidden>/,
+  reviewList: /(<ul class="review-list" id="reviewList">)(<\/ul>)/,
 };
 function prerender(html, b) {
   const paused = b.status === "판매중지";
@@ -85,6 +87,12 @@ function prerender(html, b) {
   }
   if (paused || soon) html = html.replace(DETAIL_SLOTS.orderSection, '$1 style="display:none"');
   if (soon) html = html.replace(DETAIL_SLOTS.notifySection, "$1>");
+  // 후기(script.js renderReviews와 같은 모양). 없으면 칸은 숨긴 채로 둔다
+  const reviews = (b.reviews || []).slice(0, 6);
+  if (reviews.length) {
+    html = html.replace(DETAIL_SLOTS.reviewSection, "$1>");
+    fill("reviewList", reviews.map((r) => `<li class="review-card"><p class="review-stars" aria-label="별 5개 중 ${r.stars}개">${"★".repeat(r.stars)}<span class="off">${"★".repeat(5 - r.stars)}</span></p><p class="review-text">${text(r.text)}</p><p class="review-who">${text(r.who)} · ${text(r.date)}</p></li>`).join(""));
+  }
   return html;
 }
 
@@ -120,6 +128,14 @@ for (const b of books) {
   if (b.status === "출시예정" && b.price == null && !b.priceText) problems.push(`${name}: 출시예정이면 priceText로 안내 문구를 적어 주세요`);
   if (b.upgrade && (!b.upgrade.from || !Number.isInteger(b.upgrade.price))) problems.push(`${name}: upgrade는 { from: "2.0", price: 15000 } 꼴`);
   if (b.cover && !existsSync(join(ROOT, b.cover))) problems.push(`${name}: 표지 파일 없음 ${b.cover}`);
+  if (b.reviews != null && !Array.isArray(b.reviews)) problems.push(`${name}: reviews는 [ … ] 목록이어야 함`);
+  (Array.isArray(b.reviews) ? b.reviews : []).forEach((r, k) => {
+    const at = `${name}: 후기 ${k + 1}`;
+    if (!Number.isInteger(r?.stars) || r.stars < 1 || r.stars > 5) problems.push(`${at}의 stars는 1~5 정수 (${r?.stars})`);
+    if (!r?.text || !r?.who) problems.push(`${at}의 text·who가 비었음`);
+    if (!/^\d{4}\.\d{1,2}$/.test(r?.date || "")) problems.push(`${at}의 date는 "2026.11" 꼴 (${r?.date})`);
+  });
+  if (Array.isArray(b.reviews) && b.reviews.length > 6) console.warn(`주의: ${name} 후기가 ${b.reviews.length}개라 앞의 6개만 보여요`);
 }
 
 const source = readFileSync(join(ROOT, "books/index.html"), "utf8");

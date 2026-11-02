@@ -116,6 +116,33 @@ function renderShelf() {
   shelf.style.setProperty("--shelf-columns", Math.min(shelf.children.length, 4) || 4);
 }
 
+// 책 소개 아래 후기 칸: 우댕이 고른 후기만, 많아야 6개. 없으면 칸째 숨긴다. (배포 빌드의 미리 써 넣기와 같은 모양)
+function renderReviews(book) {
+  const section = document.querySelector("#bookReviews");
+  const list = document.querySelector("#reviewList");
+  if (!section || !list) return;
+  const reviews = (book.reviews || []).slice(0, 6);
+  section.hidden = !reviews.length;
+  list.replaceChildren(
+    ...reviews.map((r) => {
+      const li = document.createElement("li");
+      li.className = "review-card";
+      const stars = document.createElement("p");
+      stars.className = "review-stars";
+      stars.setAttribute("aria-label", `별 5개 중 ${r.stars}개`);
+      stars.innerHTML = "★".repeat(r.stars) + `<span class="off">${"★".repeat(5 - r.stars)}</span>`;
+      const body = document.createElement("p");
+      body.className = "review-text";
+      body.textContent = r.text;
+      const who = document.createElement("p");
+      who.className = "review-who";
+      who.textContent = `${r.who} · ${r.date}`;
+      li.append(stars, body, who);
+      return li;
+    }),
+  );
+}
+
 function selectBook(id) {
   const book = books.find((item) => item.id === id);
   if (!book) return;
@@ -150,6 +177,7 @@ function selectBook(id) {
     detailPrice.append(note);
   }
   detailAudience.textContent = book.audience;
+  renderReviews(book);
   detailBook.disabled = !book.previewPages;
   detailPreview.hidden = !book.previewPages;
   if (book.previewPages) detailPreview.textContent = `미리 보기 · ${book.previewPages.length}쪽`;
