@@ -96,10 +96,42 @@ function prerender(html, b) {
   return html;
 }
 
-// 검색엔진용 상품 정보. 가격은 판매 중인 책만(출시 예정·판매 중지 책에는 값이 없어서 넣지 않는다).
+// 검색엔진용 상품 정보(구글 판매자 목록). 판매 중인 책만 넣는다(출시 예정·판매 중지 책은 가격이 없어 빼야 오류가 안 남).
+// 반품·배송은 서점에 적힌 문구 그대로 옮긴다. 문구를 바꾸면 여기도 같이 바꾼다:
+//   환불: 자주 묻는 질문 "디지털 콘텐츠 특성상 발송 후 환불은 어렵습니다" → 반품 불가(MerchantReturnNotPermitted)
+//   배송: 노션 초대·PDF 메일이라 배송비 0원, "입금 확인 후 6시간 안에"(books-data.js HANSPOON_FORMATS) → 처리 0~1일, 배송 0일
+// 디지털 상품이라 GTIN은 없고, 브랜드와 sku(slug)로 상품을 알린다.
 function productData(b, url, image) {
-  const data = { "@context": "https://schema.org", "@type": "Product", name: b.title, description: b.shareText, image: [image, SITE + b.cover], url };
-  if (b.status === "판매중") data.offers = { "@type": "Offer", price: b.price, priceCurrency: "KRW", availability: "https://schema.org/InStock", url };
+  if (b.status !== "판매중") return "";
+  const days = (min, max) => ({ "@type": "QuantitativeValue", minValue: min, maxValue: max, unitCode: "DAY" });
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: b.title,
+    description: b.shareText,
+    image: [image, SITE + b.cover],
+    url,
+    sku: b.slug,
+    brand: { "@type": "Brand", name: "프랑스어 한스푼" },
+    offers: {
+      "@type": "Offer",
+      price: b.price,
+      priceCurrency: "KRW",
+      availability: "https://schema.org/InStock",
+      url,
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "KR",
+        returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+      },
+      shippingDetails: {
+        "@type": "OfferShippingDetails",
+        shippingRate: { "@type": "MonetaryAmount", value: 0, currency: "KRW" },
+        shippingDestination: { "@type": "DefinedRegion", addressCountry: "KR" },
+        deliveryTime: { "@type": "ShippingDeliveryTime", handlingTime: days(0, 1), transitTime: days(0, 0) },
+      },
+    },
+  };
   return `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>\n  `;
 }
 
@@ -145,6 +177,10 @@ if (start < 0 || end < start) problems.push(`books/index.html에서 공유 카�
 if (!source.includes("<title>한스푼 서점</title>")) problems.push("books/index.html의 <title>한스푼 서점</title>을 찾지 못함");
 if (!/<body>/.test(source)) problems.push("books/index.html의 <body>를 찾지 못함");
 if (!source.includes("</head>")) problems.push("books/index.html의 </head>를 찾지 못함");
+if (!source.includes("발송 후 환불은 어렵습니다")) console.warn("주의: 서점의 환불 문구가 바뀌었어요. 상품 정보의 반품 정책(반품 불가)이 맞는지 tools/build-pages.mjs productData를 확인하세요");
+for (const [kind, f] of Object.entries(FORMATS)) {
+  if (!String(f.delivery).includes("6시간 안에")) console.warn(`주의: '받는 방법'(${kind}) 문구가 바뀌었어요. 상품 정보의 배송 시간(처리 0~1일)을 확인하세요`);
+}
 for (const [slot, re] of Object.entries(DETAIL_SLOTS)) {
   if (!re.test(source)) problems.push(`books/index.html에서 책 소개를 미리 써 넣을 자리(${slot})를 찾지 못함`);
 }
