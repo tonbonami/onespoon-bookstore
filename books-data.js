@@ -93,7 +93,7 @@ window.HANSPOON_BOOKS = [
     listPrice: 12000,
     priceNote: "11월 30일까지 미리 구매가",
     priceUntil: "2026-11-30",
-    deliveryNote: "미리 구매하신 분께 「미리 쓰는 두 달」(2026년 11·12월판)은 바로, 2027판(날짜판 + 날짜 없는 판)은 12월 1일까지 보내 드려요. 못 지키면 환불해 드려요.",
+    deliveryNote: "입금 확인 후 「미리 쓰는 두 달」과 2027판(날짜판 + 날짜 없는 판)을 함께 보내 드려요.",
     pickLabel: "굿노트 다이어리 PDF",
     featured: "#featuredDiary",
     previewWide: true,
