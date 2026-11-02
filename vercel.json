@@ -1,4 +1,10 @@
 {
   "buildCommand": "node tools/build-pages.mjs",
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "redirects": [
+    { "source": "/listen", "destination": "/listen/", "statusCode": 308 }
+  ],
+  "headers": [
+    { "source": "/listen/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }
+  ]
 }
