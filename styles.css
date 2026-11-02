@@ -343,6 +343,13 @@ p {
 }
 
 /* Book detail (basic card) */
+/* 정가 취소선(미리 구매가 등, books-data.js listPrice) */
+.list-price {
+  color: rgba(67, 63, 62, 0.45);
+  font-weight: 600;
+  text-decoration-thickness: 1.5px;
+}
+
 /* 후기 (books-data.js reviews) — 책 소개 아래, 많아야 6개 */
 .review-section {
   margin: 0 0 32px;

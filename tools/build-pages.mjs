@@ -76,8 +76,9 @@ function prerender(html, b) {
   fill("title", text(b.title));
   fill("description", b.descriptionHtml || text(b.description));
   fill("format", text(format.label));
-  fill("delivery", text(format.delivery));
-  fill("price", paused ? "잠시 판매를 쉬고 있어요" : text(b.priceText || won(b.price)) + (b.upgrade ? `<small class="meta-note">${text(b.upgrade.from)} 구매자 ${won(b.upgrade.price)}</small>` : ""));
+  fill("delivery", text(format.delivery) + (b.deliveryNote && !paused ? `<small class="meta-note">${text(b.deliveryNote)}</small>` : ""));
+  const listed = b.listPrice > b.price && !b.priceText ? `<s class="list-price">${won(b.listPrice)}</s> ` : "";
+  fill("price", paused ? "잠시 판매를 쉬고 있어요" : listed + text(b.priceText || won(b.price)) + (b.upgrade ? `<small class="meta-note">${text(b.upgrade.from)} 구매자 ${won(b.upgrade.price)}</small>` : "") + (b.priceNote ? `<small class="meta-note">${text(b.priceNote)}</small>` : ""));
   fill("audience", text(b.audience));
   fill("orderTitle", `${text(b.title)} 주문하기`);
   if (b.featured && !paused) html = html.replace(`id="${b.featured.slice(1)}" hidden>`, `id="${b.featured.slice(1)}">`);
@@ -117,6 +118,7 @@ function productData(b, url, image) {
       "@type": "Offer",
       price: b.price,
       priceCurrency: "KRW",
+      ...(b.priceUntil ? { priceValidUntil: b.priceUntil } : {}),
       availability: "https://schema.org/InStock",
       url,
       hasMerchantReturnPolicy: {
@@ -159,6 +161,11 @@ for (const b of books) {
   }
   if (b.status === "출시예정" && b.price == null && !b.priceText) problems.push(`${name}: 출시예정이면 priceText로 안내 문구를 적어 주세요`);
   if (b.upgrade && (!b.upgrade.from || !Number.isInteger(b.upgrade.price))) problems.push(`${name}: upgrade는 { from: "2.0", price: 15000 } 꼴`);
+  if (b.listPrice != null && (!Number.isInteger(b.listPrice) || b.listPrice <= b.price)) problems.push(`${name}: listPrice(정가)는 price보다 큰 원 단위 숫자 (${b.listPrice})`);
+  if (b.priceUntil != null && !/^\d{4}-\d{2}-\d{2}$/.test(b.priceUntil)) problems.push(`${name}: priceUntil은 "2026-11-30" 꼴 (${b.priceUntil})`);
+  // 미리 구매가 같은 기간 가격이 끝났는데 그대로면 알려 준다(배포는 막지 않음). 한국 시간 기준
+  const todayKST = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+  if (b.priceUntil && b.status === "판매중" && todayKST > b.priceUntil) console.warn(`주의: ${name}의 ${b.priceUntil}까지 가격(${b.price}원)이 아직 그대로예요. price를 정가로 바꾸고 listPrice·priceNote·priceUntil을 지우세요`);
   if (b.cover && !existsSync(join(ROOT, b.cover))) problems.push(`${name}: 표지 파일 없음 ${b.cover}`);
   if (b.reviews != null && !Array.isArray(b.reviews)) problems.push(`${name}: reviews는 [ … ] 목록이어야 함`);
   (Array.isArray(b.reviews) ? b.reviews : []).forEach((r, k) => {

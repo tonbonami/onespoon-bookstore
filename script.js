@@ -7,6 +7,8 @@ const isComingSoon = (book) => book.status === "출시예정";
 const isOnSale = (book) => book.status === "판매중" && book.formValue && book.price;
 const isPaused = (book) => book.status === "판매중지";
 const priceLine = (book) => book.priceText || won(book.price);
+// 정가가 따로 있으면(미리 구매가 등) 정가에 취소선을 긋고 지금 금액을 붙인다. HTML이라 데이터의 숫자만 넣는다
+const priceHtml = (book) => (book.listPrice > book.price ? `<s class="list-price">${won(book.listPrice)}</s> ` : "") + won(book.price);
 const upgradeNote = ({ from, price }) => `${from} 구매자는 ${won(price)} (메모에 "${from} 구매"를 적어 주세요)`;
 
 // 서가 카드의 언어 칩 (books-data.js의 lang)
@@ -28,7 +30,7 @@ function renderBookPicks() {
                 <img src="${book.cover}" alt="" width="${book.coverSize[0]}" height="${book.coverSize[1]}" loading="lazy" decoding="async" />
                 <span>
                   <strong>${book.formValue}</strong>
-                  <small>${book.pickLabel} · ${won(book.price)}</small>
+                  <small>${book.pickLabel} · ${priceHtml(book)}</small>
                 </span>
               </label>`,
     )
@@ -105,7 +107,7 @@ function renderShelf() {
             <span class="book-title">${book.title}</span>
             <span class="book-price-line">${
               isOnSale(book)
-                ? won(book.price)
+                ? priceHtml(book)
                 : `<span class="book-badge">${book.badge || "출시 예정"}</span>`
             }</span>
           </span>
@@ -169,7 +171,21 @@ function selectBook(id) {
   const format = FORMATS[book.format] || { label: "-", delivery: "-" };
   detailFormat.textContent = format.label;
   detailDelivery.textContent = format.delivery;
-  detailPrice.textContent = isPaused(book) ? "잠시 판매를 쉬고 있어요" : priceLine(book);
+  if (book.deliveryNote && !isPaused(book)) {
+    const note = document.createElement("small");
+    note.className = "meta-note";
+    note.textContent = book.deliveryNote;
+    detailDelivery.append(note);
+  }
+  if (isPaused(book)) detailPrice.textContent = "잠시 판매를 쉬고 있어요";
+  else if (book.listPrice > book.price && !book.priceText) detailPrice.innerHTML = priceHtml(book);
+  else detailPrice.textContent = priceLine(book);
+  if (book.priceNote && !isPaused(book)) {
+    const note = document.createElement("small");
+    note.className = "meta-note";
+    note.textContent = book.priceNote;
+    detailPrice.append(note);
+  }
   if (book.upgrade && !isPaused(book)) {
     const note = document.createElement("small");
     note.className = "meta-note";
@@ -460,7 +476,17 @@ function getBookAmounts() {
   return Object.fromEntries(
     books
       .filter(isOnSale)
-      .map((book) => [book.formValue, { amount: won(book.price), note: book.upgrade ? upgradeNote(book.upgrade) : "" }]),
+      .map((book) => [
+        book.formValue,
+        {
+          amount: won(book.price),
+          note: book.upgrade
+            ? upgradeNote(book.upgrade)
+            : book.priceNote
+              ? `${book.priceNote}${book.listPrice > book.price ? ` (정가 ${won(book.listPrice)})` : ""}`
+              : "",
+        },
+      ]),
   );
 }
 
@@ -537,6 +563,13 @@ function showOrderDone({ bookValue, name, email }) {
       ? `${upgradeBook.upgrade.from} 구매자는 ${won(upgradeBook.upgrade.price)} (메모에 '${upgradeBook.upgrade.from} 구매')`
       : "";
     doneNote.hidden = !upgradeBook;
+  }
+  // 발송 일정이 따로 있는 책(미리 구매 등)은 받는 시기를 같이
+  const doneDeliveryRow = document.querySelector("#doneDeliveryRow");
+  const deliveryBook = books.find((book) => book.formValue === bookValue && book.deliveryNote);
+  if (doneDeliveryRow) {
+    setText("#doneDelivery", deliveryBook ? deliveryBook.deliveryNote : "");
+    doneDeliveryRow.hidden = !deliveryBook;
   }
   setText("#doneDepositor", name || "-");
   setText("#doneEmail", email || "-");
