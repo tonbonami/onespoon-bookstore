@@ -152,7 +152,7 @@ for (const b of books) {
     if (seen.has(`${key}:${b[key]}`)) problems.push(`${key} 겹침: ${b[key]}`);
     seen.add(`${key}:${b[key]}`);
   }
-  if (!["notion", "pdf"].includes(b.format)) problems.push(`${name}: format은 "notion" 또는 "pdf" (${b.format})`);
+  if (!FORMATS[b.format]) problems.push(`${name}: format은 books-data.js HANSPOON_FORMATS의 ${Object.keys(FORMATS).map((k) => `"${k}"`).join("·")} 중 하나 (${b.format})`);
   if (!["판매중", "출시예정", "판매중지"].includes(b.status)) problems.push(`${name}: status는 "판매중"·"출시예정"·"판매중지" 중 하나 (${b.status})`);
   if (b.status === "판매중") {
     if (!b.formValue) problems.push(`${name}: 판매중인데 formValue(구글폼 선택값) 없음`);
@@ -200,7 +200,6 @@ if (existsSync(join(ROOT, "index.html")) && !readFileSync(join(ROOT, "index.html
 if (!source.includes("</nav>")) problems.push("books/index.html의 </nav>(위쪽 스튜디오·앱 링크)를 찾지 못함");
 for (const b of books) {
   if (b.featured && !source.includes(`id="${b.featured.slice(1)}" hidden>`)) problems.push(`${b.title}: books/index.html에서 ${b.featured} 상세 소개를 찾지 못함`);
-  if (!FORMATS[b.format]) problems.push(`${b.title}: books-data.js의 HANSPOON_FORMATS에 "${b.format}"이 없음`);
 }
 
 // 구글폼에 실제로 있는 선택값인지 (공개 양식을 읽기만 함). 구글폼을 못 읽으면 경고만 하고 넘어간다(급한 배포를 막지 않게).

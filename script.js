@@ -314,7 +314,7 @@ function makePreviewPages(book) {
     return book.previewPages
       .map(
         (src, index) => `
-          <article class="preview-page image-page">
+          <article class="preview-page image-page${book.previewWide ? " is-wide" : ""}">
             <img src="${src}" alt="${book.title} 미리보기 ${index + 1}페이지" />
             <span>${String(index + 1).padStart(2, "0")}</span>
           </article>
@@ -355,6 +355,7 @@ function openPreview() {
   if (!selectedBook) return;
   previewTitle.textContent = selectedBook.title;
   previewPages.innerHTML = makePreviewPages(selectedBook);
+  previewPages.classList.toggle("is-wide", !!selectedBook.previewWide);
   previewPages.scrollLeft = 0;
   previewModal.classList.add("is-open");
   previewModal.setAttribute("aria-hidden", "false");

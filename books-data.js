@@ -16,6 +16,7 @@
 //   priceUntil  지금 가격이 끝나는 날 "2026-11-30". 검색엔진 상품 정보에 들어가고, 지나면 배포 때 주의가 뜬다
 //               (그날이 지나면 price를 정가로 바꾸고 listPrice·priceNote·priceUntil을 지운다).
 //   deliveryNote 받는 방법 아래와 주문 완료 화면에 함께 나오는 발송 안내(예: 미리 구매 발송 일정).
+//   previewWide 미리보기 그림이 가로로 긴 책(다이어리 등)이면 true — 미리보기 창의 칸도 가로로 보인다.
 //   badge       출시 예정 책의 서가 카드에 표시할 파스텔 배지 문구. 없으면 "출시 예정".
 //   upgrade     이전 판 구매자 할인 { from: "2.0", price: 15000 } — 입금 안내와 메모 칸 안내에 쓰인다.
 //   pickLabel   주문서 책 카드의 작은 글. 뒤에 " · 가격"이 붙는다.
@@ -24,7 +25,7 @@
 //               주문 버튼 자리에 pausedText만 뜬다. 데이터·표지는 그대로 두고 "판매중"으로 되돌리면 다시 팔린다).
 //   pausedText  판매중지 책의 짧은 안내. 없으면 "개정판 준비 중이에요".
 //   slug        책별 주소 /books/<slug>/ (영어 소문자·숫자·-만). 배포할 때 tools/build-pages.mjs가 페이지를 만든다.
-//   format      "notion"(노션 교재) 또는 "pdf"(PDF 책). 책 소개의 '종류'와 '받는 방법' 줄이 여기서 나온다.
+//   format      "notion"(노션 교재) · "pdf"(PDF 책) · "goodnotes"(굿노트 다이어리). 책 소개의 '종류'와 '받는 방법' 줄이 여기서 나온다.
 //   shareText   카톡·인스타로 책 주소를 보낼 때 공유 카드에 나오는 한 줄. 가격은 넣지 않는다(카드가 오래 남음).
 //   searchTitle 검색 결과에 뜨는 책별 페이지 제목. 뒤에 " | 한스푼 서점"이 붙는다. 없으면 title.
 //   reviews     책 소개 아래 후기 칸. 구글폼으로 받은 후기 중 우댕이 고른 것만, 많아야 6개.
@@ -35,6 +36,7 @@
 window.HANSPOON_FORMATS = {
   notion: { label: "노션 교재 · 휴대폰·태블릿·PC", delivery: "입금 확인 후 6시간 안에 노션 가입 이메일로 초대" },
   pdf: { label: "PDF 책 · 노션 필요 없음", delivery: "입금 확인 후 6시간 안에 메일로 PDF" },
+  goodnotes: { label: "굿노트 다이어리 · 하이퍼링크 PDF · 아이패드", delivery: "입금 확인 후 6시간 안에 메일로 PDF" },
 };
 
 window.HANSPOON_BOOKS = [
@@ -68,6 +70,40 @@ window.HANSPOON_BOOKS = [
       "/assets/preview-pages/nofu3-preview-03.png",
       "/assets/preview-pages/nofu3-preview-04.png",
       "/assets/preview-pages/nofu3-preview-05.png",
+    ],
+  },
+  {
+    id: 8,
+    slug: "diary-2027",
+    format: "goodnotes",
+    shareText: "하루하루 쓰는 다이어리 안에서 프랑스어 한 문장을 만나고, 듣고, 써 보는 굿노트 다이어리",
+    lang: "fr",
+    status: "판매중",
+    title: "한스푼 다이어리 2027",
+    searchTitle: "한스푼 다이어리 2027 · 프랑스어 굿노트 다이어리",
+    category: "굿노트 다이어리 · 하이퍼링크 PDF · 프랑스어 · 아이패드",
+    description: "하루하루 쓰는 다이어리 안에서 프랑스어 한 문장을 만나고, 듣고, 써 보는 굿노트 다이어리.",
+    audience: "프랑스어를 시작했는데 따로 공부할 시간을 내기 어려운 분 · 굿노트로 다이어리를 쓰고 꾸미는 걸 좋아하는 분 · 하루에 한 문장씩 꾸준히 쌓고 싶은 분",
+    reviews: [],
+    color: "#f6f1e8",
+    cover: "/assets/web/diary-2027-cover.webp",
+    coverSize: [840, 1192],
+    formValue: "한스푼 다이어리 2027",
+    price: 9900,
+    listPrice: 12000,
+    priceNote: "11월 30일까지 미리 구매가",
+    priceUntil: "2026-11-30",
+    deliveryNote: "미리 구매하신 분께 「미리 쓰는 두 달」(2026년 11·12월판)은 바로, 2027판(날짜판 + 날짜 없는 판)은 12월 1일까지 보내 드려요. 못 지키면 환불해 드려요.",
+    pickLabel: "굿노트 다이어리 PDF",
+    featured: "#featuredDiary",
+    previewWide: true,
+    previewPages: [
+      "/assets/preview-pages/diary-2027-preview-01.jpg",
+      "/assets/preview-pages/diary-2027-preview-02.jpg",
+      "/assets/preview-pages/diary-2027-preview-03.jpg",
+      "/assets/preview-pages/diary-2027-preview-04.jpg",
+      "/assets/preview-pages/diary-2027-preview-05.jpg",
+      "/assets/preview-pages/diary-2027-preview-06.jpg",
     ],
   },
   {
