@@ -402,6 +402,14 @@ p {
   }
 }
 
+.kit-small {
+  margin: 8px 24px 0;
+  color: rgba(67, 63, 62, 0.6);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
 /* 가로로 긴 미리보기(다이어리, books-data.js previewWide) */
 .preview-pages.is-wide {
   grid-auto-columns: minmax(280px, 560px);
