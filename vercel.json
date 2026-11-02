@@ -2,9 +2,30 @@
   "buildCommand": "node tools/build-pages.mjs",
   "outputDirectory": ".",
   "redirects": [
-    { "source": "/listen", "destination": "/listen/", "statusCode": 308 }
+    {
+      "source": "/listen",
+      "destination": "/listen/",
+      "statusCode": 308
+    }
   ],
   "headers": [
-    { "source": "/listen/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }
+    {
+      "source": "/listen/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
+    {
+      "source": "/free/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    }
   ]
 }
