@@ -37,7 +37,8 @@ const CHROME = argValue("--chrome", "/Applications/Google Chrome.app/Contents/Ma
 const PATHS = ["/", "/books/", "/books", "/studio/", "/studio", "/apps/", "/apps", "/francespoon/", "/francespoon"];
 // 공유 미리보기를 볼 페이지
 // 2026-11-01 대문 교체: /는 서점 대문, 스튜디오 대문은 /studio/ (기준값의 meta도 그렇게 옮겨 둠)
-const PAGES = ["/", "/books/", "/studio/", "/apps/", "/francespoon/"];
+// 2026-11-04 프랑스푼 내림: /francespoon/은 /studio/로 넘어가므로 공유 미리보기 비교에서 뺌(주소 검사는 PATHS에 남겨 넘김을 확인)
+const PAGES = ["/", "/books/", "/studio/", "/apps/"];
 // 서점에서 바로가기로 쓰일 수 있는 칸. 사이트 안 링크가 가리키는 칸은 자동으로 더한다.
 const BOOKS_ANCHORS = ["orderFormSection", "notifySection", "bookDetail", "featuredNoFu3", "featured30Days", "bookShelf"];
 const BOOK_ENTRY = "entry.1833963440";

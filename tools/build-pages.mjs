@@ -301,7 +301,8 @@ for (const b of books) {
 
 // ── sitemap.xml ───────────────────────────────
 // 검색엔진에 알릴 주소 목록. 판매 중지 책은 뺀다(다시 팔면 자동으로 들어감).
-const pages = ["/", ...books.filter((b) => b.status !== "판매중지").map((b) => `/books/${b.slug}/`), "/studio/", "/apps/", "/francespoon/"];
+// /francespoon/은 2026-11-04 내림(vercel.json에서 /studio/로 307). 다시 열면 여기에 되돌려 넣는다.
+const pages = ["/", ...books.filter((b) => b.status !== "판매중지").map((b) => `/books/${b.slug}/`), "/studio/", "/apps/"];
 writeFileSync(
   join(ROOT, "sitemap.xml"),
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${SITE}${p}</loc></url>`).join("\n")}\n</urlset>\n`,

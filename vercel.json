@@ -6,6 +6,16 @@
       "source": "/listen",
       "destination": "/listen/",
       "statusCode": 308
+    },
+    {
+      "source": "/francespoon",
+      "destination": "/studio/",
+      "statusCode": 307
+    },
+    {
+      "source": "/francespoon/(.*)",
+      "destination": "/studio/",
+      "statusCode": 307
     }
   ],
   "headers": [
