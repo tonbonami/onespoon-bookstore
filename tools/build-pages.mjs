@@ -39,7 +39,7 @@ const books = sandbox.window.HANSPOON_BOOKS || [];
 const FORMATS = sandbox.window.HANSPOON_FORMATS || {};
 const DEFAULT_BOOK_ID = 5; // /books/를 열면 먼저 보이는 책 (script.js의 DEFAULT_BOOK_ID와 같게)
 // 대문(/) 검색 제목·설명. /books/는 대문과 같은 페이지라 대표 주소(canonical)를 대문으로 둔다.
-const FRONT_TITLE = "한스푼 서점 · 프랑스어 입문 노션 교재 『나의 첫 프랑스어 책 3.0』";
+const FRONT_TITLE = "한스푼 서점 · 『나의 첫 프랑스어 책 3.0』과 한스푼 다이어리 2027";
 const FRONT_DESCRIPTION = "알파벳부터 『어린 왕자』 원문까지, 한 권으로. 프랑스어 입문 노션 교재 『나의 첫 프랑스어 책 3.0』과 프랑스어 PDF 책을 파는 프랑스어 한스푼의 서점이에요.";
 
 const attr = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");

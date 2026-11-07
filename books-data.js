@@ -17,6 +17,8 @@
 //               (그날이 지나면 price를 정가로 바꾸고 listPrice·priceNote·priceUntil을 지운다).
 //   deliveryNote 받는 방법 아래와 주문 완료 화면에 함께 나오는 발송 안내(예: 미리 구매 발송 일정).
 //   previewWide 미리보기 그림이 가로로 긴 책(다이어리 등)이면 true — 미리보기 창의 칸도 가로로 보인다.
+//   banner      서가 '책 고르기' 바로 아래 띠 { tag: "NOUVEAU", kind: "굿노트 다이어리", free: { label, href } }.
+//               가격은 price·listPrice·priceNote를 그대로 쓴다. 판매 중인 책 하나에만 두고, 빼면 띠가 사라진다(그 책 페이지에서는 숨김).
 //   badge       출시 예정 책의 서가 카드에 표시할 파스텔 배지 문구. 없으면 "출시 예정".
 //   upgrade     이전 판 구매자 할인 { from: "2.0", price: 15000 } — 입금 안내와 메모 칸 안내에 쓰인다.
 //   pickLabel   주문서 책 카드의 작은 글. 뒤에 " · 가격"이 붙는다.
@@ -95,6 +97,7 @@ window.HANSPOON_BOOKS = [
     priceUntil: "2026-11-30",
     deliveryNote: "입금 확인 후 「미리 쓰는 두 달」과 2027판(날짜판 + 날짜 없는 판)을 함께 보내 드려요.",
     pickLabel: "굿노트 다이어리 PDF",
+    banner: { tag: "NOUVEAU", kind: "굿노트 다이어리", free: { label: "11·12월판 무료로 먼저 받기", href: "/free/hanspoon-diary-2026-novdec.pdf" } },
     featured: "#featuredDiary",
     previewWide: true,
     previewPages: [

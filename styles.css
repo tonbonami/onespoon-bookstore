@@ -144,6 +144,97 @@ p {
   text-align: left;
 }
 
+/* '책 고르기' 아래 띠 (books-data.js banner, script.js renderShelfBanner) */
+.shelf-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin: 0 24px 16px;
+  padding: 14px 16px;
+  border: 1px solid rgba(59, 130, 246, 0.16);
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--pastel-blue), #f6f1e8);
+  color: var(--ink);
+}
+
+.shelf-banner[hidden] {
+  display: none;
+}
+
+.shelf-banner-tag {
+  flex: none;
+  align-self: flex-start;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.shelf-banner-text {
+  display: flex;
+  flex: 1 1 200px;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.shelf-banner-text small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.shelf-banner-text strong {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.shelf-banner-price {
+  color: #2f7fc1;
+  font-size: 13.5px;
+  font-weight: 700;
+}
+
+.shelf-banner-price .list-price {
+  margin-right: 4px;
+}
+
+.shelf-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.shelf-banner-go {
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.shelf-banner-free {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.shelf-banner-go:focus-visible,
+.shelf-banner-free:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
 .book-shelf {
   display: grid;
   /* 넓은 화면: 책 수만큼 칸(최대 4칸, script.js renderShelf가 정함). 폰은 아래 760px 규칙에서 2열 */

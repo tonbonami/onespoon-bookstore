@@ -372,7 +372,28 @@ function closePreview() {
   detailBook.focus();
 }
 
+// '책 고르기' 아래 띠: books-data.js에 banner가 있는 판매 중인 책 하나. 그 책의 페이지(/books/<slug>/)에서는 숨긴다
+function renderShelfBanner() {
+  const box = document.querySelector("#shelfBanner");
+  const book = books.find((item) => item.banner && isOnSale(item));
+  if (!box || !book || document.body.dataset.book === book.slug) return;
+  const { tag, kind, free } = book.banner;
+  box.innerHTML = `
+    <span class="shelf-banner-tag">${tag}</span>
+    <span class="shelf-banner-text">
+      <small>${kind}</small>
+      <strong>${book.title}</strong>
+      <span class="shelf-banner-price">${priceHtml(book)}${book.priceNote ? ` · ${book.priceNote}` : ""}</span>
+    </span>
+    <span class="shelf-banner-actions">
+      <a class="shelf-banner-go" href="/books/${book.slug}/">자세히 보기 →</a>
+      ${free ? `<a class="shelf-banner-free" href="${free.href}">${free.label}</a>` : ""}
+    </span>`;
+  box.hidden = false;
+}
+
 renderShelf();
+renderShelfBanner();
 
 // 처음 열 책: 책별 페이지(/books/<slug>/)면 그 책, /books/?book=<slug> 링크도 그 책, 아니면 기본 책
 const startSlug = document.body.dataset.book || new URLSearchParams(location.search).get("book");
