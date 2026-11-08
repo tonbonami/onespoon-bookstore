@@ -981,6 +981,220 @@ body.modal-open .order-bar {
   color: var(--ink);
 }
 
+/* 다이어리 상세: 듣기는 이렇게 연결돼요 (3단계 그림) */
+.listen-flow,
+.page-tour {
+  margin: 0 0 34px;
+}
+
+.listen-flow-lead {
+  margin: -2px 24px 14px;
+  color: rgba(67, 63, 62, 0.72);
+  font-size: 0.92rem;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.listen-steps {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0 24px;
+  list-style: none;
+}
+
+.listen-step {
+  padding: 14px 14px 18px;
+  border-radius: 20px;
+  background: var(--pastel-blue);
+}
+
+.listen-step:nth-child(2) { background: var(--pastel-mint); }
+.listen-step:nth-child(3) { background: var(--pastel-lavender); }
+
+.listen-step img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(67, 63, 62, 0.08);
+}
+
+.listen-step-num {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  vertical-align: 0.1em;
+}
+
+.listen-step h3 {
+  margin: 14px 4px 6px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.listen-step p {
+  margin: 0 4px;
+  color: rgba(67, 63, 62, 0.78);
+  font-size: 0.9rem;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.listen-step em,
+.page-points em {
+  font-style: italic;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+/* 다이어리 상세: 페이지별로 보기 (폰은 한 줄에 한 장, 넓은 화면은 두 장) */
+.page-tour-grid {
+  display: grid;
+  gap: 16px;
+  padding: 0 24px;
+}
+
+.page-card {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(67, 63, 62, 0.06);
+}
+
+.page-shot {
+  display: block;
+  border-bottom: 1px solid var(--line);
+  background: #fbfaf5;
+}
+
+.page-shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.page-shot:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
+.page-card-body {
+  padding: 14px 18px 18px;
+}
+
+.page-card-fr {
+  margin: 0 0 2px;
+  color: var(--blue);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.page-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.02rem;
+  font-weight: 800;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.page-points,
+.page-marks {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  color: rgba(67, 63, 62, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  list-style: none;
+  word-break: keep-all;
+}
+
+.page-points li {
+  position: relative;
+  padding-left: 14px;
+}
+
+.page-points li::before {
+  content: "";
+  position: absolute;
+  top: 0.62em;
+  left: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--blue);
+}
+
+/* 연간 그림의 동그라미 번호(1~4)와 같은 색 번호 */
+.page-marks {
+  counter-reset: mark;
+}
+
+.page-marks li {
+  position: relative;
+  padding-left: 30px;
+  counter-increment: mark;
+}
+
+.page-marks li::before {
+  content: counter(mark);
+  position: absolute;
+  top: 0.1em;
+  left: 0;
+  display: inline-flex;
+  width: 21px;
+  height: 21px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #e8705a;
+  color: #ffffff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+@media (min-width: 761px) {
+  .listen-steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .page-tour-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .page-card-wide {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .page-card-wide .page-shot {
+    border-right: 1px solid var(--line);
+    border-bottom: 0;
+  }
+
+  .page-card-wide .page-card-body {
+    padding: 22px 26px;
+  }
+}
+
 /* Flow section */
 .flow-section {
   margin: 0 0 30px;
