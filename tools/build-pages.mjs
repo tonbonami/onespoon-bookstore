@@ -222,6 +222,43 @@ else {
   }
 }
 
+// 다이어리 미리 듣기(/listen-preview/): books-data.js listenPreview의 from~to 문장만 담아 /listen/index.html로 만든다.
+// 그 범위 밖 문장이 페이지에 없어서 주 넘기기도 그 안에서 멈춘다. 음성은 /listen/audio/를 그대로 쓴다.
+// (/listen/ 자체는 주소만 알면 다 열린다. 이 페이지는 '버튼으로는 이 범위만' 보여 주는 것이지 막는 장치가 아니다.)
+const previewBook = books.find((b) => b.listenPreview);
+let listenPreviewHtml = null;
+if (previewBook) {
+  const { from, to, label } = previewBook.listenPreview;
+  const name = `${previewBook.title} listenPreview`;
+  const listen = readFileSync(join(ROOT, "listen/index.html"), "utf8");
+  const dataLine = listen.match(/const DATA = (\{.*\});\n/);
+  const AUDIO = "`audio/${x.date}";
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(from || "") || !/^\d{4}-\d{2}-\d{2}$/.test(to || "") || to < from || !label) {
+    problems.push(`${name}: { from: "2026-11-01", to: "2026-11-30", label: "버튼 글" } 꼴`);
+  } else if (!dataLine) problems.push("listen/index.html에서 'const DATA = {…};' 한 줄을 찾지 못해 미리 듣기를 만들 수 없음");
+  else if (!listen.includes(AUDIO) || !listen.includes('<div class="wrap">')) problems.push(`listen/index.html에서 음성 주소(${AUDIO})나 <div class="wrap">를 찾지 못함`);
+  else {
+    const data = JSON.parse(dataLine[1]);
+    const days = (data.days || []).filter((d) => d.date >= from && d.date <= to);
+    const missing = days.filter((d) => !existsSync(join(ROOT, `listen/audio/${d.date}_fr.${data.ext || "mp3"}`)));
+    if (!days.length) problems.push(`${name}: ${from}~${to} 문장이 listen/index.html에 없음`);
+    else if (missing.length) problems.push(`${name}: 음성 파일 없음 ${missing.map((d) => d.date).join(", ")}`);
+    else {
+      listenPreviewHtml = listen
+        .replace(dataLine[0], () => `const DATA = ${JSON.stringify({ ...data, days })};\n`)
+        .replaceAll(AUDIO, () => "`/listen/audio/${x.date}")
+        .replace(/<title>[^<]*<\/title>/, () => `<title>미리 듣기 · ${text(previewBook.title)}</title>`)
+        .replace("</style>", () => `.back,.jump,.badge{display:none!important}
+.preview-top{display:inline-block;margin:4px 2px 2px;font:13px "Nanum Gothic",sans-serif;color:var(--pd);text-decoration:none}
+.preview-note{margin:2px 2px 4px;font:12.5px/1.5 "Nanum Gothic",sans-serif;color:var(--soft)}
+</style>`)
+        .replace('<div class="wrap">', () => `<div class="wrap">
+  <a class="preview-top" href="/books/${previewBook.slug}/">← ${text(previewBook.title)} 소개로</a>
+  <p class="preview-note">${text(previewBook.listenPreview.note || label)}</p>`);
+    }
+  }
+}
+
 if (problems.length) {
   console.error(`배포 페이지를 만들지 않았어요(운영 중인 사이트는 이전 그대로). 아래를 고쳐 주세요:\n  ${problems.join("\n  ")}`);
   process.exit(1);
@@ -308,3 +345,10 @@ writeFileSync(
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${SITE}${p}</loc></url>`).join("\n")}\n</urlset>\n`,
 );
 console.log(`만듦: /sitemap.xml (${pages.length}개 주소)`);
+
+if (listenPreviewHtml) {
+  mkdirSync(join(ROOT, "listen-preview"), { recursive: true });
+  writeFileSync(join(ROOT, "listen-preview/index.html"), listenPreviewHtml);
+  const { from, to } = previewBook.listenPreview;
+  console.log(`만듦: /listen-preview/ (다이어리 미리 듣기 ${from}~${to})`);
+}

@@ -18,3 +18,5 @@ books/*
 /sitemap.xml
 # 배포 빌드가 만드는 대문(서점). 스튜디오 대문 원본은 studio/index.html
 /index.html
+# 배포 빌드가 만드는 다이어리 미리 듣기(books-data.js listenPreview 범위만)
+/listen-preview/

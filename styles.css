@@ -1060,6 +1060,41 @@ body.modal-open .order-bar {
   color: var(--ink);
 }
 
+/* 다이어리 미리 듣기 버튼 (books-data.js listenPreview, script.js renderListenTry) */
+.listen-try {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 24px 0;
+  text-align: center;
+}
+
+.listen-try[hidden] {
+  display: none;
+}
+
+.listen-try-btn {
+  padding: 13px 22px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: #ffffff;
+  font-size: 0.98rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.listen-try-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
+.listen-try small {
+  color: rgba(67, 63, 62, 0.6);
+  font-size: 0.82rem;
+  word-break: keep-all;
+}
+
 /* 다이어리 상세: 페이지별로 보기 (폰은 한 줄에 한 장, 넓은 화면은 두 장) */
 .page-tour-grid {
   display: grid;

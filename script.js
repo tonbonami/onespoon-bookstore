@@ -392,8 +392,21 @@ function renderShelfBanner() {
   box.hidden = false;
 }
 
+// 다이어리 미리 듣기 버튼: books-data.js의 listenPreview 한 곳에서 범위·문구를 읽는다. 오늘(한국 날짜)이 범위 안이면 오늘이 있는 주부터 연다
+function renderListenTry() {
+  const box = document.querySelector("#listenTry");
+  const book = books.find((item) => item.listenPreview);
+  if (!box || !book) return;
+  const { from, to, label, note } = book.listenPreview;
+  const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+  const day = today >= from && today <= to ? today : from;
+  box.innerHTML = `<a class="listen-try-btn" href="/listen-preview/?d=${day}">${label} ▶</a>${note ? `<small>${note}</small>` : ""}`;
+  box.hidden = false;
+}
+
 renderShelf();
 renderShelfBanner();
+renderListenTry();
 
 // 처음 열 책: 책별 페이지(/books/<slug>/)면 그 책, /books/?book=<slug> 링크도 그 책, 아니면 기본 책
 const startSlug = document.body.dataset.book || new URLSearchParams(location.search).get("book");
