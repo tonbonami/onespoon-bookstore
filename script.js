@@ -392,15 +392,18 @@ function renderShelfBanner() {
   box.hidden = false;
 }
 
-// 다이어리 미리 듣기 버튼: books-data.js의 listenPreview 한 곳에서 범위·문구를 읽는다. 오늘(한국 날짜)이 범위 안이면 오늘이 있는 주부터 연다
+// 다이어리 미리 듣기 버튼: books-data.js listenPreview 목록에서 오늘(한국 날짜)에 맞는 칸을 고른다(until 이하인 첫 칸, 없으면 마지막 칸).
+// 오늘이 그 범위 안이면 오늘이 있는 주부터 연다. 페이지는 배포 빌드가 칸마다 만든 /listen-preview/<from 앞 7자리>/
+const pickListenPreview = (list, today) => list.find((p) => p.until && today <= p.until) || list[list.length - 1];
+
 function renderListenTry() {
   const box = document.querySelector("#listenTry");
-  const book = books.find((item) => item.listenPreview);
+  const book = books.find((item) => item.listenPreview?.length);
   if (!box || !book) return;
-  const { from, to, label, note } = book.listenPreview;
   const today = new Date().toLocaleDateString("sv-SE", { timeZone: "Asia/Seoul" });
+  const { from, to, label, note } = pickListenPreview(book.listenPreview, today);
   const day = today >= from && today <= to ? today : from;
-  box.innerHTML = `<a class="listen-try-btn" href="/listen-preview/?d=${day}">${label} ▶</a>${note ? `<small>${note}</small>` : ""}`;
+  box.innerHTML = `<a class="listen-try-btn" href="/listen-preview/${from.slice(0, 7)}/?d=${day}">${label} ▶</a>${note ? `<small>${note}</small>` : ""}`;
   box.hidden = false;
 }
 

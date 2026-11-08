@@ -19,8 +19,10 @@
 //   previewWide 미리보기 그림이 가로로 긴 책(다이어리 등)이면 true — 미리보기 창의 칸도 가로로 보인다.
 //   banner      서가 '책 고르기' 바로 아래 띠 { tag: "NOUVEAU", kind: "굿노트 다이어리", free: { label, href } }.
 //               가격은 price·listPrice·priceNote를 그대로 쓴다. 판매 중인 책 하나에만 두고, 빼면 띠가 사라진다(그 책 페이지에서는 숨김).
-//   listenPreview 다이어리 '듣기는 이렇게 연결돼요' 아래 미리 듣기 버튼 { from, to, label, note }. 배포 빌드가 /listen/에서
-//               from~to 문장만 담은 /listen-preview/를 만든다(그 밖의 달로는 넘어가지 않음). 달을 바꿀 땐 이 네 칸만 고친다.
+//   listenPreview 다이어리 '듣기는 이렇게 연결돼요' 아래 미리 듣기 버튼. 날짜 차례대로 [{ until, from, to, label, note }, …].
+//               오늘(한국 날짜)이 until 이하인 첫 칸을 쓰고, 마지막 칸은 until 없이 그 뒤로 계속 쓴다.
+//               배포 빌드가 칸마다 /listen/에서 from~to 문장만 담은 /listen-preview/<from 앞 7자리>/를 만든다(그 밖으로는 넘어가지 않음).
+//               미리 들려줄 범위를 바꿀 땐 이 목록만 고친다.
 //   badge       출시 예정 책의 서가 카드에 표시할 파스텔 배지 문구. 없으면 "출시 예정".
 //   upgrade     이전 판 구매자 할인 { from: "2.0", price: 15000 } — 입금 안내와 메모 칸 안내에 쓰인다.
 //   pickLabel   주문서 책 카드의 작은 글. 뒤에 " · 가격"이 붙는다.
@@ -100,7 +102,12 @@ window.HANSPOON_BOOKS = [
     deliveryNote: "입금 확인 후 「미리 쓰는 두 달」과 2027판(날짜판 + 날짜 없는 판)을 함께 보내 드려요.",
     pickLabel: "굿노트 다이어리 PDF",
     banner: { tag: "NOUVEAU", kind: "굿노트 다이어리", free: { label: "11·12월판 무료로 먼저 받기", href: "/free/hanspoon-diary-2026-novdec.pdf" } },
-    listenPreview: { from: "2026-11-01", to: "2026-11-30", label: "11월 문장 미리 들어 보기", note: "2026년 11월 문장을 니꼴라 목소리로 미리 들어 볼 수 있어요." },
+    // 2027년 문장을 실제로 막는 일은 다음 PDF 판(토큰 주소 + 옛 주소 유지) 때 다시 정한다(본사 11/8). 지금은 버튼으로 이 범위만 보여 준다.
+    listenPreview: [
+      { until: "2026-11-30", from: "2026-11-01", to: "2026-11-30", label: "11월 문장 미리 들어 보기", note: "2026년 11월 문장을 니꼴라 목소리로 미리 들어 볼 수 있어요." },
+      { until: "2026-12-31", from: "2026-12-01", to: "2026-12-31", label: "12월 문장 미리 들어 보기", note: "2026년 12월 문장을 니꼴라 목소리로 미리 들어 볼 수 있어요." },
+      { from: "2027-01-04", to: "2027-01-10", label: "1월 첫 주 문장 미리 들어 보기", note: "2027년 1월 첫 주 7문장을 니꼴라 목소리로 미리 들어 볼 수 있어요." },
+    ],
     featured: "#featuredDiary",
     previewWide: true,
     previewPages: [

@@ -222,39 +222,48 @@ else {
   }
 }
 
-// 다이어리 미리 듣기(/listen-preview/): books-data.js listenPreview의 from~to 문장만 담아 /listen/index.html로 만든다.
-// 그 범위 밖 문장이 페이지에 없어서 주 넘기기도 그 안에서 멈춘다. 음성은 /listen/audio/를 그대로 쓴다.
+// 다이어리 미리 듣기(/listen-preview/<from 앞 7자리>/): books-data.js listenPreview 목록의 칸마다 from~to 문장만 담아
+// /listen/index.html로 만든다. 그 범위 밖 문장이 페이지에 없어서 주 넘기기도 그 안에서 멈춘다. 음성은 /listen/audio/를 그대로 쓴다.
+// 어느 칸을 보여 줄지는 화면(script.js pickListenPreview)이 오늘 날짜로 고른다.
 // (/listen/ 자체는 주소만 알면 다 열린다. 이 페이지는 '버튼으로는 이 범위만' 보여 주는 것이지 막는 장치가 아니다.)
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
 const previewBook = books.find((b) => b.listenPreview);
-let listenPreviewHtml = null;
+const listenPreviews = [];
 if (previewBook) {
-  const { from, to, label } = previewBook.listenPreview;
+  const list = previewBook.listenPreview;
   const name = `${previewBook.title} listenPreview`;
   const listen = readFileSync(join(ROOT, "listen/index.html"), "utf8");
   const dataLine = listen.match(/const DATA = (\{.*\});\n/);
   const AUDIO = "`audio/${x.date}";
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(from || "") || !/^\d{4}-\d{2}-\d{2}$/.test(to || "") || to < from || !label) {
-    problems.push(`${name}: { from: "2026-11-01", to: "2026-11-30", label: "버튼 글" } 꼴`);
-  } else if (!dataLine) problems.push("listen/index.html에서 'const DATA = {…};' 한 줄을 찾지 못해 미리 듣기를 만들 수 없음");
+  const shapeOk = (p, last) =>
+    DAY_RE.test(p?.from || "") && DAY_RE.test(p?.to || "") && p.to >= p.from && p.label && (last ? !p.until : DAY_RE.test(p.until || ""));
+  if (!Array.isArray(list) || !list.length || !list.every((p, i) => shapeOk(p, i === list.length - 1))) {
+    problems.push(`${name}: [{ until: "2026-11-30", from, to, label, note }, …, { from, to, label, note }] 꼴(마지막 칸만 until 없음)`);
+  } else if (list.some((p, i) => i && p.until && p.until <= list[i - 1].until)) problems.push(`${name}: until은 날짜 차례대로`);
+  else if (new Set(list.map((p) => p.from.slice(0, 7))).size !== list.length) problems.push(`${name}: from의 달(앞 7자리)이 겹침 — 페이지 주소가 같아짐`);
+  else if (!dataLine) problems.push("listen/index.html에서 'const DATA = {…};' 한 줄을 찾지 못해 미리 듣기를 만들 수 없음");
   else if (!listen.includes(AUDIO) || !listen.includes('<div class="wrap">')) problems.push(`listen/index.html에서 음성 주소(${AUDIO})나 <div class="wrap">를 찾지 못함`);
   else {
     const data = JSON.parse(dataLine[1]);
-    const days = (data.days || []).filter((d) => d.date >= from && d.date <= to);
-    const missing = days.filter((d) => !existsSync(join(ROOT, `listen/audio/${d.date}_fr.${data.ext || "mp3"}`)));
-    if (!days.length) problems.push(`${name}: ${from}~${to} 문장이 listen/index.html에 없음`);
-    else if (missing.length) problems.push(`${name}: 음성 파일 없음 ${missing.map((d) => d.date).join(", ")}`);
-    else {
-      listenPreviewHtml = listen
-        .replace(dataLine[0], () => `const DATA = ${JSON.stringify({ ...data, days })};\n`)
-        .replaceAll(AUDIO, () => "`/listen/audio/${x.date}")
-        .replace(/<title>[^<]*<\/title>/, () => `<title>미리 듣기 · ${text(previewBook.title)}</title>`)
-        .replace("</style>", () => `.back,.jump,.badge{display:none!important}
+    for (const p of list) {
+      const days = (data.days || []).filter((d) => d.date >= p.from && d.date <= p.to);
+      const missing = days.filter((d) => !existsSync(join(ROOT, `listen/audio/${d.date}_fr.${data.ext || "mp3"}`)));
+      if (!days.length) problems.push(`${name}: ${p.from}~${p.to} 문장이 listen/index.html에 없음`);
+      else if (missing.length) problems.push(`${name}: 음성 파일 없음 ${missing.map((d) => d.date).join(", ")}`);
+      else {
+        const html = listen
+          .replace(dataLine[0], () => `const DATA = ${JSON.stringify({ ...data, days })};\n`)
+          .replaceAll(AUDIO, () => "`/listen/audio/${x.date}")
+          .replace(/<title>[^<]*<\/title>/, () => `<title>미리 듣기 · ${text(previewBook.title)}</title>`)
+          .replace("</style>", () => `.back,.jump,.badge{display:none!important}
 .preview-top{display:inline-block;margin:4px 2px 2px;font:13px "Nanum Gothic",sans-serif;color:var(--pd);text-decoration:none}
 .preview-note{margin:2px 2px 4px;font:12.5px/1.5 "Nanum Gothic",sans-serif;color:var(--soft)}
 </style>`)
-        .replace('<div class="wrap">', () => `<div class="wrap">
+          .replace('<div class="wrap">', () => `<div class="wrap">
   <a class="preview-top" href="/books/${previewBook.slug}/">← ${text(previewBook.title)} 소개로</a>
-  <p class="preview-note">${text(previewBook.listenPreview.note || label)}</p>`);
+  <p class="preview-note">${text(p.note || p.label)}</p>`);
+        listenPreviews.push({ dir: p.from.slice(0, 7), html, p, count: days.length });
+      }
     }
   }
 }
@@ -346,9 +355,8 @@ writeFileSync(
 );
 console.log(`만듦: /sitemap.xml (${pages.length}개 주소)`);
 
-if (listenPreviewHtml) {
-  mkdirSync(join(ROOT, "listen-preview"), { recursive: true });
-  writeFileSync(join(ROOT, "listen-preview/index.html"), listenPreviewHtml);
-  const { from, to } = previewBook.listenPreview;
-  console.log(`만듦: /listen-preview/ (다이어리 미리 듣기 ${from}~${to})`);
+for (const { dir, html, p, count } of listenPreviews) {
+  mkdirSync(join(ROOT, "listen-preview", dir), { recursive: true });
+  writeFileSync(join(ROOT, "listen-preview", dir, "index.html"), html);
+  console.log(`만듦: /listen-preview/${dir}/ (다이어리 미리 듣기 ${p.from}~${p.to}, ${count}문장${p.until ? `, ${p.until}까지 버튼에 씀` : ", 그 뒤로 계속"})`);
 }
