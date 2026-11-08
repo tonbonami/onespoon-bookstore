@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>다이어리 PDF 받는 중 · 한스푼 다이어리</title>
+    <!-- 버튼 누름 세기: 이 페이지 방문 수 = '다이어리 PDF' 버튼 누른 수(Vercel 웹 분석). 받을 파일 주소는 아래 a#go 한 곳 -->
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+      body { margin: 0; background: #fcfbf4; color: #433f3e; font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif; line-height: 1.6; word-break: keep-all; }
+      main { max-width: 520px; margin: 0 auto; padding: 48px 20px; text-align: center; }
+      h1 { margin: 0 0 8px; font-size: 1.2rem; font-weight: 800; }
+      p { margin: 0 0 14px; color: rgba(67, 63, 62, 0.65); font-size: 0.92rem; }
+      a { color: #433f3e; font-weight: 700; text-underline-offset: 3px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>다이어리 PDF를 받는 중이에요</h1>
+      <p>PDF가 열리면 '공유' → '굿노트'로 보내 주세요.</p>
+      <p><a id="go" href="/free/hanspoon-diary-2026-novdec.pdf">받기가 시작되지 않으면 여기를 눌러 주세요</a></p>
+      <p><a href="/diary/free/">← 받는 페이지로 돌아가기</a></p>
+    </main>
+    <script>
+      // 방문이 기록될 틈을 조금 둔 뒤 파일로 넘어간다
+      setTimeout(function () { location.replace(document.getElementById("go").href); }, 900);
+    </script>
+  </body>
+</html>

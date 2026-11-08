@@ -45,6 +45,46 @@
           "value": "noindex"
         }
       ]
+    },
+    {
+      "source": "/free/hanspoon-diary-2026-novdec.pdf",
+      "headers": [
+        {
+          "key": "Content-Disposition",
+          "value": "inline; filename*=UTF-8''%ED%95%9C%EC%8A%A4%ED%91%BC%20%EB%8B%A4%EC%9D%B4%EC%96%B4%EB%A6%AC%20%EB%AF%B8%EB%A6%AC%20%EC%93%B0%EB%8A%94%20%EB%91%90%20%EB%8B%AC%20%282026%2011-12%EC%9B%94%29.pdf"
+        }
+      ]
+    },
+    {
+      "source": "/free/hanspoon-stickers-basic.collection",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/octet-stream"
+        },
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename*=UTF-8''%ED%95%9C%EC%8A%A4%ED%91%BC%20%EC%8A%A4%ED%8B%B0%EC%BB%A4%20%EA%B8%B0%EB%B3%B8.collection"
+        }
+      ]
+    },
+    {
+      "source": "/free/hanspoon-stickers-basic-png.zip",
+      "headers": [
+        {
+          "key": "Content-Disposition",
+          "value": "attachment; filename*=UTF-8''%ED%95%9C%EC%8A%A4%ED%91%BC%20%EC%8A%A4%ED%8B%B0%EC%BB%A4%20%EA%B8%B0%EB%B3%B8.zip"
+        }
+      ]
+    },
+    {
+      "source": "/diary/free/(pdf|stickers|png)/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
     }
   ]
 }
