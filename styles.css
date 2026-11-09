@@ -981,6 +981,53 @@ body.modal-open .order-bar {
   color: var(--ink);
 }
 
+/* 3.0 '구매 후에도 계속 자라요': 날짜 순 목록(최신이 맨 위, 날짜는 스튜디오 NOUVEAU 공지와 같게) */
+.grow-count {
+  margin: 0 0 14px;
+  color: #8a8a8a;
+  font-size: 13.5px;
+}
+
+.grow-dated {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  font-size: 15.5px;
+  line-height: 1.5;
+  list-style: none;
+  word-break: keep-all;
+}
+
+.grow-dated li {
+  display: grid;
+  grid-template-columns: 6.4em minmax(0, 1fr);
+  gap: 0 12px;
+  align-items: baseline;
+}
+
+.grow-date {
+  color: #8a8a8a;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.grow-sub {
+  color: #777;
+}
+
+@media (max-width: 520px) {
+  .grow-dated li {
+    display: block;
+  }
+
+  .grow-date {
+    display: block;
+    font-size: 12px;
+  }
+}
+
 /* 다이어리 상세: 듣기는 이렇게 연결돼요 (3단계 그림) */
 .listen-flow,
 .page-tour {
