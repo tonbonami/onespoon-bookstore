@@ -1017,6 +1017,36 @@ body.modal-open .order-bar {
   color: #777;
 }
 
+/* 접힌 동안은 최신 3줄만(script.js setupGrowList) */
+.grow-dated.is-collapsed li:nth-child(n + 4) {
+  display: none;
+}
+
+.grow-more {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  margin: 14px 0 0;
+  padding: 10px 16px;
+  border: 1px solid rgba(47, 127, 193, 0.25);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  color: #2f7fc1;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.grow-more[hidden] {
+  display: none;
+}
+
+.grow-more:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+}
+
 @media (max-width: 520px) {
   .grow-dated li {
     display: block;

@@ -304,7 +304,7 @@
           <h2 id="growTitle" style="margin:6px 0 4px;font-size:24px">지금까지 추가된 것</h2>
           <p class="grow-count">10.07 출시 이후 11번 업데이트</p>
           <!-- 날짜는 studio/index.html NOUVEAU 공지의 upd-date와 맞춘다(최신이 맨 위). 업데이트가 늘면 위 횟수도 같이 고친다 -->
-          <ul class="grow-list grow-dated">
+          <ul class="grow-list grow-dated" id="growList">
             <li><span class="grow-date">11.10</span><span><b>첫 7일 학습 루트</b> <span class="grow-sub">· 하루 15분 · 도장판</span></span></li>
             <li><span class="grow-date">11.10</span><span><b>출퇴근 프랑스어 MP3 30개</b> <span class="grow-sub">· 문장 만들기 30일</span></span></li>
             <li><span class="grow-date">11.03</span><span><b>문법 바로 채점 퀴즈 10개</b> <span class="grow-sub">· 골라서 · 직접 쓰기 · 문장 조립</span></span></li>
@@ -317,6 +317,8 @@
             <li><span class="grow-date">10.10~10.14</span><span><b>DELF A1 준비</b> <span class="grow-sub">· 말하기 · 쓰기 · 듣기·읽기 · 모의고사</span></span></li>
             <li><span class="grow-date">10.10~10.14</span><span><b>연습지 PDF</b> <span class="grow-sub">· 동사 변화 빈칸 · DELF 쓰기</span></span></li>
           </ul>
+          <!-- 폰에서 길어서 최신 3줄만 보이고 나머지는 접음(script.js setupGrowList, 개수는 줄 수로 자동). 스크립트가 없으면 모두 보임 -->
+          <button type="button" class="grow-more" id="growMore" aria-controls="growList" aria-expanded="false" hidden></button>
           <p style="margin:14px 0 0;font-size:13.5px;color:#777">추가 비용 없이 교재 안에 바로 들어가요.</p>
         </section>
 

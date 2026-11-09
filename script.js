@@ -411,6 +411,25 @@ renderShelf();
 renderShelfBanner();
 renderListenTry();
 
+// 3.0 '구매 후에도 계속 자라요': 최신 3줄만 보이고 나머지는 '지난 업데이트 N개 더 보기'로 펼친다. N은 줄 수 − 3(맨 위에 한 줄만 넣으면 됨)
+function setupGrowList() {
+  const list = document.querySelector("#growList");
+  const button = document.querySelector("#growMore");
+  const SHOWN = 3;
+  if (!list || !button || list.children.length <= SHOWN) return;
+  const more = list.children.length - SHOWN;
+  const sync = (open) => {
+    list.classList.toggle("is-collapsed", !open);
+    button.setAttribute("aria-expanded", String(open));
+    button.textContent = open ? "접기 ▴" : `지난 업데이트 ${more}개 더 보기 ▾`;
+  };
+  sync(false);
+  button.hidden = false;
+  button.addEventListener("click", () => sync(button.getAttribute("aria-expanded") !== "true"));
+}
+
+setupGrowList();
+
 // 처음 열 책: 책별 페이지(/books/<slug>/)면 그 책, /books/?book=<slug> 링크도 그 책, 아니면 기본 책
 const startSlug = document.body.dataset.book || new URLSearchParams(location.search).get("book");
 const startBook = books.find((book) => book.slug === startSlug);
