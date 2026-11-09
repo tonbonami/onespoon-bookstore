@@ -137,6 +137,26 @@ function productData(b, url, image) {
   return `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>\n  `;
 }
 
+// 대문 전용 검색엔진 정보: 사이트 이름(검색 결과에 'hanspoonbooks.com' 대신 '한스푼 서점'이 뜨게, 구글 '사이트 이름' 안내)과
+// 대표 그림(검색 결과 썸네일 후보, 구글 '썸네일' 안내의 primaryImageOfPage). 뜨는지는 검색엔진이 정한다.
+function frontSiteData() {
+  const data = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebSite", "@id": `${SITE}/#website`, name: "한스푼 서점", alternateName: ["Hanspoon Books", "프랑스어 한스푼 서점"], url: `${SITE}/` },
+      {
+        "@type": "WebPage",
+        "@id": `${SITE}/#webpage`,
+        url: `${SITE}/`,
+        name: FRONT_TITLE,
+        isPartOf: { "@id": `${SITE}/#website` },
+        primaryImageOfPage: { "@type": "ImageObject", url: `${SITE}/assets/og/books.jpg`, width: 1200, height: 630 },
+      },
+    ],
+  };
+  return `<script type="application/ld+json">${JSON.stringify(data).replace(/</g, "\\u003c")}</script>\n    `;
+}
+
 // ── 상품 데이터 검사 ───────────────────────────
 const problems = [];
 const seen = new Set();
@@ -330,7 +350,7 @@ for (const b of books) {
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
-    `;
+    ${frontSiteData()}`;
   let front = source.slice(0, start) + share + source.slice(end);
   front = front
     .replace("<title>한스푼 서점</title>", `<title>${text(FRONT_TITLE)}</title>`)
