@@ -9,7 +9,9 @@ const isPaused = (book) => book.status === "판매중지";
 const priceLine = (book) => book.priceText || won(book.price);
 // 정가가 따로 있으면(미리 구매가 등) 정가에 취소선을 긋고 지금 금액을 붙인다. HTML이라 데이터의 숫자만 넣는다
 const priceHtml = (book) => (book.listPrice > book.price ? `<s class="list-price">${won(book.listPrice)}</s> ` : "") + won(book.price);
-const upgradeNote = ({ from, price }) => `${from} 구매자는 ${won(price)} (메모에 "${from} 구매"를 적어 주세요)`;
+// 메모 칸에 적어 달라는 말: books-data.js upgrade.memo, 없으면 "<from> 구매"
+const upgradeMemo = ({ from, memo }) => memo || `${from} 구매`;
+const upgradeNote = (u) => `${u.from} 구매자는 ${won(u.price)} (메모에 "${upgradeMemo(u)}"를 적어 주세요)`;
 
 // 서가 카드의 언어 칩 (books-data.js의 lang)
 const LANGS = { fr: "🇫🇷 프랑스어", es: "🇪🇸 스페인어", en: "🇬🇧 영어", ko: "🇰🇷 한국어" };
@@ -37,13 +39,14 @@ function renderBookPicks() {
     .join("");
 }
 
-// 메모 칸 아래 이전 판 구매자 안내
-function renderMemoHint() {
+// 메모 칸 아래 이전 판 구매자 안내: 고른 책의 upgrade로(책마다 다름). 처음엔 첫 책 기준으로 써 두고 숨긴다
+function renderMemoHint(book = books.find((item) => item.upgrade)) {
   const hint = document.querySelector("#memoHint");
-  const book = books.find((item) => item.upgrade);
-  if (!hint || !book) return;
-  const { from, price } = book.upgrade;
-  hint.textContent = `${from}을 구매하신 분은 "${from} 구매"와 ${from} 때 사용하신 이메일을 적어 주세요. 확인 후 안내해 드려요. (${from} 구매자는 ${won(price)})`;
+  if (!hint || !book || !book.upgrade) return;
+  const { from, price, memo } = book.upgrade;
+  hint.textContent = memo
+    ? `${from}을 구매하신 분은 "${memo}"와 그때 사용하신 이메일을 적어 주세요. 확인 후 안내해 드려요. (${from} 구매자는 ${won(price)})`
+    : `${from}을 구매하신 분은 "${from} 구매"와 ${from} 때 사용하신 이메일을 적어 주세요. 확인 후 안내해 드려요. (${from} 구매자는 ${won(price)})`;
   hint.hidden = false;
 }
 
@@ -537,11 +540,13 @@ function getBookAmounts() {
         book.formValue,
         {
           amount: won(book.price),
-          note: book.upgrade
-            ? upgradeNote(book.upgrade)
-            : book.priceNote
-              ? `${book.priceNote}${book.listPrice > book.price ? ` (정가 ${won(book.listPrice)})` : ""}`
-              : "",
+          // 할인 기간 안내와 이전 판 구매자 안내가 둘 다 있으면 같이(스페인어 1.0), 하나면 그것만(3.0·다이어리는 예전 그대로)
+          note: [
+            book.priceNote ? `${book.priceNote}${book.listPrice > book.price ? ` (정가 ${won(book.listPrice)})` : ""}` : "",
+            book.upgrade ? upgradeNote(book.upgrade) : "",
+          ]
+            .filter(Boolean)
+            .join(" · "),
         },
       ]),
   );
@@ -566,6 +571,7 @@ function updateDepositAmount() {
   // 메모 칸의 이전 판 구매자 안내는 그 책을 골랐을 때만
   const memoHint = document.querySelector("#memoHint");
   const picked = books.find((book) => book.formValue === getSelectedBookValue());
+  if (picked && picked.upgrade) renderMemoHint(picked);
   if (memoHint && memoHint.textContent) memoHint.hidden = !(picked && picked.upgrade);
 }
 
@@ -617,7 +623,7 @@ function showOrderDone({ bookValue, name, email }) {
   const upgradeBook = books.find((book) => book.formValue === bookValue && book.upgrade);
   if (doneNote) {
     doneNote.textContent = upgradeBook
-      ? `${upgradeBook.upgrade.from} 구매자는 ${won(upgradeBook.upgrade.price)} (메모에 '${upgradeBook.upgrade.from} 구매')`
+      ? `${upgradeBook.upgrade.from} 구매자는 ${won(upgradeBook.upgrade.price)} (메모에 '${upgradeMemo(upgradeBook.upgrade)}')`
       : "";
     doneNote.hidden = !upgradeBook;
   }

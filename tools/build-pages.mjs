@@ -236,7 +236,10 @@ else {
   else if (form) {
     for (const b of books.filter((x) => x.status === "판매중" && x.formValue)) {
       if (!form[BOOK_ENTRY].선택지.includes(b.formValue)) {
-        problems.push(`${b.title}: formValue "${b.formValue}"이 구글폼 선택지에 없음 (지금 선택지: ${form[BOOK_ENTRY].선택지.join(" / ")})`);
+        const msg = `${b.title}: formValue "${b.formValue}"이 구글폼 선택지에 없음 (지금 선택지: ${form[BOOK_ENTRY].선택지.join(" / ")})`;
+        // 운영(hanspoonbooks.com)은 멈춘다. 공개 미리보기(SITE_URL을 준 빌드)만 새 책 출시 준비를 보여 주려고 경고로 넘긴다
+        if (SITE === PROD) problems.push(msg);
+        else console.warn(`주의(미리보기라 계속): ${msg}`);
       }
     }
   }
