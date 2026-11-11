@@ -199,6 +199,12 @@ function selectBook(id) {
   renderReviews(book);
   detailBook.disabled = !book.previewPages;
   detailPreview.hidden = !book.previewPages;
+  // 무료 샘플(books-data.js sampleUrl)이 있는 책만 주문 버튼 옆에
+  const detailSample = document.querySelector("#detailSample");
+  if (detailSample) {
+    detailSample.hidden = !book.sampleUrl || isPaused(book);
+    if (book.sampleUrl) detailSample.href = book.sampleUrl;
+  }
   if (book.previewPages) detailPreview.textContent = `미리 보기 · ${book.previewPages.length}쪽`;
 
   document.querySelectorAll(".book-card").forEach((card) => {
