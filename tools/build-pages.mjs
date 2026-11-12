@@ -291,6 +291,14 @@ if (previewBook) {
   }
 }
 
+// 무료로 먼저 보기(freebie) 칸 모양 확인
+for (const b of books.filter((x) => x.freebie)) {
+  const f = b.freebie;
+  const ok = Number.isInteger(f.order) && f.tag && f.text && f.kind && /^(https:\/\/|\/)/.test(f.url || "") &&
+    Array.isArray(f.inside) && f.inside.length === 3 && Array.isArray(f.more) && f.more.length === 3;
+  if (!ok) problems.push(`${b.title}: freebie는 { order, tag, text, kind, url(https:// 또는 /), inside: [3개], more: [3개] } 꼴`);
+}
+
 if (problems.length) {
   console.error(`배포 페이지를 만들지 않았어요(운영 중인 사이트는 이전 그대로). 아래를 고쳐 주세요:\n  ${problems.join("\n  ")}`);
   process.exit(1);
@@ -378,6 +386,102 @@ writeFileSync(
   `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${pages.map((p) => `  <url><loc>${SITE}${p}</loc></url>`).join("\n")}\n</urlset>\n`,
 );
 console.log(`만듦: /sitemap.xml (${pages.length}개 주소)`);
+
+// ── 무료로 먼저 보기 경유 페이지(/preview/<slug>/ → /open/ → /order/) ─────────
+// 대문 '무료로 먼저 펼쳐보세요' 카드 → 소개 → 무료 교재 열기 → 전체 교재 주문하기 → 기존 주문서. 자동 이동 없이 버튼만(방문 기록이 빠지지 않게).
+// 단계별 방문자를 Vercel 웹 분석으로 센다. 검색 제외(vercel.json /preview/). 가격은 books-data.js에서 빌드 때 읽는다.
+{
+  const quoteTitle = (b) => (b.format === "goodnotes" ? `「${b.title}」` : `『${b.title}』`);
+  const priceText = (b) => {
+    const parts = [`${b.price.toLocaleString("ko-KR")}원`];
+    if (b.priceNote) parts[0] += ` (${b.priceNote}${b.listPrice > b.price ? `, 정가 ${b.listPrice.toLocaleString("ko-KR")}원` : ""})`;
+    if (b.upgrade) parts.push(`${b.upgrade.from} 구매자는 ${b.upgrade.price.toLocaleString("ko-KR")}원`);
+    return parts.join(" · ");
+  };
+  const page = (title, body) => `<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>${text(title)} | 한스푼 서점</title>
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <!-- 단계별 방문 수(Vercel 웹 분석): 이 페이지 방문자 = 이 단계까지 온 사람 -->
+    <script defer src="/_vercel/insights/script.js"></script>
+    <style>
+      body { margin: 0; background: #fcfbf4; color: #433f3e; font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif; line-height: 1.6; word-break: keep-all; -webkit-text-size-adjust: 100%; }
+      main { max-width: 560px; margin: 0 auto; padding: 20px 20px 48px; }
+      .back { color: rgba(67, 63, 62, 0.62); font-size: 0.86rem; font-weight: 700; text-decoration: none; }
+      .eyebrow { margin: 22px 0 6px; color: #3b82f6; font-size: 11px; font-weight: 800; letter-spacing: 0.2em; }
+      h1 { margin: 0 0 6px; font-size: 1.45rem; font-weight: 800; line-height: 1.35; }
+      h2 { margin: 0 0 8px; font-size: 1.05rem; font-weight: 800; }
+      p { margin: 0 0 14px; }
+      .kind { color: rgba(67, 63, 62, 0.62); font-size: 0.9rem; }
+      .cover { display: block; width: 132px; height: auto; margin: 6px 0 18px; border-radius: 6px 12px 12px 6px; box-shadow: 0 12px 24px rgba(67, 63, 62, 0.14); }
+      ul { margin: 0 0 20px; padding: 0; list-style: none; display: grid; gap: 8px; }
+      li { position: relative; padding-left: 16px; font-size: 0.95rem; }
+      li::before { content: ""; position: absolute; top: 0.65em; left: 2px; width: 6px; height: 6px; border-radius: 999px; background: #3b82f6; }
+      .btn { display: block; min-height: 48px; margin: 0 0 12px; padding: 13px 18px; box-sizing: border-box; border: 1px solid rgba(67, 63, 62, 0.16); border-radius: 999px; background: #ffffff; color: #433f3e; font-size: 1rem; font-weight: 800; text-align: center; text-decoration: none; }
+      .btn.primary { border-color: #433f3e; background: #433f3e; color: #ffffff; }
+      .btn:focus-visible, .back:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35); }
+      .next { margin-top: 28px; padding: 20px; border-radius: 18px; background: #eef5fc; }
+      .price { color: #2f7fc1; font-weight: 800; }
+      .small { color: rgba(67, 63, 62, 0.62); font-size: 0.86rem; }
+    </style>
+  </head>
+  <body>
+    <main>
+${body}
+    </main>
+  </body>
+</html>
+`;
+  for (const b of books.filter((x) => x.freebie && x.status === "판매중")) {
+    const f = b.freebie;
+    const dir = join(ROOT, "preview", b.slug);
+    const external = /^https:\/\//.test(f.url);
+    const items = (list) => list.map((x) => `        <li>${text(x)}</li>`).join("\n");
+    const files = {
+      "index.html": page(`무료로 먼저 보기 · ${b.title}`, `      <a class="back" href="/">← 한스푼 서점</a>
+      <p class="eyebrow">무료로 먼저 보기</p>
+      <h1>${text(quoteTitle(b))}</h1>
+      <p class="kind">${text(f.kind)}</p>
+      <img class="cover" src="${attr(b.cover)}" alt="${attr(b.title)} 표지" width="${b.coverSize[0]}" height="${b.coverSize[1]}" />
+      <p>${text(f.text)}</p>
+      <h2>이런 걸 해 볼 수 있어요</h2>
+      <ul>
+${items(f.inside)}
+      </ul>
+      <a class="btn primary" href="/preview/${b.slug}/open/">무료 교재 열기</a>`),
+      "open/index.html": page(`무료 교재 · ${b.title}`, `      <a class="back" href="/preview/${b.slug}/">← 돌아가기</a>
+      <p class="eyebrow">무료 교재</p>
+      <h1>${text(quoteTitle(b))}</h1>
+      <p class="small">${external ? "노션 공개 페이지가 새 창으로 열려요. 노션 가입 없이 볼 수 있어요." : "받는 페이지에서 PDF를 받아요."}</p>
+      <a class="btn primary" href="${attr(f.url)}"${external ? ' target="_blank" rel="noopener"' : ""}>무료 교재 열기${external ? " ↗" : ""}</a>
+      <div class="next">
+        <h2>여기까지 해 보셨다면</h2>
+        <p>전체 교재에서는 같은 방식으로 기초부터 차근차근 이어져요.</p>
+        <ul>
+${items(f.more)}
+        </ul>
+        <p class="price">${text(priceText(b))}</p>
+        <a class="btn primary" href="/preview/${b.slug}/order/">전체 교재 주문하기</a>
+      </div>`),
+      "order/index.html": page(`주문하기 · ${b.title}`, `      <a class="back" href="/preview/${b.slug}/open/">← 무료 교재로 돌아가기</a>
+      <p class="eyebrow">주문하기</p>
+      <h1>${text(quoteTitle(b))}을 선택하셨어요</h1>
+      <p>주문서에서 교재를 선택한 뒤 안내된 계좌로 입금해 주세요.</p>
+      <p class="price">${text(priceText(b))}</p>
+      <a class="btn primary" href="/books/${b.slug}/#orderFormSection">기존 주문서 열기</a>`),
+    };
+    for (const [name, html] of Object.entries(files)) {
+      mkdirSync(dirname(join(dir, name)), { recursive: true });
+      writeFileSync(join(dir, name), html);
+    }
+    console.log(`만듦: /preview/${b.slug}/ · open/ · order/ (무료로 먼저 보기)`);
+  }
+}
 
 for (const { dir, html, p, count } of listenPreviews) {
   mkdirSync(join(ROOT, "listen-preview", dir), { recursive: true });

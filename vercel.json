@@ -90,6 +90,15 @@
           "value": "noindex"
         }
       ]
+    },
+    {
+      "source": "/preview/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
     }
   ]
 }

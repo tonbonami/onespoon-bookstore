@@ -20,3 +20,5 @@ books/*
 /index.html
 # 배포 빌드가 만드는 다이어리 미리 듣기(books-data.js listenPreview 범위만)
 /listen-preview/
+# 배포 빌드가 만드는 무료로 먼저 보기 경유 페이지(books-data.js freebie)
+/preview/

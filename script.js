@@ -416,8 +416,33 @@ function renderListenTry() {
   box.hidden = false;
 }
 
+// '무료로 먼저 펼쳐보세요': books-data.js freebie가 있는 판매 중인 책을 order 순서로. 카드는 /preview/<slug>/로 간다(단계별 방문을 세려고)
+function renderFreebies() {
+  const section = document.querySelector("#freebieSection");
+  const grid = document.querySelector("#freebieGrid");
+  if (!section || !grid) return;
+  const picks = books.filter((book) => book.freebie && isOnSale(book)).sort((a, b) => a.freebie.order - b.freebie.order);
+  if (!picks.length) return;
+  grid.innerHTML = picks
+    .map(
+      (book) => `
+        <a class="freebie-card" href="/preview/${book.slug}/">
+          <img src="${book.cover}" alt="" width="${book.coverSize[0]}" height="${book.coverSize[1]}" loading="lazy" decoding="async" />
+          <span class="freebie-body">
+            <span class="freebie-tag">${book.freebie.tag}</span>
+            <strong>${book.title}</strong>
+            <span class="freebie-text">${book.freebie.text}</span>
+            <span class="freebie-go">무료로 먼저 보기 →</span>
+          </span>
+        </a>`,
+    )
+    .join("");
+  section.hidden = false;
+}
+
 renderShelf();
 renderShelfBanner();
+renderFreebies();
 renderListenTry();
 
 // 3.0 '구매 후에도 계속 자라요': 최신 3줄만 보이고 나머지는 '지난 업데이트 N개 더 보기'로 펼친다. N은 줄 수 − 3(맨 위에 한 줄만 넣으면 됨)

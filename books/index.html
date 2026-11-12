@@ -64,6 +64,16 @@
         <div class="book-shelf" id="bookShelf" aria-label="책 목록"></div>
       </section>
 
+      <!-- 무료로 먼저 펼쳐보세요(본사·GPT 안 11/13): 카드는 books-data.js freebie에서 script.js가 그린다. 6~8주 동안 문구·위치를 바꾸지 않고 잰다 -->
+      <section class="freebie-section" id="freebieSection" aria-labelledby="freebieTitle" hidden>
+        <div class="section-heading">
+          <p class="eyebrow">GRATUIT</p>
+          <h2 id="freebieTitle">무료로 먼저 펼쳐보세요</h2>
+        </div>
+        <p class="freebie-lead">실제 교재의 구성과 학습 방식을 확인한 뒤 골라도 괜찮아요.</p>
+        <div class="freebie-grid" id="freebieGrid"></div>
+      </section>
+
       <section class="book-detail" id="bookDetail" aria-live="polite">
         <button
           class="detail-book"

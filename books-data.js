@@ -28,6 +28,9 @@
 //               memo는 메모 칸에 적어 달라는 말(없으면 "<from> 구매"). 고른 책마다 따로 보인다.
 //   pickLabel   주문서 책 카드의 작은 글. 뒤에 " · 가격"이 붙는다.
 //   sampleUrl   무료 샘플 주소(노션 공개 페이지 등). 있으면 책 소개의 주문 버튼 옆에 '무료 샘플 보기'가 새 창으로 열린다.
+//   freebie     대문 '무료로 먼저 펼쳐보세요' 칸의 카드(서가 바로 아래). { order, tag, text, kind, url, inside: [3개], more: [3개] }.
+//               배포 빌드가 /preview/<slug>/ → /open/ → /order/ 경유 페이지를 만들어 웹 분석으로 단계별 방문을 센다(본사·GPT 안 11/13).
+//               6~8주 동안 문구·위치를 바꾸지 않고 잰다. 기준값: combination/etsy-ops/research/store_freebie_baseline.md
 //   lang        서가 카드의 언어 칩: "fr" 프랑스어 · "es" 스페인어 · "en" 영어 · "ko" 한국어
 //   status      "판매중" · "출시예정"(주문서 대신 출시 알림) · "판매중지"(서가·주문서에서 빠지고, 책 주소는 열리되
 //               주문 버튼 자리에 pausedText만 뜬다. 데이터·표지는 그대로 두고 "판매중"으로 되돌리면 다시 팔린다).
@@ -71,6 +74,15 @@ window.HANSPOON_BOOKS = [
     price: 29000,
     upgrade: { from: "2.0", price: 15000 },
     pickLabel: "A1~B1 종합 노션 교재",
+    freebie: {
+      order: 1,
+      tag: "가장 많이 찾는 교재",
+      text: "발음·동사·회화·『어린 왕자』 1장 샘플 8개를 음성과 함께 노션에서 바로 열어 봐요.",
+      kind: "노션 공개 페이지 · 음성 포함 · 15~20분",
+      url: "https://tonbonami.notion.site/3-0-f42a3cce1d5c4b66bde93f8f61d54d25",
+      inside: ["발음 기초(모음) · 리에종 1강", "숫자 1~10 · aller·être·avoir 동사 변화", "첫 만남 대화 · 『어린 왕자』 1장 전체"],
+      more: ["발음 · 문법 · 어휘 · 회화 · 동사 변화 · 읽기 6영역 전체", "프랑스어 음성 900개 이상", "『어린 왕자』 원문까지 이어 읽기"],
+    },
     featured: "#featuredNoFu3",
     previewPages: [
       "/assets/preview-pages/nofu3-preview-01.png",
@@ -103,6 +115,15 @@ window.HANSPOON_BOOKS = [
     priceUntil: "2026-11-30",
     deliveryNote: "입금 확인 후 「미리 쓰는 두 달」과 2027판(날짜판 + 날짜 없는 판)을 함께 보내 드려요.",
     pickLabel: "굿노트 다이어리 PDF",
+    freebie: {
+      order: 3,
+      tag: "PDF로 직접 써보기",
+      text: "2026년 11·12월 두 달치를 PDF로 받아 굿노트에서 바로 써 봐요.",
+      kind: "PDF 91쪽 · 굿노트 · 듣기 포함",
+      url: "/diary/free/",
+      inside: ["11·12월 월간·주간·일간 쪽", "날마다 프랑스어 한 문장과 듣기", "10초 일기 조립표 · 물건 스티커"],
+      more: ["2027년 1월 1일~12월 31일 365일", "날짜판·날짜 없는 판 (월·일요일 시작)", "스티커 182개 · 서식 12쪽"],
+    },
     banner: { tag: "NOUVEAU", kind: "굿노트 다이어리", free: { label: "11·12월판 무료로 먼저 받기", href: "/free/hanspoon-diary-2026-novdec.pdf" } },
     // 2027년 문장을 실제로 막는 일은 다음 PDF 판(토큰 주소 + 옛 주소 유지) 때 다시 정한다(본사 11/8). 지금은 버튼으로 이 범위만 보여 준다.
     listenPreview: [
@@ -148,6 +169,15 @@ window.HANSPOON_BOOKS = [
     priceUntil: "2026-11-30",
     upgrade: { from: "프랑스어 2.0·3.0", price: 15000, memo: "프랑스어 구매" },
     pickLabel: "A1~B2 종합 노션 교재",
+    freebie: {
+      order: 2,
+      tag: "새로 나왔어요",
+      text: "발음·문법·회화·『어린 왕자』 1장 샘플 4개를 스페인어 음성과 함께 노션에서 열어 봐요.",
+      kind: "노션 공개 페이지 · 음성 포함 · 15분",
+      url: "https://tonbonami.notion.site/1-0-3feb1658e7ec81e2a07cf5a6f7938ffd",
+      inside: ["스페인어 알파벳과 소리", "ser vs. estar", "자기소개 대화 · 『어린 왕자』 1장"],
+      more: ["발음 · 문법 · 동사 · 어휘 · 회화 · 일상 표현 · 읽기 7영역", "스페인어 음성 490개 이상", "문법 단원마다 「프랑스어와 비교」"],
+    },
     sampleUrl: "https://tonbonami.notion.site/1-0-3feb1658e7ec81e2a07cf5a6f7938ffd",
   },
   {
