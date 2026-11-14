@@ -440,8 +440,30 @@ function renderFreebies() {
   section.hidden = false;
 }
 
+// '만든 사람' 카드의 노래: 처음엔 그림만, 썸네일이나 '노래 듣기'를 누르면 그 자리에서 유튜브 플레이어(쿠키 없는 주소)를 불러 재생한다
+function setupAuthorSong() {
+  document.querySelectorAll(".maker-song").forEach((song) => {
+    const play = () => {
+      if (song.classList.contains("is-playing")) return;
+      const id = song.querySelector("[data-yt]").dataset.yt;
+      const frame = document.createElement("iframe");
+      frame.src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
+      frame.title = "「땡큐 쏘 머치 (Feat. 순이)」";
+      frame.allow = "autoplay; encrypted-media; picture-in-picture";
+      frame.allowFullscreen = true;
+      const box = document.createElement("div");
+      box.className = "maker-frame";
+      box.append(frame);
+      song.classList.add("is-playing");
+      song.querySelector(".maker-thumb").replaceWith(box);
+    };
+    song.querySelectorAll("[data-yt]").forEach((button) => button.addEventListener("click", play));
+  });
+}
+
 renderShelf();
 renderShelfBanner();
+setupAuthorSong();
 renderFreebies();
 renderListenTry();
 
