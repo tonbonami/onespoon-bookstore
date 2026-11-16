@@ -21,6 +21,11 @@
       "source": "/listen/en",
       "destination": "/listen/en/",
       "statusCode": 308
+    },
+    {
+      "source": "/api/:path(.*\\.js)",
+      "destination": "/",
+      "statusCode": 307
     }
   ],
   "headers": [

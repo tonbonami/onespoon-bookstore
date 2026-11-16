@@ -202,26 +202,47 @@
 .pay-check {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
-  gap: 10px;
+  gap: 12px;
   align-items: start;
+  min-height: 44px;
   padding: 10px 0;
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.65;
   cursor: pointer;
 }
 
 .pay-check input {
-  width: 22px;
-  height: 22px;
-  margin: 1px 0 0;
+  width: 24px;
+  height: 24px;
+  margin: 0;
   accent-color: #433f3e;
 }
 
 .pay-check small {
   display: block;
   margin-top: 2px;
-  color: var(--muted);
-  font-size: 12.5px;
+  color: rgba(67, 63, 62, 0.76);
+  font-size: 14px;
+}
+
+/* 선택 칸은 필수 묶음과 띄운다 */
+.pay-check-optional {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
+/* 필수 칸 아래 도움 글 한 묶음 */
+.pay-note {
+  margin: 4px 0 0 36px;
+  color: rgba(67, 63, 62, 0.76);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.pay-note a {
+  display: inline-block;
+  padding: 3px 0;
 }
 
 .pay-check.is-missing span {

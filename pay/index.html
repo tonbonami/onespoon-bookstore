@@ -54,23 +54,21 @@
           <!-- 결제 수단: 서버 설정에서 간편결제를 켰을 때만 보인다(카드만이면 숨김) -->
           <div class="pay-methods" id="payMethods" role="radiogroup" aria-label="결제 수단" hidden></div>
 
-          <!-- 청약철회 제한 확인: 미리 체크해 두지 않는다 -->
+          <!-- 청약철회 제한 확인: 미리 체크해 두지 않는다. 필수 두 칸을 붙여 두고, 선택 칸은 아래로 띄운다 -->
           <label class="pay-check">
             <input type="checkbox" id="agreeRefund" aria-describedby="payStatus" />
-            <span><b>(필수)</b> 결제 뒤 6시간 안에 제공되는 디지털 콘텐츠이며, 제공이 시작된 뒤에는 단순 변심으로 환불되지 않는다는 점을 확인했습니다.</span>
+            <span><b>(필수)</b> 결제 뒤 6시간 안에 받는 디지털 콘텐츠입니다. 받은 뒤에는 단순 변심으로 환불되지 않는다는 점을 확인했습니다.</span>
           </label>
-          <p class="pay-links"><a id="payPreviewLink" href="/" target="_blank" rel="noopener">무료 샘플·미리보기<span class="sr-only">(새 창에서 열려요)</span></a> · <a href="/refund/" target="_blank" rel="noopener">환불정책<span class="sr-only">(새 창에서 열려요)</span></a></p>
-
           <label class="pay-check">
             <input type="checkbox" id="agreeTerms" aria-describedby="payStatus" />
             <span><b>(필수)</b> <a href="/terms/" target="_blank" rel="noopener">이용약관<span class="sr-only">(새 창에서 열려요)</span></a>에 동의합니다.</span>
           </label>
-          <!-- 계약(결제·발송)에 꼭 필요한 정보라 따로 동의를 받지 않고 알린다 -->
-          <p class="pay-privacy">결제와 교재 발송에 필요한 이름·이메일·결제 기록을 받아 5년 동안 보관해요(전자상거래법). 자세한 내용은 <a href="/privacy/" target="_blank" rel="noopener">개인정보처리방침<span class="sr-only">(새 창에서 열려요)</span></a>에 있어요.</p>
+          <!-- 이름·이메일·결제 기록은 계약(결제·발송)에 꼭 필요한 정보라 따로 동의를 받지 않고 알린다 -->
+          <p class="pay-note">사기 전에 <a id="payPreviewLink" href="/" target="_blank" rel="noopener">무료 샘플·미리보기<span class="sr-only">(새 창에서 열려요)</span></a>와 <a href="/refund/" target="_blank" rel="noopener">환불정책<span class="sr-only">(새 창에서 열려요)</span></a>을 확인해 주세요. 결제와 발송에 필요한 이름·이메일·결제 기록은 5년 동안 보관해요(<a href="/privacy/" target="_blank" rel="noopener">개인정보처리방침<span class="sr-only">(새 창에서 열려요)</span></a>).</p>
 
-          <label class="pay-check">
+          <label class="pay-check pay-check-optional">
             <input type="checkbox" id="agreeNews" />
-            <span>(선택) 새 책·무료 자료 소식을 이메일로 받을게요. <small>받는 정보: 이메일 · 보관: 수신을 끊을 때까지 · 체크하지 않아도 살 수 있어요</small></span>
+            <span>(선택) 새 책·자료 소식을 메일로 받을게요. <small>수신을 끊을 때까지 이메일을 보관해요. 체크하지 않아도 살 수 있어요.</small></span>
           </label>
 
           <button type="submit" class="pay-submit" id="paySubmit">결제하기</button>
