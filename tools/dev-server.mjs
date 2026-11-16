@@ -1,7 +1,7 @@
 // 이 컴퓨터에서 서점 + 카드 결제 서버(api/pay/*)를 같이 돌려 보는 개발용 서버. 배포에는 쓰이지 않는다.
 //   node tools/dev-server.mjs            정적 파일 + /api (열쇠는 환경 변수에서. 없으면 '준비 중'으로 답함)
 //   node tools/dev-server.mjs --demo     가짜 결제사·가짜 메일을 이 컴퓨터 안에 세워 완료 화면까지 본다
-//                                        (/pay/?paymentId=hs-nofu3-demo-12345678 처럼 열면 '결제 완료'가 뜬다. 실제 결제·메일 없음)
+//                                        (/pay/?paymentId=hs-nofu3-demo-1234567890abcdef 처럼 열면 '결제 완료'가 뜬다. 실제 결제·메일 없음)
 import http from "node:http";
 import { readFile, stat } from "node:fs/promises";
 import { join, extname, dirname, normalize } from "node:path";
@@ -20,9 +20,9 @@ if (process.argv.includes("--demo")) {
     req.on("data", (c) => (body += c));
     req.on("end", () => {
       const send = (code, data) => (res.writeHead(code, { "Content-Type": "application/json" }), res.end(JSON.stringify(data)));
-      const m = /^\/payments\/(hs-([a-z0-9-]+)-[a-z0-9]+-[a-f0-9]{8})$/.exec(decodeURIComponent(req.url));
+      const m = /^\/payments\/(hs-([a-z0-9-]+)-[a-z0-9]+-[a-f0-9]{16})$/.exec(decodeURIComponent(req.url));
       const book = m && findBook(m[2]);
-      if (book) return send(200, { id: m[1], storeId: "store-demo", status: "PAID", currency: "KRW", amount: { total: book.price }, channel: { type: "TEST" }, customer: { name: "김시험", email: "demo@example.com" }, method: { type: "PaymentMethodCard" }, receiptUrl: "" });
+      if (book) return send(200, { id: m[1], storeId: "store-demo", status: "PAID", currency: "KRW", amount: { total: book.price }, channel: { type: "TEST" }, customer: { name: { full: "김시험" }, email: "demo@example.com" }, method: { type: "PaymentMethodCard" }, paidAt: new Date().toISOString(), receiptUrl: "" });
       if (req.url === "/emails") return console.log("[가짜 메일]", JSON.parse(body).subject), send(200, { id: "demo" });
       send(404, {});
     });

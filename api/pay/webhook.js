@@ -17,7 +17,6 @@ async function readRaw(req) {
 const handler = async (req, res) => {
   res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") return res.status(405).json({ ok: false });
-  if (!ready()) return res.status(503).json({ ok: false, ready: false });
 
   const raw = await readRaw(req);
   const checked = verifyWebhook(req.headers, raw);
@@ -34,6 +33,7 @@ const handler = async (req, res) => {
   }
   // 결제 완료 알림만 처리한다. 모르는 종류는 조용히 넘긴다(포트원이 종류를 늘릴 수 있음).
   if (!message || message.type !== "Transaction.Paid" || !message.data || !message.data.paymentId) return res.status(200).json({ ok: true, ignored: true });
+  if (!ready()) return res.status(503).json({ ok: false, ready: false });
 
   try {
     const result = await verifyAndFulfill(String(message.data.paymentId));
@@ -41,7 +41,8 @@ const handler = async (req, res) => {
       console.warn("[pay/webhook] 확인 실패", message.data.paymentId, result.code);
       return res.status(200).json({ ok: true, fulfilled: false, code: result.code });
     }
-    // 메일 열쇠가 아직 없으면(설정 전) 다시 불러도 소용없으니 그대로 받는다
+    // 메일 열쇠가 아직 없거나(설정 전) 오래된 결제면 다시 불러도 소용없으니 그대로 받는다
+    if (result.stale) return res.status(200).json({ ok: true, fulfilled: false, code: "OLD_PAYMENT" });
     if (!result.mail.buyer.sent && result.mail.buyer.reason === "메일 열쇠 없음") return res.status(200).json({ ok: true, fulfilled: false, code: "MAIL_NOT_SET" });
     // 메일이 나가지 못했으면 500으로 답해 포트원이 다시 부르게 한다(멱등 키라 두 번 나가지 않는다)
     if (!result.mail.buyer.sent) return res.status(500).json({ ok: false, code: "MAIL_PENDING" });

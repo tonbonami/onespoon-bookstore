@@ -10,7 +10,22 @@ const env = () => ({
   apiBase: (process.env.PORTONE_API_BASE || "https://api.portone.io").replace(/\/$/, ""),
   // "test"(기본): 테스트 채널 결제만 받는다. 실결제를 열 때만 "live"로 바꾼다(우댕 승인 뒤).
   mode: process.env.PAY_MODE === "live" ? "live" : "test",
+  // 간편결제는 토스페이먼츠와 따로 계약한 것만 켠다. 예: PAY_EASY="KAKAOPAY,NAVERPAY,TOSSPAY" (비우면 카드만)
+  easy: (process.env.PAY_EASY || "").split(",").map((s) => s.trim().toUpperCase()).filter((s) => EASY_PROVIDERS.includes(s)),
 });
+
+const EASY_PROVIDERS = ["KAKAOPAY", "NAVERPAY", "TOSSPAY"];
+
+// 서버만 만들 수 있는 짧은 서명. 쓰는 곳: ① 주문을 준비한 때의 책값을 묶어 둠 ② 완료 화면을 그 손님만 보게 함
+function sign(text) {
+  return crypto.createHmac("sha256", env().apiSecret).update(String(text)).digest("hex").slice(0, 40);
+}
+
+function sameSign(given, text) {
+  const expected = Buffer.from(sign(text));
+  const actual = Buffer.from(String(given || ""));
+  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+}
 
 // 결제창을 띄울 준비가 됐는지(브라우저에 줄 값 + 서버 확인용 열쇠)
 function ready() {
@@ -57,4 +72,4 @@ function verifyWebhook(headers, rawBody, now = Date.now()) {
   return match ? { ok: true } : { ok: false, reason: "서명이 다름" };
 }
 
-module.exports = { env, ready, getPayment, verifyWebhook };
+module.exports = { env, ready, getPayment, verifyWebhook, sign, sameSign, EASY_PROVIDERS };

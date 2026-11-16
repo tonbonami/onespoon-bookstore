@@ -13,6 +13,23 @@
   const status = $("payStatus");
   const submit = $("paySubmit");
   let current = null;
+  const METHOD_LABELS = { CARD: "신용·체크카드", KAKAOPAY: "카카오페이", NAVERPAY: "네이버페이", TOSSPAY: "토스페이" };
+  // 완료 화면 확인값: 주문을 준비한 이 브라우저만 이메일·영수증을 자세히 본다(폰에서 결제창을 다녀와도 남도록 탭에 보관)
+  const tokens = {
+    key: (id) => `hs-pay-${id}`,
+    put(id, token) {
+      try {
+        sessionStorage.setItem(this.key(id), token);
+      } catch {}
+    },
+    get(id) {
+      try {
+        return sessionStorage.getItem(this.key(id)) || "";
+      } catch {
+        return "";
+      }
+    },
+  };
 
   function setStatus(text, info = false) {
     status.textContent = text;
@@ -82,11 +99,12 @@
     name.setAttribute("aria-invalid", String(!name.value.trim()));
     email.setAttribute("aria-invalid", String(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.value.trim())));
     checks.forEach((box) => box.closest(".pay-check").classList.toggle("is-missing", !box.checked));
+    [name, email, ...checks].forEach((el) => el.setAttribute("aria-invalid", String(el.type === "checkbox" ? !el.checked : el.getAttribute("aria-invalid") === "true")));
     if (!current) return { message: "책을 골라 주세요.", focus: document.querySelector('#payBooks input[type="radio"]') };
     if (name.getAttribute("aria-invalid") === "true") return { message: "이름을 적어 주세요.", focus: name };
     if (email.getAttribute("aria-invalid") === "true") return { message: "이메일 주소를 확인해 주세요.", focus: email };
     if (!checks[0].checked) return { message: "환불 안내를 확인하고 체크해 주세요.", focus: checks[0] };
-    if (!checks[1].checked) return { message: "이용약관과 개인정보 수집·이용에 동의해 주세요.", focus: checks[1] };
+    if (!checks[1].checked) return { message: "이용약관에 동의해 주세요.", focus: checks[1] };
     return null;
   }
 
@@ -125,11 +143,13 @@
         agreeRefund: $("agreeRefund").checked,
         agreeTerms: $("agreeTerms").checked,
         news: $("agreeNews").checked,
+        method: (document.querySelector('#payMethods input:checked') || {}).value || "CARD",
       });
       if (prepared.status === 503) return setStatus("카드 결제는 준비 중이에요. 지금은 계좌이체 주문서를 이용해 주세요.");
       if (!prepared.data.ok) return setStatus(prepared.data.message || "주문을 준비하지 못했어요. 잠시 뒤 다시 시도해 주세요.");
       const p = prepared.data;
       $("payTest").hidden = p.mode !== "test";
+      tokens.put(p.paymentId, p.viewToken);
       const PortOne = await loadSdk();
       const result = await PortOne.requestPayment({
         storeId: p.storeId,
@@ -138,7 +158,8 @@
         orderName: p.orderName,
         totalAmount: p.totalAmount,
         currency: p.currency,
-        payMethod: "CARD",
+        payMethod: p.payMethod,
+        ...(p.easyPay ? { easyPay: p.easyPay } : {}),
         customer: p.customer,
         customData: p.customData,
         // 폰에서는 결제 뒤 이 주소로 돌아온다(paymentId가 붙어 옴)
@@ -158,7 +179,7 @@
   async function confirm(paymentId) {
     setStatus("결제를 확인하는 중이에요…", true);
     for (let attempt = 0; attempt < 4; attempt += 1) {
-      const { status: code, data } = await post("/api/pay/complete", { paymentId });
+      const { status: code, data } = await post("/api/pay/complete", { paymentId, token: tokens.get(paymentId) });
       if (data.ok) return done(data);
       if (code !== 409 && code !== 502) return setStatus(`${data.message || "결제를 확인하지 못했어요."} (주문 번호 ${paymentId})`);
       await new Promise((r) => setTimeout(r, 1500));
@@ -175,8 +196,9 @@
     $("doneDelivery").textContent = data.format === "notion" ? "6시간 안에 이 이메일로 노션 초대가 가요" : "6시간 안에 이 이메일로 PDF를 보내 드려요";
     $("doneMail").textContent = data.mailSent ? "방금 안내 메일도 보냈어요. 보이지 않으면 스팸함을 확인해 주세요." : "안내 메일은 곧 따로 보내 드릴게요.";
     const receipt = $("doneReceipt");
-    receipt.hidden = !data.receiptUrl;
-    if (data.receiptUrl) receipt.href = data.receiptUrl;
+    const receiptUrl = /^https:\/\//.test(data.receiptUrl || "") ? data.receiptUrl : "";
+    receipt.hidden = !receiptUrl;
+    if (receiptUrl) receipt.href = receiptUrl;
     $("payDone").hidden = false;
     $("payDone").focus();
     // 새로 고쳐도 다시 확인하지 않게 주소의 결제 번호를 지운다
@@ -196,7 +218,33 @@
     confirm(paymentId);
   }
 
+  // 처음 열릴 때 서버에 공개 설정을 묻는다: 테스트 여부, 준비 여부, 켜진 결제 수단
+  async function setup() {
+    const config = await fetch("/api/pay/prepare", { headers: { Accept: "application/json" } })
+      .then((r) => r.json())
+      .catch(() => null);
+    if (!config || !config.ok) return;
+    $("payTest").hidden = config.mode !== "test";
+    if (!config.ready && !status.textContent) setStatus("카드 결제는 준비 중이에요. 지금은 계좌이체 주문서를 이용해 주세요.", true);
+    const methods = (config.methods || []).filter((m) => METHOD_LABELS[m]);
+    if (methods.length < 2) return;
+    $("payLead").textContent = `${methods.map((m) => METHOD_LABELS[m]).join(" · ")}로 결제할 수 있어요.`;
+    methods.forEach((m, i) => {
+      const label = document.createElement("label");
+      label.className = "pay-method";
+      const input = document.createElement("input");
+      input.type = "radio";
+      input.name = "method";
+      input.value = m;
+      input.checked = i === 0;
+      label.append(input, METHOD_LABELS[m]);
+      $("payMethods").append(label);
+    });
+    $("payMethods").hidden = false;
+  }
+
   renderBooks();
   form.addEventListener("submit", pay);
   resume();
+  setup();
 })();

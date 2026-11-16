@@ -39,7 +39,8 @@ const setEnv = (on) => {
 const prepare = require("../api/pay/prepare.js");
 const complete = require("../api/pay/complete.js");
 const webhook = require("../api/pay/webhook.js");
-const { findBook } = require("../api/_lib/catalog.js");
+const { findBook, makePaymentId } = require("../api/_lib/catalog.js");
+const { sign: serverSign } = require("../api/_lib/portone.js");
 
 async function call(handler, { method = "POST", body, headers = {}, rawBody } = {}) {
   const res = { code: 200, data: null, setHeader() {}, status(c) { this.code = c; return this; }, json(d) { this.data = d; return this; } };
@@ -61,7 +62,8 @@ const quiet = async (fn) => {
 
 const book = findBook("nofu3");
 const good = { slug: "nofu3", name: "김시험", email: "buyer@example.com", agreeRefund: true, agreeTerms: true, news: true };
-const paid = (id, over = {}) => ({ id, storeId: "store-test", status: "PAID", currency: "KRW", amount: { total: book.price }, channel: { type: "TEST" }, customer: { email: "buyer@example.com", name: "김시험" }, customData: JSON.stringify({ news: true }), receiptUrl: "https://example.com/receipt", method: { type: "PaymentMethodCard" }, ...over });
+// 포트원 실제 응답처럼 구매자 이름은 { full } 꼴로 온다
+const paid = (id, over = {}) => ({ id, storeId: "store-test", status: "PAID", currency: "KRW", amount: { total: book.price }, channel: { type: "TEST" }, customer: { email: "buyer@example.com", name: { full: "김시험" } }, customData: JSON.stringify({ news: true }), receiptUrl: "https://example.com/receipt", method: { type: "PaymentMethodCard" }, paidAt: new Date().toISOString(), ...over });
 
 // ── 준비(prepare)
 setEnv(false);
@@ -77,20 +79,36 @@ check("없는 책은 막는다", r.code === 400 && r.data.field === "slug");
 r = await call(prepare, { body: { ...good, email: "주소아님" } });
 check("이메일 꼴이 아니면 막는다", r.code === 400 && r.data.field === "email");
 r = await call(prepare, { body: { ...good, totalAmount: 100, price: 100 } });
-check("금액은 서버가 책값으로 정한다(브라우저가 보낸 금액 무시)", r.code === 200 && r.data.totalAmount === book.price && /^hs-nofu3-[a-z0-9]+-[a-f0-9]{8}$/.test(r.data.paymentId), JSON.stringify(r.data));
+check("금액은 서버가 책값으로 정한다(브라우저가 보낸 금액 무시)", r.code === 200 && r.data.totalAmount === book.price && /^hs-nofu3-[a-z0-9]+-[a-f0-9]{16}$/.test(r.data.paymentId), JSON.stringify(r.data));
+check("통화는 KRW, 결제 수단은 카드로 준비한다", r.data.currency === "KRW" && r.data.payMethod === "CARD" && !r.data.easyPay);
 r = await call(prepare, { method: "GET" });
-check("GET은 받지 않는다", r.code === 405);
-const paymentId = (await call(prepare, { body: good })).data.paymentId;
+check("처음 묻는 공개 설정에는 열쇠가 없다", r.code === 200 && r.data.ready === true && r.data.mode === "test" && r.data.methods.join() === "CARD" && !("storeId" in r.data) && !JSON.stringify(r.data).includes("secret"));
+process.env.PAY_EASY = "KAKAOPAY,APPLEPAY";
+r = await call(prepare, { method: "GET" });
+check("간편결제는 설정에서 켠 것만(지원 목록 안에서) 보인다", r.data.methods.join() === "CARD,KAKAOPAY");
+r = await call(prepare, { body: { ...good, method: "KAKAOPAY" } });
+check("켠 간편결제를 고르면 그 수단으로 준비한다", r.data.payMethod === "EASY_PAY" && r.data.easyPay.easyPayProvider === "KAKAOPAY");
+r = await call(prepare, { body: { ...good, method: "NAVERPAY" } });
+check("켜지 않은 수단을 보내면 카드로 준비한다", r.data.payMethod === "CARD");
+delete process.env.PAY_EASY;
+const first = (await call(prepare, { body: good })).data;
+const paymentId = first.paymentId;
 
 // ── 완료(complete)
 payments.set(paymentId, paid(paymentId));
-r = await call(complete, { body: { paymentId } });
+r = await call(complete, { body: { paymentId, token: first.viewToken } });
 check("정상 결제는 완료로 답한다", r.code === 200 && r.data.ok && r.data.amount === book.price && r.data.test === true, JSON.stringify(r.data));
+check("주문을 준비한 브라우저(확인값 있음)는 이메일·영수증을 그대로 본다", r.data.email === "buyer@example.com" && r.data.receiptUrl === "https://example.com/receipt");
+check("이름이 { full } 꼴로 와도 메일에 제대로 들어간다", /^김시험 님/.test(mails[0]?.text || "") && !/object/.test(mails[0]?.text || ""));
+check("메일에 환불 안내와 판매자 정보가 들어 있다", /환불 안내/.test(mails[0]?.text || "") && /판매자: 한스푼 스튜디오/.test(mails[0]?.text || ""));
 check("구매자·서점에 한 통씩 메일이 나간다", mails.length === 2 && mails[0].to[0] === "buyer@example.com" && mails[1].to[0] === "admin@example.com");
 check("노션 교재 메일에 '6시간 안 초대' 안내가 있다", /6시간 안에 buyer@example\.com 주소로 노션 초대/.test(mails[0]?.text || ""));
 check("테스트 결제 메일 제목에 [테스트]가 붙는다", (mails[0]?.subject || "").startsWith("[테스트]"));
-await call(complete, { body: { paymentId } });
+r = await call(complete, { body: { paymentId } });
 check("같은 결제로 다시 불려도 멱등 키가 같다(메일 업체가 한 통만 보냄)", mails.length === 4 && mails[2].key === mails[0].key && mails[3].key === mails[1].key && mails[0].key === `buyer-${paymentId}`);
+check("확인값 없이 주문 번호만 대면 이메일을 가리고 영수증을 주지 않는다", r.code === 200 && r.data.email === "bu***@example.com" && r.data.receiptUrl === "");
+r = await call(complete, { body: { paymentId, token: "0".repeat(40) } });
+check("틀린 확인값도 마찬가지로 가린다", r.data.email === "bu***@example.com" && r.data.receiptUrl === "");
 
 const before = mails.length;
 const cheap = (await call(prepare, { body: good })).data.paymentId;
@@ -112,6 +130,30 @@ const other = (await call(prepare, { body: good })).data.paymentId;
 payments.set(other, paid(other, { storeId: "store-other" }));
 r = await quiet(() => call(complete, { body: { paymentId: other } }));
 check("다른 상점의 결제는 막는다", r.code === 400 && r.data.code === "WRONG_STORE");
+
+// 가격이 바뀌는 순간: 준비할 때 서명해 둔 책값으로 2시간 안에 결제하면 받는다
+const held = (await call(prepare, { body: good })).data;
+const oldPrice = book.price;
+book.price = oldPrice + 5000;
+payments.set(held.paymentId, paid(held.paymentId, { amount: { total: oldPrice }, customData: JSON.stringify(held.customData) }));
+r = await call(complete, { body: { paymentId: held.paymentId } });
+check("결제창을 열어 둔 사이 값이 올라도 준비한 때 값으로 받는다", r.code === 200 && r.data.amount === oldPrice, JSON.stringify(r.data));
+const forged = (await call(prepare, { body: good })).data.paymentId;
+payments.set(forged, paid(forged, { amount: { total: 100 }, customData: JSON.stringify({ amount: 100, sig: held.customData.sig }) }));
+r = await quiet(() => call(complete, { body: { paymentId: forged } }));
+check("남의 서명을 붙여 싼값을 우기면 막는다", r.code === 400 && r.data.code === "AMOUNT_MISMATCH");
+const stalePin = makePaymentId("nofu3", Date.now() - 3 * 3600 * 1000);
+payments.set(stalePin, paid(stalePin, { amount: { total: oldPrice }, customData: JSON.stringify({ amount: oldPrice, sig: serverSign(`amount:${stalePin}:${oldPrice}`) }) }));
+r = await quiet(() => call(complete, { body: { paymentId: stalePin } }));
+check("준비한 지 2시간이 지난 옛 값은 인정하지 않는다", r.code === 400 && r.data.code === "AMOUNT_MISMATCH");
+book.price = oldPrice;
+
+// 오래된 결제: 결제한 지 12시간이 지나면 주문 번호로 다시 불러도 메일을 다시 보내지 않는다
+const oldPaid = (await call(prepare, { body: good })).data.paymentId;
+payments.set(oldPaid, paid(oldPaid, { paidAt: new Date(Date.now() - 13 * 3600 * 1000).toISOString() }));
+const beforeOld = mails.length;
+r = await call(complete, { body: { paymentId: oldPaid } });
+check("결제한 지 12시간이 지난 건은 메일을 다시 보내지 않는다", r.code === 200 && r.data.ok && mails.length === beforeOld);
 
 r = await quiet(() => call(complete, { body: { paymentId: "payment-남이만든번호" } }));
 check("서점이 만들지 않은 주문 번호는 막는다", r.code === 400 && r.data.code === "UNKNOWN_ORDER");

@@ -1,5 +1,7 @@
 // 결제 뒤 안내 메일: 구매자에게 한 통, 서점(우댕)에게 한 통.
 // 발송은 Resend(HTTP)로 한다. 같은 결제로 두 번 불려도(완료 화면 + 웹훅) 멱등 키가 같아 한 통만 나간다.
+const { sellerLine } = require("./seller");
+
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const won = (n) => `${Number(n).toLocaleString("ko-KR")}원`;
 
@@ -25,27 +27,39 @@ function deliveryLines(book, email) {
 
 function buyerMail(order) {
   const e = env();
-  const { book, email, name, amount, paymentId, receiptUrl, test } = order;
+  const { book, email, name, amount, paymentId, receiptUrl, test, method } = order;
   const lines = deliveryLines(book, email);
+  // 환불 안내 요약(계약 내용 안내의 일부). 자세한 기준은 /refund/
+  const refund = [
+    "교재를 받기 전(초대·발송 전)에는 언제든 전액 환불해요.",
+    "받은 뒤에는 디지털 콘텐츠라 단순 변심으로는 환불되지 않아요.",
+    "열리지 않거나 설명과 다르면 받은 날부터 3개월 안, 그 사실을 안 날부터 30일 안에 환불을 요청할 수 있어요.",
+    "환불은 이 메일에 답장으로 요청해 주세요. 요청을 받은 날부터 3영업일 안에 결제를 취소해 드려요.",
+  ];
   if (book.deliveryNote) lines.push(book.deliveryNote.replace(/^입금 확인 후\s*/, ""));
   const subject = `${test ? "[테스트] " : ""}[한스푼 서점] 결제가 확인됐어요 · ${book.title}`;
   const text = [
     `${name || "구매자"} 님, 주문해 주셔서 고맙습니다.`,
     "",
     `주문한 책: ${book.title}`,
-    `결제 금액: ${won(amount)}`,
+    `결제 금액: ${won(amount)}${method ? ` (${method})` : ""}`,
     `주문 번호: ${paymentId}`,
     "",
     "받는 방법",
     ...lines.map((l) => `- ${l}`),
     "",
+    "환불 안내",
+    ...refund.map((l) => `- ${l}`),
+    `자세히: ${e.site}/refund/`,
+    "",
     receiptUrl ? `영수증: ${receiptUrl}` : "",
-    `환불 안내: ${e.site}/refund/`,
     "궁금한 점은 이 메일에 답장하거나 인스타그램 @tonbonami 로 알려 주세요.",
     "",
     "Merci beaucoup ! — 한스푼 스튜디오",
+    "",
+    `판매자: ${sellerLine()}`,
   ]
-    .filter((l) => l !== "")
+    .filter((l, i, all) => l !== "" || (i > 0 && all[i - 1] !== ""))
     .join("\n");
   const html = `<!doctype html><html lang="ko"><body style="margin:0;background:#fcfbf4;font-family:'Apple SD Gothic Neo','Noto Sans KR',sans-serif;color:#433f3e">
 <div style="max-width:520px;margin:0 auto;padding:28px 20px">
@@ -54,16 +68,21 @@ function buyerMail(order) {
   <p style="margin:0 0 18px;font-size:15px;line-height:1.7">${esc(name || "구매자")} 님, 주문해 주셔서 고맙습니다.</p>
   <table role="presentation" style="width:100%;border-collapse:collapse;background:#ffffff;border:1px solid rgba(67,63,62,.1);border-radius:14px;font-size:14.5px">
     <tr><td style="padding:12px 16px;color:#8a8580;width:92px">주문한 책</td><td style="padding:12px 16px;font-weight:700">${esc(book.title)}</td></tr>
-    <tr><td style="padding:12px 16px;color:#8a8580;border-top:1px solid rgba(67,63,62,.08)">결제 금액</td><td style="padding:12px 16px;border-top:1px solid rgba(67,63,62,.08)">${won(amount)}</td></tr>
+    <tr><td style="padding:12px 16px;color:#8a8580;border-top:1px solid rgba(67,63,62,.08)">결제 금액</td><td style="padding:12px 16px;border-top:1px solid rgba(67,63,62,.08)">${won(amount)}${method ? ` · ${esc(method)}` : ""}</td></tr>
     <tr><td style="padding:12px 16px;color:#8a8580;border-top:1px solid rgba(67,63,62,.08)">주문 번호</td><td style="padding:12px 16px;border-top:1px solid rgba(67,63,62,.08);font-size:13px">${esc(paymentId)}</td></tr>
   </table>
   <div style="margin:18px 0;padding:16px 18px;background:#eef5fc;border-radius:14px;font-size:14.5px;line-height:1.75">
     <strong style="display:block;margin-bottom:6px">받는 방법</strong>
     ${lines.map((l) => `<div>· ${esc(l)}</div>`).join("\n    ")}
   </div>
-  <p style="margin:0 0 6px;font-size:13.5px;line-height:1.7;color:#6f6a66">${receiptUrl ? `<a href="${esc(receiptUrl)}" style="color:#2f7fc1">영수증 보기</a> · ` : ""}<a href="${esc(e.site)}/refund/" style="color:#2f7fc1">환불 안내</a></p>
+  <div style="margin:0 0 18px;padding:14px 18px;background:#f3eff7;border-radius:14px;font-size:13.5px;line-height:1.75">
+    <strong style="display:block;margin-bottom:4px">환불 안내</strong>
+    ${refund.map((l) => `<div>· ${esc(l)}</div>`).join("\n    ")}
+    <div style="margin-top:4px"><a href="${esc(e.site)}/refund/" style="color:#2f7fc1">환불정책 자세히 보기</a>${receiptUrl ? ` · <a href="${esc(receiptUrl)}" style="color:#2f7fc1">영수증 보기</a>` : ""}</div>
+  </div>
   <p style="margin:0 0 18px;font-size:13.5px;line-height:1.7;color:#6f6a66">궁금한 점은 이 메일에 답장하거나 인스타그램 @tonbonami 로 알려 주세요.</p>
-  <p style="margin:0;font-size:13.5px;color:#8a8580">Merci beaucoup ! — 한스푼 스튜디오</p>
+  <p style="margin:0 0 16px;font-size:13.5px;color:#8a8580">Merci beaucoup ! — 한스푼 스튜디오</p>
+  <p style="margin:0;padding-top:12px;border-top:1px solid rgba(67,63,62,.1);font-size:11.5px;line-height:1.7;color:#8a8580">${esc(sellerLine())}</p>
 </div></body></html>`;
   return { subject, text, html };
 }

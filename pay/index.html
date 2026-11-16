@@ -21,7 +21,7 @@
 
       <p class="doc-eyebrow">PAIEMENT</p>
       <h1>카드로 결제하기</h1>
-      <p class="doc-lead">카드와 카카오페이·네이버페이·토스페이로 결제할 수 있어요.</p>
+      <p class="doc-lead" id="payLead">카드로 결제할 수 있어요.</p>
 
       <form class="pay-form" id="payForm" novalidate>
         <fieldset class="pay-step">
@@ -34,11 +34,11 @@
           <legend><span class="pay-num">2</span>받는 분</legend>
           <label class="pay-field">
             <span>이름</span>
-            <input type="text" id="payName" name="name" autocomplete="name" maxlength="40" required />
+            <input type="text" id="payName" name="name" autocomplete="name" maxlength="40" required aria-describedby="payStatus" />
           </label>
           <label class="pay-field">
             <span id="payEmailLabel">교재 받을 이메일</span>
-            <input type="email" id="payEmail" name="email" autocomplete="email" inputmode="email" maxlength="120" placeholder="예: hanspoon@email.com" required />
+            <input type="email" id="payEmail" name="email" autocomplete="email" inputmode="email" maxlength="120" placeholder="예: hanspoon@email.com" required aria-describedby="payStatus payEmailHint" />
             <small id="payEmailHint" hidden>노션 교재는 노션에 가입한 이메일을 적어 주세요. 이 주소로 초대해 드려요.</small>
           </label>
         </fieldset>
@@ -51,21 +51,26 @@
             <div><dt>받는 방법</dt><dd id="sumDelivery"></dd></div>
           </dl>
 
+          <!-- 결제 수단: 서버 설정에서 간편결제를 켰을 때만 보인다(카드만이면 숨김) -->
+          <div class="pay-methods" id="payMethods" role="radiogroup" aria-label="결제 수단" hidden></div>
+
           <!-- 청약철회 제한 확인: 미리 체크해 두지 않는다 -->
           <label class="pay-check">
-            <input type="checkbox" id="agreeRefund" />
+            <input type="checkbox" id="agreeRefund" aria-describedby="payStatus" />
             <span><b>(필수)</b> 결제 뒤 6시간 안에 제공되는 디지털 콘텐츠이며, 제공이 시작된 뒤에는 단순 변심으로 환불되지 않는다는 점을 확인했습니다.</span>
           </label>
           <p class="pay-links"><a id="payPreviewLink" href="/" target="_blank" rel="noopener">무료 샘플·미리보기<span class="sr-only">(새 창에서 열려요)</span></a> · <a href="/refund/" target="_blank" rel="noopener">환불정책<span class="sr-only">(새 창에서 열려요)</span></a></p>
 
           <label class="pay-check">
-            <input type="checkbox" id="agreeTerms" />
-            <span><b>(필수)</b> <a href="/terms/" target="_blank" rel="noopener">이용약관</a>과 <a href="/privacy/" target="_blank" rel="noopener">개인정보 수집·이용</a>에 동의합니다. <small>받는 정보: 이름, 이메일, 결제 기록 · 목적: 결제 확인과 교재 발송 · 보관: 5년(전자상거래법)</small></span>
+            <input type="checkbox" id="agreeTerms" aria-describedby="payStatus" />
+            <span><b>(필수)</b> <a href="/terms/" target="_blank" rel="noopener">이용약관<span class="sr-only">(새 창에서 열려요)</span></a>에 동의합니다.</span>
           </label>
+          <!-- 계약(결제·발송)에 꼭 필요한 정보라 따로 동의를 받지 않고 알린다 -->
+          <p class="pay-privacy">결제와 교재 발송에 필요한 이름·이메일·결제 기록을 받아 5년 동안 보관해요(전자상거래법). 자세한 내용은 <a href="/privacy/" target="_blank" rel="noopener">개인정보처리방침<span class="sr-only">(새 창에서 열려요)</span></a>에 있어요.</p>
 
           <label class="pay-check">
             <input type="checkbox" id="agreeNews" />
-            <span>(선택) 새 책·무료 자료 소식을 이메일로 받을게요.</span>
+            <span>(선택) 새 책·무료 자료 소식을 이메일로 받을게요. <small>받는 정보: 이메일 · 보관: 수신을 끊을 때까지 · 체크하지 않아도 살 수 있어요</small></span>
           </label>
 
           <button type="submit" class="pay-submit" id="paySubmit">결제하기</button>

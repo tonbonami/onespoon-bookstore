@@ -17,13 +17,22 @@ function findBook(slug) {
 
 // 결제 번호(주문 번호)에 책 주소를 넣어 둔다: hs-<slug>-<시각>-<난수>
 // 서버가 만든 번호라서, 결제 뒤 확인할 때 "어느 책 값이어야 하는지"를 이 번호로 다시 찾는다(브라우저가 보낸 값은 믿지 않는다).
-function makePaymentId(slug, now = Date.now(), random = require("node:crypto").randomBytes(4).toString("hex")) {
+function makePaymentId(slug, now = Date.now(), random = require("node:crypto").randomBytes(8).toString("hex")) {
   return `hs-${slug}-${now.toString(36)}-${random}`;
 }
 
+const PAYMENT_ID = /^hs-([a-z0-9-]+)-([a-z0-9]+)-[a-f0-9]{16}$/;
+
 function bookOfPaymentId(paymentId) {
-  const m = /^hs-([a-z0-9-]+)-[a-z0-9]+-[a-f0-9]{8}$/.exec(String(paymentId || ""));
+  const m = PAYMENT_ID.exec(String(paymentId || ""));
   return m ? findBook(m[1]) : null;
 }
 
-module.exports = { BOOKS, FORMATS, sellable, findBook, makePaymentId, bookOfPaymentId };
+// 주문 번호를 만든 시각(밀리초). 번호 꼴이 아니면 0
+function createdAtOf(paymentId) {
+  const m = PAYMENT_ID.exec(String(paymentId || ""));
+  const at = m ? parseInt(m[2], 36) : 0;
+  return Number.isFinite(at) ? at : 0;
+}
+
+module.exports = { BOOKS, FORMATS, sellable, findBook, makePaymentId, bookOfPaymentId, createdAtOf };
