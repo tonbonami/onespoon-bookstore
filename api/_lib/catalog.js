@@ -1,0 +1,29 @@
+// 카드 결제 서버가 쓰는 책 목록 — 가격의 기준은 화면과 똑같이 books-data.js 한 곳이다.
+// books-data.js는 브라우저용(window.…)이라, 빈 window를 만들어 놓고 그대로 불러온다.
+globalThis.window = globalThis.window || {};
+require("../../books-data.js");
+
+const BOOKS = globalThis.window.HANSPOON_BOOKS || [];
+const FORMATS = globalThis.window.HANSPOON_FORMATS || {};
+
+// 카드로 살 수 있는 책: 판매 중이고 가격이 있는 책만
+function sellable() {
+  return BOOKS.filter((b) => b.status === "판매중" && Number.isInteger(b.price) && b.price > 0 && b.slug);
+}
+
+function findBook(slug) {
+  return sellable().find((b) => b.slug === slug) || null;
+}
+
+// 결제 번호(주문 번호)에 책 주소를 넣어 둔다: hs-<slug>-<시각>-<난수>
+// 서버가 만든 번호라서, 결제 뒤 확인할 때 "어느 책 값이어야 하는지"를 이 번호로 다시 찾는다(브라우저가 보낸 값은 믿지 않는다).
+function makePaymentId(slug, now = Date.now(), random = require("node:crypto").randomBytes(4).toString("hex")) {
+  return `hs-${slug}-${now.toString(36)}-${random}`;
+}
+
+function bookOfPaymentId(paymentId) {
+  const m = /^hs-([a-z0-9-]+)-[a-z0-9]+-[a-f0-9]{8}$/.exec(String(paymentId || ""));
+  return m ? findBook(m[1]) : null;
+}
+
+module.exports = { BOOKS, FORMATS, sellable, findBook, makePaymentId, bookOfPaymentId };

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>카드로 결제하기 | 한스푼 서점</title>
+    <meta name="description" content="한스푼 서점 카드·간편결제" />
+    <!-- 결제 화면은 검색에 나오지 않게 한다 -->
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/legal.css" />
+    <link rel="stylesheet" href="/pay/pay.css" />
+    <script defer src="/_vercel/insights/script.js"></script>
+  </head>
+  <body>
+    <main class="doc-wrap pay-wrap">
+      <a class="doc-back" href="/">← 한스푼 서점</a>
+
+      <!-- 테스트 기간 표시: 서버가 테스트 모드라고 답하면 보인다 -->
+      <p class="pay-test" id="payTest" hidden>테스트 결제 화면이에요. 실제로 돈이 나가지 않아요.</p>
+
+      <p class="doc-eyebrow">PAIEMENT</p>
+      <h1>카드로 결제하기</h1>
+      <p class="doc-lead">카드와 카카오페이·네이버페이·토스페이로 결제할 수 있어요.</p>
+
+      <form class="pay-form" id="payForm" novalidate>
+        <fieldset class="pay-step">
+          <legend><span class="pay-num">1</span>책 고르기</legend>
+          <div class="pay-books" id="payBooks" role="radiogroup" aria-label="책 고르기"></div>
+          <p class="pay-hint" id="payUpgrade" hidden></p>
+        </fieldset>
+
+        <fieldset class="pay-step">
+          <legend><span class="pay-num">2</span>받는 분</legend>
+          <label class="pay-field">
+            <span>이름</span>
+            <input type="text" id="payName" name="name" autocomplete="name" maxlength="40" required />
+          </label>
+          <label class="pay-field">
+            <span id="payEmailLabel">교재 받을 이메일</span>
+            <input type="email" id="payEmail" name="email" autocomplete="email" inputmode="email" maxlength="120" placeholder="예: hanspoon@email.com" required />
+            <small id="payEmailHint" hidden>노션 교재는 노션에 가입한 이메일을 적어 주세요. 이 주소로 초대해 드려요.</small>
+          </label>
+        </fieldset>
+
+        <fieldset class="pay-step">
+          <legend><span class="pay-num">3</span>확인하고 결제</legend>
+          <dl class="pay-summary" id="paySummary" hidden>
+            <div><dt>책</dt><dd id="sumBook"></dd></div>
+            <div><dt>결제 금액</dt><dd id="sumAmount"></dd></div>
+            <div><dt>받는 방법</dt><dd id="sumDelivery"></dd></div>
+          </dl>
+
+          <!-- 청약철회 제한 확인: 미리 체크해 두지 않는다 -->
+          <label class="pay-check">
+            <input type="checkbox" id="agreeRefund" />
+            <span><b>(필수)</b> 결제 뒤 6시간 안에 제공되는 디지털 콘텐츠이며, 제공이 시작된 뒤에는 단순 변심으로 환불되지 않는다는 점을 확인했습니다.</span>
+          </label>
+          <p class="pay-links"><a id="payPreviewLink" href="/" target="_blank" rel="noopener">무료 샘플·미리보기<span class="sr-only">(새 창에서 열려요)</span></a> · <a href="/refund/" target="_blank" rel="noopener">환불정책<span class="sr-only">(새 창에서 열려요)</span></a></p>
+
+          <label class="pay-check">
+            <input type="checkbox" id="agreeTerms" />
+            <span><b>(필수)</b> <a href="/terms/" target="_blank" rel="noopener">이용약관</a>과 <a href="/privacy/" target="_blank" rel="noopener">개인정보 수집·이용</a>에 동의합니다. <small>받는 정보: 이름, 이메일, 결제 기록 · 목적: 결제 확인과 교재 발송 · 보관: 5년(전자상거래법)</small></span>
+          </label>
+
+          <label class="pay-check">
+            <input type="checkbox" id="agreeNews" />
+            <span>(선택) 새 책·무료 자료 소식을 이메일로 받을게요.</span>
+          </label>
+
+          <button type="submit" class="pay-submit" id="paySubmit">결제하기</button>
+          <p class="pay-status" id="payStatus" role="status" aria-live="polite"></p>
+          <p class="pay-alt">계좌이체로 주문하려면 <a href="/#orderFormSection">주문서</a>를 이용해 주세요.</p>
+        </fieldset>
+      </form>
+
+      <section class="pay-done" id="payDone" hidden tabindex="-1" aria-live="polite">
+        <p class="pay-done-eyebrow">✅ 결제 완료</p>
+        <h2 id="doneTitle">결제가 확인됐어요</h2>
+        <dl class="pay-summary">
+          <div><dt>책</dt><dd id="doneBook"></dd></div>
+          <div><dt>결제 금액</dt><dd id="doneAmount"></dd></div>
+          <div><dt>받을 이메일</dt><dd id="doneEmail"></dd></div>
+          <div><dt>받는 방법</dt><dd id="doneDelivery"></dd></div>
+        </dl>
+        <p class="pay-done-note" id="doneMail"></p>
+        <p class="pay-links"><a id="doneReceipt" href="#" target="_blank" rel="noopener" hidden>영수증 보기<span class="sr-only">(새 창에서 열려요)</span></a></p>
+        <a class="pay-home" href="/">서점으로 돌아가기</a>
+      </section>
+
+      <footer class="seller-info" aria-label="판매자 정보">
+        <p><strong>한스푼 스튜디오</strong> · 대표 김우수 · 사업자등록번호 <span class="seller-todo">확인 중</span></p>
+        <p>통신판매업 신고번호 <span class="seller-todo">신고 중</span> · 경기도 남양주시 호평동</p>
+        <p>문의 <span class="seller-todo">메일 주소 준비 중</span> · 인스타그램 @tonbonami · 호스팅 Vercel Inc.</p>
+        <p class="seller-links"><a href="/terms/">이용약관</a> · <a href="/privacy/"><strong>개인정보처리방침</strong></a> · <a href="/refund/">환불정책</a></p>
+      </footer>
+    </main>
+
+    <script src="/books-data.js"></script>
+    <script src="/pay/pay.js"></script>
+  </body>
+</html>

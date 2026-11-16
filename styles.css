@@ -2691,9 +2691,59 @@ body.modal-open .order-bar {
 .site-footer .footer-blog:hover svg { color: #03c75a; }
 .site-footer .footer-youtube:hover svg { color: #ff0000; }
 
+/* 맨 아래 판매자 정보(전자상거래법 표시 사항) — 작고 옅게 */
+.site-footer .footer-seller {
+  max-width: 520px;
+  margin: 30px auto 0;
+  padding-top: 22px;
+  border-top: 1px solid rgba(67, 63, 62, 0.08);
+}
+
+.site-footer .footer-seller p {
+  margin: 0;
+  color: rgba(67, 63, 62, 0.62);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.9;
+  word-break: keep-all;
+}
+
+.site-footer .footer-seller b {
+  color: rgba(67, 63, 62, 0.82);
+  font-weight: 700;
+}
+
+.site-footer .footer-seller .footer-legal {
+  margin-top: 8px;
+}
+
+.site-footer .footer-legal a {
+  display: inline-block;
+  padding: 8px 2px;
+  color: rgba(67, 63, 62, 0.82);
+  text-decoration: none;
+}
+
+.site-footer .footer-legal a:hover {
+  text-decoration: underline;
+}
+
+.site-footer .footer-legal a:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35);
+  border-radius: 6px;
+}
+
+/* 아직 채우지 못한 값. 운영에 올리기 전에 남아 있으면 안 된다 */
+.seller-todo {
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: #fff3c9;
+}
+
 .site-footer small {
   display: block;
-  margin-top: 32px;
+  margin-top: 26px;
   color: rgba(67, 63, 62, 0.32);
   font-size: 10px;
   font-weight: 800;

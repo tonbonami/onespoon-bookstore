@@ -1,0 +1,227 @@
+/* 이용약관·개인정보처리방침·환불정책(/terms/·/privacy/·/refund/)과 카드 결제 화면(/pay/)이 같이 쓰는 모양.
+   색·글꼴은 서점(styles.css)과 같은 값. */
+:root {
+  --bg: #fcfbf4;
+  --ink: #433f3e;
+  --muted: rgba(67, 63, 62, 0.62);
+  --line: rgba(67, 63, 62, 0.1);
+  --blue: #2f7fc1;
+  --card: #ffffff;
+  --pastel-blue: #eef5fc;
+  --pastel-lavender: #f3eff7;
+  --pastel-yellow: #fff7e0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  line-height: 1.75;
+  -webkit-text-size-adjust: 100%;
+}
+
+a {
+  color: var(--blue);
+}
+
+.doc-wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 20px 20px 56px;
+}
+
+.doc-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: rgba(67, 63, 62, 0.06);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.doc-eyebrow {
+  margin: 28px 0 4px;
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
+
+.doc-wrap h1 {
+  margin: 0 0 6px;
+  font-family: Georgia, "Apple SD Gothic Neo", "Noto Sans KR", serif;
+  font-size: 28px;
+  line-height: 1.35;
+}
+
+.doc-lead {
+  margin: 0 0 22px;
+  color: var(--muted);
+  font-size: 14.5px;
+}
+
+.doc-draft {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--pastel-yellow);
+  font-size: 13.5px;
+}
+
+.doc-summary {
+  margin: 0 0 26px;
+  padding: 18px 20px;
+  border-radius: 20px;
+  background: var(--pastel-blue);
+}
+
+.doc-summary h2 {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.doc-summary ul {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14.5px;
+}
+
+.doc-body h2 {
+  margin: 30px 0 8px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.doc-body p,
+.doc-body li {
+  font-size: 14.5px;
+  word-break: keep-all;
+}
+
+.doc-body p {
+  margin: 0 0 10px;
+}
+
+.doc-body ol,
+.doc-body ul {
+  margin: 0 0 12px;
+  padding-left: 22px;
+}
+
+.doc-body li + li {
+  margin-top: 4px;
+}
+
+.doc-table-wrap {
+  margin: 8px 0 14px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+}
+
+.doc-body table {
+  width: 100%;
+  min-width: 520px;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.doc-body th,
+.doc-body td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.doc-body th {
+  background: rgba(67, 63, 62, 0.04);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.doc-body tr:last-child td {
+  border-bottom: 0;
+}
+
+.doc-quote {
+  margin: 10px 0 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--pastel-lavender);
+  font-size: 14.5px;
+}
+
+.doc-date {
+  margin-top: 28px;
+  color: var(--muted);
+  font-size: 13.5px;
+}
+
+/* 아직 채우지 못한 값(사업자등록번호 등). 운영에 올리기 전에 이 표시가 남아 있으면 안 된다. */
+.seller-todo {
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: var(--pastel-yellow);
+  font-size: 0.92em;
+}
+
+/* 맨 아래 판매자 정보 */
+.seller-info {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 12.5px;
+  line-height: 1.8;
+}
+
+.seller-info p {
+  margin: 0;
+}
+
+.seller-info strong {
+  color: var(--ink);
+}
+
+.seller-links {
+  margin-top: 8px !important;
+}
+
+.seller-links a {
+  display: inline-block;
+  padding: 6px 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.seller-links a:hover {
+  text-decoration: underline;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 2px;
+}
+
+@media (max-width: 520px) {
+  .doc-wrap {
+    padding: 16px 16px 48px;
+  }
+
+  .doc-wrap h1 {
+    font-size: 24px;
+  }
+}

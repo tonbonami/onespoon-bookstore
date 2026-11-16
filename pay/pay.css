@@ -1,0 +1,321 @@
+/* 카드 결제 화면(/pay/) 전용. 바탕 모양은 /legal.css와 같이 쓴다. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* hidden으로 숨긴 것은 다른 규칙(display)이 있어도 숨긴다 */
+.pay-wrap [hidden] {
+  display: none !important;
+}
+
+.pay-wrap {
+  max-width: 560px;
+}
+
+.pay-test {
+  margin: 16px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--pastel-yellow);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.pay-step {
+  margin: 0 0 16px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--card);
+}
+
+.pay-step legend {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 6px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.pay-num {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--pastel-blue);
+  color: var(--blue);
+  font-size: 13px;
+}
+
+.pay-books {
+  display: grid;
+  gap: 10px;
+}
+
+.pay-book {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 76px;
+  padding: 10px 14px 10px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.pay-book input {
+  position: absolute;
+  opacity: 0;
+}
+
+.pay-book img {
+  display: block;
+  width: 44px;
+  height: 62px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: var(--pastel-blue);
+  box-shadow: 0 2px 6px rgba(67, 63, 62, 0.14);
+}
+
+.pay-book-title {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.pay-book-kind {
+  display: block;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.pay-book-price {
+  font-size: 15px;
+  font-weight: 800;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.pay-book-price s {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.pay-book:has(input:checked) {
+  border-color: var(--blue);
+  background: var(--pastel-blue);
+}
+
+.pay-book:has(input:focus-visible) {
+  outline: 3px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 2px;
+}
+
+.pay-hint {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.pay-field {
+  display: block;
+}
+
+.pay-field + .pay-field {
+  margin-top: 14px;
+}
+
+.pay-field > span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pay-field input {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+}
+
+.pay-field input[aria-invalid="true"] {
+  border-color: #e0627a;
+}
+
+.pay-field small {
+  display: block;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.pay-summary {
+  margin: 0 0 16px;
+  padding: 4px 16px;
+  border-radius: 14px;
+  background: var(--pastel-blue);
+  font-size: 14.5px;
+}
+
+.pay-summary > div {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px 0;
+}
+
+.pay-summary > div + div {
+  border-top: 1px solid rgba(47, 127, 193, 0.14);
+}
+
+.pay-summary dt {
+  color: var(--muted);
+}
+
+.pay-summary dd {
+  margin: 0;
+  font-weight: 700;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+.pay-check {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+  font-size: 14px;
+  line-height: 1.65;
+  cursor: pointer;
+}
+
+.pay-check input {
+  width: 22px;
+  height: 22px;
+  margin: 1px 0 0;
+  accent-color: #433f3e;
+}
+
+.pay-check small {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+
+.pay-check.is-missing span {
+  color: #c0405a;
+}
+
+.pay-links {
+  margin: 0 0 6px 34px;
+  font-size: 13px;
+}
+
+.pay-links a {
+  display: inline-block;
+  padding: 4px 0;
+}
+
+.pay-submit,
+.pay-home {
+  display: flex;
+  width: 100%;
+  min-height: 54px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  border: 0;
+  border-radius: 999px;
+  background: #433f3e;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pay-submit:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.pay-status {
+  min-height: 22px;
+  margin: 10px 0 0;
+  color: #c0405a;
+  font-size: 14px;
+  text-align: center;
+}
+
+.pay-status.is-info {
+  color: var(--muted);
+}
+
+.pay-alt {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-align: center;
+}
+
+.pay-done {
+  padding: 24px 20px;
+  border-radius: 20px;
+  background: var(--card);
+  border: 1px solid var(--line);
+}
+
+.pay-done:focus {
+  outline: none;
+}
+
+.pay-done-eyebrow {
+  margin: 0 0 4px;
+  color: #2e9b6b;
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.pay-done h2 {
+  margin: 0 0 14px;
+  font-size: 21px;
+}
+
+.pay-done-note {
+  margin: 0 0 4px;
+  font-size: 14px;
+}
+
+.pay-done .pay-links {
+  margin-left: 0;
+}
+
+@media (max-width: 520px) {
+  .pay-step {
+    padding: 18px 16px;
+  }
+
+}
