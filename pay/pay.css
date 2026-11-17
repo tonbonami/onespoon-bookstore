@@ -125,10 +125,91 @@
   outline-offset: 2px;
 }
 
-.pay-hint {
-  margin: 12px 0 0;
-  color: var(--muted);
-  font-size: 13px;
+.pay-upgrade {
+  margin-top: 12px;
+  padding: 4px 14px 12px;
+  border-radius: 14px;
+  background: var(--pastel-lavender);
+}
+
+.pay-upgrade .pay-field {
+  margin-top: 4px;
+}
+
+.pay-questions {
+  display: grid;
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.pay-questions:empty {
+  display: none;
+}
+
+fieldset.pay-q {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pay-q > span {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.pay-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.pay-pill {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 16px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.pay-pill input {
+  position: absolute;
+  opacity: 0;
+}
+
+.pay-pill:has(input:checked) {
+  border-color: var(--blue);
+  background: var(--pastel-blue);
+  font-weight: 700;
+}
+
+.pay-pill:has(input:focus-visible) {
+  outline: 3px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 2px;
+}
+
+.pay-q select {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+}
+
+.pay-q[data-invalid="true"] > span {
+  color: #c0405a;
 }
 
 .pay-field {

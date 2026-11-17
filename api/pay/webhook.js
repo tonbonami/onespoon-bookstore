@@ -1,7 +1,8 @@
 // POST /api/pay/webhook — 포트원이 결제 상태가 바뀔 때 부른다.
 // 손님이 결제 뒤 창을 닫아 버려도 안내 메일이 나가게 하는 두 번째 길이다.
 // 서명을 확인하고, 그래도 본문은 믿지 않고 포트원에 결제를 다시 조회한다(fulfill.js).
-const { verifyWebhook, ready } = require("../_lib/portone");
+const { verifyWebhook, ready, env } = require("../_lib/portone");
+const { logEnabled, recordOrder } = require("../_lib/orderform");
 const { verifyAndFulfill } = require("../_lib/fulfill");
 
 async function readRaw(req) {
@@ -46,6 +47,15 @@ const handler = async (req, res) => {
     if (!result.mail.buyer.sent && result.mail.buyer.reason === "메일 열쇠 없음") return res.status(200).json({ ok: true, fulfilled: false, code: "MAIL_NOT_SET" });
     // 메일이 나가지 못했으면 500으로 답해 포트원이 다시 부르게 한다(멱등 키라 두 번 나가지 않는다)
     if (!result.mail.buyer.sent) return res.status(500).json({ ok: false, code: "MAIL_PENDING" });
+    // 주문 기록: '한스푼 주문 처리' 시트(주문서 구글폼). 완료 화면 쪽에서는 남기지 않는다(같은 주문이 두 줄 되지 않게).
+    // 기록이 실패하면 500으로 답해 다시 부르게 한다(메일은 멱등 키로 다시 나가지 않음)
+    if (logEnabled(env().mode)) {
+      const logged = await recordOrder(result.order).catch((error) => ({ recorded: false, reason: error.message }));
+      if (!logged.recorded) {
+        console.error("[pay/webhook] 주문 기록 실패", message.data.paymentId, logged.reason);
+        return res.status(500).json({ ok: false, code: "LOG_PENDING" });
+      }
+    }
     return res.status(200).json({ ok: true, fulfilled: true });
   } catch (error) {
     console.error("[pay/webhook] 오류", error.message);

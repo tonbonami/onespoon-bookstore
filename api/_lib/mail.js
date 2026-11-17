@@ -29,6 +29,7 @@ function buyerMail(order) {
   const e = env();
   const { book, email, name, amount, paymentId, receiptUrl, test, method } = order;
   const lines = deliveryLines(book, email);
+  if (order.upgrade) lines.unshift(`${book.upgrade.from} 구매 기록을 확인한 뒤 보내 드려요. 기록이 확인되지 않으면 연락드릴게요.`);
   // 환불 안내 요약(계약 내용 안내의 일부). 자세한 기준은 /refund/
   const refund = [
     "교재를 받기 전(초대·발송 전)에는 언제든 전액 환불해요.",
@@ -89,16 +90,19 @@ function buyerMail(order) {
 
 function adminMail(order) {
   const { book, email, name, amount, paymentId, receiptUrl, test, news, method } = order;
-  const todo = book.format === "notion" ? `6시간 안에 ${email} 로 노션 초대` : `6시간 안에 ${email} 로 PDF 발송`;
+  const send = book.format === "notion" ? `6시간 안에 ${email} 로 노션 초대` : `6시간 안에 ${email} 로 PDF 발송`;
+  const todo = order.upgrade ? `${book.upgrade.from} 구매 기록 확인(${order.proof || "적지 않음"}) 뒤 ${send}` : send;
+  const a = order.answers || {};
   const subject = `${test ? "[테스트] " : ""}[카드 결제] ${book.title} · ${won(amount)} · ${name || "이름 없음"}`;
   const rows = [
     ["할 일", todo],
     ["책", book.title],
-    ["금액", won(amount)],
+    ["금액", `${won(amount)}${order.upgrade ? ` (${book.upgrade.from} 구매자 할인)` : ""}`],
     ["이름", name || "-"],
     ["이메일", email],
     ["결제 수단", method || "-"],
     ["소식 받기", news ? "동의" : "동의 안 함"],
+    ["주문서 답", [a.gender, a.age, a.channel, a.level, a.device].filter(Boolean).join(" · ") || "-"],
     ["주문 번호", paymentId],
     ["영수증", receiptUrl || "-"],
   ];

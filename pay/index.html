@@ -27,7 +27,18 @@
         <fieldset class="pay-step">
           <legend><span class="pay-num">1</span>책 고르기</legend>
           <div class="pay-books" id="payBooks" role="radiogroup" aria-label="책 고르기"></div>
-          <p class="pay-hint" id="payUpgrade" hidden></p>
+          <!-- 이전 판 구매자 할인: 할인이 있는 책을 고르면 보인다 -->
+          <div class="pay-upgrade" id="payUpgradeBox" hidden>
+            <label class="pay-check">
+              <input type="checkbox" id="payUpgrade" />
+              <span id="payUpgradeText"></span>
+            </label>
+            <label class="pay-field" id="payProofField" hidden>
+              <span id="payProofLabel"></span>
+              <input type="text" id="payProof" maxlength="120" autocomplete="off" aria-describedby="payStatus payProofHint" />
+              <small id="payProofHint">구매 기록을 확인한 뒤 보내 드려요. 기록이 없으면 차액 결제와 환불 가운데 고르실 수 있어요.</small>
+            </label>
+          </div>
         </fieldset>
 
         <fieldset class="pay-step">
@@ -41,6 +52,8 @@
             <input type="email" id="payEmail" name="email" autocomplete="email" inputmode="email" maxlength="120" placeholder="예: hanspoon@email.com" required aria-describedby="payStatus payEmailHint" />
             <small id="payEmailHint" hidden>노션 교재는 노션에 가입한 이메일을 적어 주세요. 이 주소로 초대해 드려요.</small>
           </label>
+          <!-- 계좌이체 주문서와 같은 질문(서버가 목록을 준다) -->
+          <div class="pay-questions" id="payQuestions"></div>
         </fieldset>
 
         <fieldset class="pay-step">

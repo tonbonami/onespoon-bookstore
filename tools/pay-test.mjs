@@ -8,6 +8,7 @@ import { createRequire } from "node:module";
 const require = createRequire(import.meta.url);
 const payments = new Map(); // 가짜 포트원이 돌려줄 결제
 const mails = []; // 가짜 메일 서버가 받은 메일
+const formRows = []; // 가짜 구글폼(주문서)이 받은 줄
 
 const fake = http.createServer((req, res) => {
   let body = "";
@@ -18,6 +19,10 @@ const fake = http.createServer((req, res) => {
       if (req.headers.authorization !== "PortOne secret-test") return send(401, {});
       const payment = payments.get(decodeURIComponent(req.url.slice("/payments/".length)));
       return payment ? send(200, payment) : send(404, { type: "PAYMENT_NOT_FOUND" });
+    }
+    if (req.url === "/formResponse") {
+      formRows.push(Object.fromEntries(new URLSearchParams(body)));
+      return send(200, {});
     }
     if (req.url === "/emails") {
       mails.push({ key: req.headers["idempotency-key"], ...JSON.parse(body) });
@@ -31,9 +36,10 @@ const base = `http://127.0.0.1:${fake.address().port}`;
 
 const WEBHOOK_SECRET = `whsec_${Buffer.from("webhook-test-key").toString("base64")}`;
 const setEnv = (on) => {
-  const values = { PORTONE_STORE_ID: "store-test", PORTONE_CHANNEL_KEY: "channel-key-test", PORTONE_API_SECRET: "secret-test", PORTONE_WEBHOOK_SECRET: WEBHOOK_SECRET, PORTONE_API_BASE: base, RESEND_API_KEY: "re_test", RESEND_API_BASE: base, MAIL_FROM: "서점 <orders@example.com>", MAIL_ADMIN: "admin@example.com" };
+  const values = { PORTONE_STORE_ID: "store-test", PORTONE_CHANNEL_KEY: "channel-key-test", PORTONE_API_SECRET: "secret-test", PORTONE_WEBHOOK_SECRET: WEBHOOK_SECRET, PORTONE_API_BASE: base, RESEND_API_KEY: "re_test", RESEND_API_BASE: base, MAIL_FROM: "서점 <orders@example.com>", MAIL_ADMIN: "admin@example.com", ORDER_FORM_ACTION: `${base}/formResponse` };
   for (const [k, v] of Object.entries(values)) on ? (process.env[k] = v) : delete process.env[k];
   delete process.env.PAY_MODE;
+  delete process.env.ORDER_LOG;
 };
 
 const prepare = require("../api/pay/prepare.js");
@@ -41,6 +47,8 @@ const complete = require("../api/pay/complete.js");
 const webhook = require("../api/pay/webhook.js");
 const { findBook, makePaymentId } = require("../api/_lib/catalog.js");
 const { sign: serverSign } = require("../api/_lib/portone.js");
+const orderform = require("../api/_lib/orderform.js");
+const { readFileSync } = require("node:fs");
 
 async function call(handler, { method = "POST", body, headers = {}, rawBody } = {}) {
   const res = { code: 200, data: null, setHeader() {}, status(c) { this.code = c; return this; }, json(d) { this.data = d; return this; } };
@@ -61,7 +69,8 @@ const quiet = async (fn) => {
 };
 
 const book = findBook("nofu3");
-const good = { slug: "nofu3", name: "김시험", email: "buyer@example.com", agreeRefund: true, agreeTerms: true, news: true };
+const answers = { gender: "여자", age: "직장인", channel: "YouTube", level: "프랑스어 이제 막 시작", device: "아이폰" };
+const good = { slug: "nofu3", name: "김시험", email: "buyer@example.com", agreeRefund: true, agreeTerms: true, news: true, answers };
 // 포트원 실제 응답처럼 구매자 이름은 { full } 꼴로 온다
 const paid = (id, over = {}) => ({ id, storeId: "store-test", status: "PAID", currency: "KRW", amount: { total: book.price }, channel: { type: "TEST" }, customer: { email: "buyer@example.com", name: { full: "김시험" } }, customData: JSON.stringify({ news: true }), receiptUrl: "https://example.com/receipt", method: { type: "PaymentMethodCard" }, paidAt: new Date().toISOString(), ...over });
 
@@ -142,7 +151,7 @@ const forged = (await call(prepare, { body: good })).data.paymentId;
 payments.set(forged, paid(forged, { amount: { total: 100 }, customData: JSON.stringify({ amount: 100, sig: held.customData.sig }) }));
 r = await quiet(() => call(complete, { body: { paymentId: forged } }));
 check("남의 서명을 붙여 싼값을 우기면 막는다", r.code === 400 && r.data.code === "AMOUNT_MISMATCH");
-const stalePin = makePaymentId("nofu3", Date.now() - 3 * 3600 * 1000);
+const stalePin = makePaymentId("nofu3", { now: Date.now() - 3 * 3600 * 1000 });
 payments.set(stalePin, paid(stalePin, { amount: { total: oldPrice }, customData: JSON.stringify({ amount: oldPrice, sig: serverSign(`amount:${stalePin}:${oldPrice}`) }) }));
 r = await quiet(() => call(complete, { body: { paymentId: stalePin } }));
 check("준비한 지 2시간이 지난 옛 값은 인정하지 않는다", r.code === 400 && r.data.code === "AMOUNT_MISMATCH");
@@ -173,6 +182,50 @@ payments.set(diary, paid(diary, { amount: { total: findBook("diary-2027").price 
 r = await call(complete, { body: { paymentId: diary } });
 check("PDF 책은 'PDF를 보내 드려요'로 안내한다", r.code === 200 && /주소로 PDF를 보내 드려요/.test(mails.at(-2)?.text || ""));
 
+// ── 주문서와 같은 질문
+const html = readFileSync(new URL("../books/index.html", import.meta.url), "utf8");
+const orderHtml = html.slice(html.indexOf('id="orderForm"') - 400, html.indexOf("</form>", html.indexOf('id="orderForm"')));
+const siteAction = /action="(https:\/\/docs\.google\.com\/forms\/[^"]+)"/.exec(orderHtml)?.[1];
+check("카드 주문 기록의 폼 주소가 주문서와 같다", siteAction === orderform.FORM_ACTION, siteAction);
+const siteChoices = (entry) => {
+  const radios = [...orderHtml.matchAll(new RegExp(`name="${entry}" type="radio" value="([^"]+)"`, "g"))].map((m) => m[1]);
+  if (radios.length) return radios;
+  const sel = new RegExp(`<select name="${entry}"[^>]*>([\\s\\S]*?)</select>`).exec(orderHtml);
+  return sel ? [...sel[1].matchAll(/<option value="([^"]*)"/g)].map((m) => m[1]).filter(Boolean) : [];
+};
+const sameChoices = orderform.QUESTIONS.every((q) => JSON.stringify(siteChoices(orderform.ENTRY[q.key])) === JSON.stringify(q.choices));
+check("카드 결제 질문의 선택지가 주문서와 한 글자도 다르지 않다", sameChoices, orderform.QUESTIONS.map((q) => `${q.key}:${siteChoices(orderform.ENTRY[q.key]).join("/")}`).join(" | "));
+// 책 칸은 script.js가 그린다
+const siteScript = readFileSync(new URL("../script.js", import.meta.url), "utf8");
+check("주문서의 책 칸·이름·이메일·메모·소식 칸 이름이 주문서와 같다", siteScript.includes(`name="${orderform.ENTRY.book}"`) && ["name", "memo", "news", "email"].every((k) => html.includes(`name="${orderform.ENTRY[k]}"`)) && html.includes(`value="${orderform.NEWS_VALUE}"`));
+r = await call(prepare, { body: { ...good, answers: { ...answers, gender: undefined } } });
+check("주문서 필수 질문(성별)을 비우면 막는다", r.code === 400 && r.data.field === "gender");
+r = await call(prepare, { body: { ...good, answers: { ...answers, level: "아무 말" } } });
+check("주문서에 없는 선택지를 보내면 막는다", r.code === 400 && r.data.field === "level");
+r = await call(prepare, { method: "GET" });
+check("공개 설정에 주문서 질문 목록이 온다", Array.isArray(r.data.questions) && r.data.questions.length === 5 && r.data.questions[0].required === true);
+
+// ── 이전 판 구매자 할인(카드에서도)
+r = await call(prepare, { body: { ...good, upgrade: true } });
+check("할인을 고르고 이전 판 구매 정보를 비우면 막는다", r.code === 400 && r.data.field === "proof");
+const up = (await call(prepare, { body: { ...good, upgrade: true, proof: "old@example.com" } })).data;
+check("할인을 고르면 할인가로 준비하고 번호가 hu-로 시작한다", up.totalAmount === book.upgrade.price && /^hu-nofu3-/.test(up.paymentId) && up.customData.proof === "old@example.com");
+r = await call(prepare, { body: { ...good, slug: "diary-2027", upgrade: true, proof: "x" } });
+check("할인이 없는 책에 할인을 보내면 정가로 준비한다", r.data.totalAmount === findBook("diary-2027").price && /^hs-/.test(r.data.paymentId));
+payments.set(up.paymentId, paid(up.paymentId, { amount: { total: book.upgrade.price }, customData: JSON.stringify(up.customData) }));
+const mailsBeforeUp = mails.length;
+r = await call(complete, { body: { paymentId: up.paymentId } });
+check("할인 주문을 할인가로 결제하면 완료된다", r.code === 200 && r.data.amount === book.upgrade.price);
+check("할인 주문 메일: 구매자에겐 '확인 뒤 보내 드려요', 서점엔 확인할 것", /구매 기록을 확인한 뒤 보내 드려요/.test(mails[mailsBeforeUp]?.text || "") && /구매 기록 확인\(old@example\.com\)/.test(mails[mailsBeforeUp + 1]?.text || ""));
+const fakeUp = (await call(prepare, { body: good })).data.paymentId;
+payments.set(fakeUp, paid(fakeUp, { amount: { total: book.upgrade.price } }));
+r = await quiet(() => call(complete, { body: { paymentId: fakeUp } }));
+check("할인을 고르지 않은 주문을 할인가로 결제하면 막는다", r.code === 400 && r.data.code === "AMOUNT_MISMATCH");
+const noUpgradeBook = makePaymentId("diary-2027", { upgrade: true });
+payments.set(noUpgradeBook, paid(noUpgradeBook));
+r = await quiet(() => call(complete, { body: { paymentId: noUpgradeBook } }));
+check("할인이 없는 책에 hu- 번호를 꾸며 대면 막는다", r.code === 400 && r.data.code === "UNKNOWN_ORDER");
+
 // ── 웹훅
 const sign = (id, ts, body, secret = WEBHOOK_SECRET) => `v1,${crypto.createHmac("sha256", Buffer.from(secret.slice(6), "base64")).update(`${id}.${ts}.${body}`).digest("base64")}`;
 const hook = (await call(prepare, { body: good })).data.paymentId;
@@ -188,9 +241,30 @@ r = await quiet(() => call(webhook, { rawBody: rawBody.replace(hook, paymentId),
 check("본문을 고친 웹훅은 막는다", r.code === 400 && mails.length === count);
 r = await call(webhook, { rawBody, headers: { "webhook-id": "msg1", "webhook-timestamp": ts, "webhook-signature": sign("msg1", ts, rawBody) } });
 check("서명이 맞는 결제 완료 웹훅은 메일을 보낸다", r.code === 200 && r.data.fulfilled === true && mails.length === count + 2);
+check("테스트 결제는 기본으로 주문 시트에 남기지 않는다", formRows.length === 0);
+process.env.ORDER_LOG = "on";
+const logged = (await call(prepare, { body: { ...good, upgrade: true, proof: "old@example.com" } })).data;
+payments.set(logged.paymentId, paid(logged.paymentId, { amount: { total: book.upgrade.price }, customData: JSON.stringify(logged.customData) }));
+const rawLogged = JSON.stringify({ type: "Transaction.Paid", data: { storeId: "store-test", paymentId: logged.paymentId } });
+r = await call(webhook, { rawBody: rawLogged, headers: { "webhook-id": "msg3", "webhook-timestamp": ts, "webhook-signature": sign("msg3", ts, rawLogged) } });
+const row = formRows[0] || {};
+check("주문 시트를 켜면 웹훅이 주문서와 같은 칸으로 한 줄 남긴다", r.code === 200 && formRows.length === 1 && row[orderform.ENTRY.book] === book.formValue && row[orderform.ENTRY.gender] === "여자" && row[orderform.ENTRY.email] === "buyer@example.com" && row[orderform.ENTRY.news] === orderform.NEWS_VALUE, JSON.stringify(row));
+check("주문 시트 메모에 주문 번호·금액·테스트·할인 확인이 들어간다", /테스트 결제/.test(row[orderform.ENTRY.memo] || "") && (row[orderform.ENTRY.memo] || "").includes(logged.paymentId) && /15,000원/.test(row[orderform.ENTRY.memo] || "") && /확인할 것: old@example\.com/.test(row[orderform.ENTRY.memo] || ""));
+r = await call(complete, { body: { paymentId: logged.paymentId } });
+check("완료 화면 쪽은 주문 시트에 남기지 않는다(같은 주문이 두 줄 되지 않게)", formRows.length === 1);
+process.env.ORDER_FORM_ACTION = `${base}/없는주소`;
+const failLog = (await call(prepare, { body: good })).data;
+payments.set(failLog.paymentId, paid(failLog.paymentId, { customData: JSON.stringify(failLog.customData) }));
+const rawFail = JSON.stringify({ type: "Transaction.Paid", data: { storeId: "store-test", paymentId: failLog.paymentId } });
+r = await quiet(() => call(webhook, { rawBody: rawFail, headers: { "webhook-id": "msg4", "webhook-timestamp": ts, "webhook-signature": sign("msg4", ts, rawFail) } }));
+check("주문 시트 기록이 실패하면 500으로 답해 다시 부르게 한다", r.code === 500 && r.data.code === "LOG_PENDING");
+process.env.ORDER_FORM_ACTION = `${base}/formResponse`;
+delete process.env.ORDER_LOG;
 const other2 = JSON.stringify({ type: "Transaction.Ready", data: { paymentId: hook } });
+const mailsBeforeReady = mails.length;
+const rowsBeforeReady = formRows.length;
 r = await call(webhook, { rawBody: other2, headers: { "webhook-id": "msg2", "webhook-timestamp": ts, "webhook-signature": sign("msg2", ts, other2) } });
-check("결제 완료가 아닌 알림은 조용히 넘긴다", r.code === 200 && r.data.ignored === true && mails.length === count + 2);
+check("결제 완료가 아닌 알림은 조용히 넘긴다", r.code === 200 && r.data.ignored === true && mails.length === mailsBeforeReady && formRows.length === rowsBeforeReady);
 
 // ── 실결제 모드에서는 테스트 결제를 주문으로 치지 않는다
 process.env.PAY_MODE = "live";

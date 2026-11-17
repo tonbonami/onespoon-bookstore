@@ -1,6 +1,7 @@
 // 결제 확인의 한가운데: 포트원에 다시 물어 금액·상태를 대조하고, 맞을 때만 안내 메일을 보낸다.
 // 결제 완료 화면(/api/pay/complete)과 웹훅(/api/pay/webhook)이 같은 길을 쓴다.
-const { bookOfPaymentId, createdAtOf } = require("./catalog");
+const { orderOfPaymentId, priceOf, createdAtOf } = require("./catalog");
+const { cleanAnswers } = require("./orderform");
 const { env, getPayment, sameSign } = require("./portone");
 const { sendOrderMails } = require("./mail");
 
@@ -34,12 +35,12 @@ function nameOf(value) {
   return "";
 }
 
-// 받아야 할 금액: 주문을 준비할 때 서버가 서명해 둔 책값이 있고 아직 2시간이 안 지났으면 그 값, 아니면 지금 책값
-function expectedAmount(paymentId, book, custom, now) {
+// 받아야 할 금액: 주문을 준비할 때 서버가 서명해 둔 값이 있고 아직 2시간이 안 지났으면 그 값, 아니면 지금 값(할인 주문은 할인가)
+function expectedAmount(paymentId, book, upgrade, custom, now) {
   const pinned = custom.amount;
   const fresh = now - createdAtOf(paymentId) < PRICE_HOLD;
   if (fresh && Number.isInteger(pinned) && pinned > 0 && sameSign(custom.sig, `amount:${paymentId}:${pinned}`)) return pinned;
-  return book.price;
+  return priceOf(book, upgrade);
 }
 
 function methodLabel(method) {
@@ -52,8 +53,9 @@ function methodLabel(method) {
 
 // 돌려주는 값: { ok: true, order, mail } 또는 { ok: false, code, message }
 async function verifyAndFulfill(paymentId, now = Date.now()) {
-  const book = bookOfPaymentId(paymentId);
-  if (!book) return { ok: false, code: "UNKNOWN_ORDER", message: "주문 번호를 확인할 수 없어요." };
+  const ordered = orderOfPaymentId(paymentId);
+  if (!ordered) return { ok: false, code: "UNKNOWN_ORDER", message: "주문 번호를 확인할 수 없어요." };
+  const { book, upgrade } = ordered;
 
   const payment = await getPayment(paymentId);
   if (!payment) return { ok: false, code: "NOT_FOUND", message: "결제 기록을 찾지 못했어요." };
@@ -69,7 +71,7 @@ async function verifyAndFulfill(paymentId, now = Date.now()) {
 
   const custom = parseCustomData(payment.customData);
   const total = payment.amount && payment.amount.total;
-  const expected = expectedAmount(paymentId, book, custom, now);
+  const expected = expectedAmount(paymentId, book, upgrade, custom, now);
   if (payment.currency && payment.currency !== "KRW") return { ok: false, code: "WRONG_CURRENCY", message: "결제 금액을 확인할 수 없어요." };
   if (total !== expected) return { ok: false, code: "AMOUNT_MISMATCH", paid: total, expected, message: "결제 금액이 책값과 달라요. 서점에서 확인 뒤 연락드릴게요." };
 
@@ -85,6 +87,9 @@ async function verifyAndFulfill(paymentId, now = Date.now()) {
     email,
     name,
     news: custom.news === true,
+    upgrade,
+    proof: upgrade ? String(custom.proof || "").slice(0, 120) : "",
+    answers: cleanAnswers(custom.q).answers,
     method: methodLabel(payment.method),
     receiptUrl: /^https:\/\//.test(payment.receiptUrl || "") ? payment.receiptUrl : "",
     paidAt: payment.paidAt || "",

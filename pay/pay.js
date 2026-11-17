@@ -6,6 +6,11 @@
   const FORMATS = window.HANSPOON_FORMATS || {};
   const $ = (id) => document.getElementById(id);
   const won = (n) => `${Number(n).toLocaleString("ko-KR")}원`;
+  // 받침에 맞춰 '을/를'(성별을, 나이대를)
+  const eulReul = (word) => {
+    const code = String(word).charCodeAt(String(word).length - 1) - 0xac00;
+    return code >= 0 && code <= 11171 && code % 28 !== 0 ? `${word}을` : `${word}를`;
+  };
   // 받는 방법 문구: 서점의 "입금 확인 후 …"를 카드 결제에 맞게 "결제 확인 후 …"로
   const deliveryOf = (book) => ((FORMATS[book.format] || {}).delivery || "").replace(/^입금 확인/, "결제 확인");
 
@@ -13,6 +18,7 @@
   const status = $("payStatus");
   const submit = $("paySubmit");
   let current = null;
+  let questions = [];
   const METHOD_LABELS = { CARD: "신용·체크카드", KAKAOPAY: "카카오페이", NAVERPAY: "네이버페이", TOSSPAY: "토스페이" };
   // 완료 화면 확인값: 주문을 준비한 이 브라우저만 이메일·영수증을 자세히 본다(폰에서 결제창을 다녀와도 남도록 탭에 보관)
   const tokens = {
@@ -80,15 +86,84 @@
     $("payEmailLabel").textContent = notion ? "노션 가입 이메일" : "교재 받을 이메일";
     $("payEmailHint").hidden = !notion;
     $("sumBook").textContent = book.title;
-    $("sumAmount").textContent = won(book.price);
     $("sumDelivery").textContent = deliveryOf(book);
     $("paySummary").hidden = false;
     $("payPreviewLink").href = `/books/${book.slug}/`;
-    submit.textContent = `${won(book.price)} 결제하기`;
-    const upgrade = $("payUpgrade");
-    upgrade.hidden = !book.upgrade;
-    if (book.upgrade) upgrade.textContent = `${book.upgrade.from} 구매자 할인(${won(book.upgrade.price)})은 계좌이체 주문서에서 받을 수 있어요.`;
+    const box = $("payUpgradeBox");
+    box.hidden = !book.upgrade;
+    if (!book.upgrade) $("payUpgrade").checked = false;
+    if (book.upgrade) {
+      $("payUpgradeText").textContent = `${book.upgrade.from}을 산 적 있어요 · ${won(book.upgrade.price)}`;
+      $("payProofLabel").textContent = `${book.upgrade.from}을 살 때 쓴 이메일 또는 입금자명`;
+    }
+    showAmount();
     setStatus("");
+  }
+
+  // 할인을 고르면 금액·버튼·확인 칸이 바뀐다
+  const amountNow = () => (current && current.upgrade && $("payUpgrade").checked ? current.upgrade.price : current ? current.price : 0);
+  function showAmount() {
+    if (!current) return;
+    const upgrade = Boolean(current.upgrade && $("payUpgrade").checked);
+    $("payProofField").hidden = !upgrade;
+    $("sumAmount").textContent = upgrade ? `${won(amountNow())} (${current.upgrade.from} 구매자 할인)` : won(amountNow());
+    submit.textContent = `${won(amountNow())} 결제하기`;
+  }
+
+  // 주문서와 같은 질문을 그린다(성별·나이대는 버튼, 나머지는 고르기 칸)
+  function renderQuestions(list) {
+    questions = list || [];
+    const box = $("payQuestions");
+    box.innerHTML = "";
+    questions.forEach((q) => {
+      const id = `payQ-${q.key}`;
+      if (q.kind === "pills") {
+        const wrap = document.createElement("fieldset");
+        wrap.className = "pay-q";
+        wrap.id = id;
+        const legend = document.createElement("legend");
+        legend.className = "sr-only";
+        legend.textContent = q.label;
+        const title = document.createElement("span");
+        title.setAttribute("aria-hidden", "true");
+        title.textContent = q.label;
+        const pills = document.createElement("div");
+        pills.className = "pay-pills";
+        q.choices.forEach((choice) => {
+          const label = document.createElement("label");
+          label.className = "pay-pill";
+          const input = document.createElement("input");
+          input.type = "radio";
+          input.name = q.key;
+          input.value = choice;
+          label.append(input, choice);
+          pills.append(label);
+        });
+        wrap.append(legend, title, pills);
+        box.append(wrap);
+      } else {
+        const wrap = document.createElement("label");
+        wrap.className = "pay-q";
+        wrap.id = id;
+        const title = document.createElement("span");
+        title.textContent = q.label;
+        const select = document.createElement("select");
+        select.name = q.key;
+        select.innerHTML = '<option value="">선택해 주세요</option>';
+        q.choices.forEach((choice) => select.append(new Option(choice, choice)));
+        wrap.append(title, select);
+        box.append(wrap);
+      }
+    });
+  }
+
+  function answersNow() {
+    const out = {};
+    questions.forEach((q) => {
+      const el = q.kind === "pills" ? form.querySelector(`input[name="${q.key}"]:checked`) : form.querySelector(`select[name="${q.key}"]`);
+      if (el && el.value) out[q.key] = el.value;
+    });
+    return out;
   }
 
   // 빠진 칸을 찾아 첫 번째로 옮겨 준다
@@ -103,6 +178,15 @@
     if (!current) return { message: "책을 골라 주세요.", focus: document.querySelector('#payBooks input[type="radio"]') };
     if (name.getAttribute("aria-invalid") === "true") return { message: "이름을 적어 주세요.", focus: name };
     if (email.getAttribute("aria-invalid") === "true") return { message: "이메일 주소를 확인해 주세요.", focus: email };
+    const proof = $("payProof");
+    if (current.upgrade && $("payUpgrade").checked && !proof.value.trim()) return { message: `${current.upgrade.from}을 살 때 쓴 이메일이나 입금자명을 적어 주세요.`, focus: proof };
+    const answers = answersNow();
+    for (const q of questions) {
+      const box = $(`payQ-${q.key}`);
+      const missing = q.required && !answers[q.key];
+      if (box) box.dataset.invalid = String(missing);
+      if (missing) return { message: `${eulReul(q.label)} 골라 주세요.`, focus: box.querySelector("input, select") };
+    }
     if (!checks[0].checked) return { message: "환불 안내를 확인하고 체크해 주세요.", focus: checks[0] };
     if (!checks[1].checked) return { message: "이용약관에 동의해 주세요.", focus: checks[1] };
     return null;
@@ -143,6 +227,9 @@
         agreeRefund: $("agreeRefund").checked,
         agreeTerms: $("agreeTerms").checked,
         news: $("agreeNews").checked,
+        answers: answersNow(),
+        upgrade: Boolean(current.upgrade && $("payUpgrade").checked),
+        proof: $("payProof").value.trim(),
         method: (document.querySelector('#payMethods input:checked') || {}).value || "CARD",
       });
       if (prepared.status === 503) return setStatus("카드 결제는 준비 중이에요. 지금은 계좌이체 주문서를 이용해 주세요.");
@@ -225,6 +312,7 @@
       .catch(() => null);
     if (!config || !config.ok) return;
     $("payTest").hidden = config.mode !== "test";
+    renderQuestions(config.questions);
     if (!config.ready && !status.textContent) setStatus("카드 결제는 준비 중이에요. 지금은 계좌이체 주문서를 이용해 주세요.", true);
     const methods = (config.methods || []).filter((m) => METHOD_LABELS[m]);
     if (methods.length < 2) return;
@@ -244,6 +332,7 @@
   }
 
   renderBooks();
+  $("payUpgrade").addEventListener("change", showAmount);
   form.addEventListener("submit", pay);
   resume();
   setup();
