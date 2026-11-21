@@ -6,11 +6,11 @@
     <title>한스푼 앱</title>
     <meta
       name="description"
-      content="니꼴라가 만든 iOS 앱 일곱 개. 노을 On, Sundle, 별지기, Chord ON, Piano ON, 하루온, 사이담. 일곱 개 모두 광고와 구독이 없어요."
+      content="니꼴라가 만든 앱 일곱 개. 사이담, 하루온, 노을 On, Sundle, 별지기, Chord ON, Piano ON. 일곱 개 모두 광고와 구독이 없어요."
     />
     <meta property="og:title" content="한스푼 앱" />
     <meta property="og:description" content="니꼴라가 만든 iOS 앱 일곱 개예요. 일곱 개 모두 광고와 구독이 없어요." />
-    <link rel="stylesheet" href="/styles.css?v=32" />
+    <link rel="stylesheet" href="/styles.css?v=33" />
     <script>
       window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
@@ -30,21 +30,89 @@
 
       <header class="apps-hero">
         <p class="eyebrow">한스푼 앱</p>
-        <h1>니꼴라가 만든 iOS 앱 일곱 개예요.</h1>
-        <p class="apps-lede">일곱 개 모두 광고와 구독이 없어요.</p>
+        <h1>니꼴라가 만든 일곱 가지 앱을 만나요.</h1>
+        <p class="apps-lede">광고와 구독 없이, 오래 곁에 둘 수 있게 만들었어요.</p>
         <nav class="apps-jump" aria-label="묶음으로 바로 가기">
+          <a href="#saidam">사이담</a>
           <a href="#daily">매일</a>
           <a href="#sky">하늘</a>
           <a href="#music">ON 시리즈</a>
         </nav>
       </header>
 
+      <!-- 사이담 큰 소개(우댕 11/21 "가장 위쪽에, 더 밀어두자"). GPT 회의 → 제미나이 시안 → 서점 방.
+           기능·가격은 사이담 방이 11/21 코드·애플로 확인한 것만(combination/etsy-ops/research/saidam_apps_features_draft.md).
+           쓰지 않는 것: PC에서도 · 시간표 · 의견 보내기 · 가입자 수 · 12월 이후 가격 -->
+      <section class="sd-feature" id="saidam" aria-labelledby="saidam-title">
+        <div class="sd-top">
+          <p class="sd-tag">새로 더 커진 사이담</p>
+          <img class="sd-hero-img" src="/assets/apps/saidam/hero-room.webp" width="600" height="600" alt="토끼와 오리가 아늑한 방 소파에 나란히 앉아 있는 사이담 그림" />
+          <div class="sd-app">
+            <img class="app-icon" src="/assets/apps/saidam/icon.png" width="256" height="256" alt="" />
+            <div>
+              <p class="sd-name">사이담</p>
+              <p class="sd-kind">커플·친구 다이어리</p>
+            </div>
+          </div>
+          <h2 class="sd-title" id="saidam-title">우리 사이의 모든 날을 한곳에.</h2>
+          <p class="sd-lede">연인이나 친한 친구와 둘만 쓰는 공간이에요. 대화와 편지, 사진과 일정, 함께 꾸민 하루가 흘러가지 않고 차곡차곡 남아요. 연인 방 하나와 친구 방 다섯 개까지 만들 수 있고, 각 방의 기록은 서로 보이지 않아요.</p>
+        </div>
+
+        <div class="sd-shots">
+          <img src="/assets/apps/saidam/sairy-day.webp" width="400" height="867" alt="사이담 화면: 사이어리 하루 장" loading="lazy" />
+          <img src="/assets/apps/saidam/sairy-stickers.webp" width="400" height="867" alt="사이담 화면: 사이어리를 스티커로 꾸미기" loading="lazy" />
+          <img src="/assets/apps/saidam/sairy-partner.webp" width="400" height="867" alt="사이담 화면: 상대 장에 남긴 한마디" loading="lazy" />
+          <img src="/assets/apps/saidam/shot-2.jpg" width="400" height="865" alt="사이담 화면: 사이챗에서 쓰는 꼼이 이모티콘" loading="lazy" />
+          <img src="/assets/apps/saidam/shot-4.jpg" width="400" height="865" alt="사이담 화면: 며칠 뒤 도착하는 편지함" loading="lazy" />
+          <img src="/assets/apps/saidam/shot-5.jpg" width="400" height="865" alt="사이담 화면: 둘의 일정을 한 화면에 보는 공유 달력" loading="lazy" />
+        </div>
+
+        <div class="sd-groups">
+          <div class="sd-group sd-g1">
+            <h3>오늘을 나눠요</h3>
+            <p>사진·목소리·이모티콘으로 이야기하고, 지난 대화도 날짜로 찾아봐요. 오늘의 기분과 범프, 날씨로 짧게 안부를 나눌 수도 있어요.</p>
+          </div>
+          <div class="sd-group sd-g2">
+            <h3>마음을 보내요</h3>
+            <p>손글씨와 목소리를 담은 편지를 며칠 뒤에 보내고, 같은 종이에 함께 낙서해요. 칭찬과 사이Now 선물도 살며시 남길 수 있어요.</p>
+          </div>
+          <div class="sd-group sd-g3">
+            <h3>추억을 꾸며요</h3>
+            <p>기념일을 자동으로 세고, 사이어리에 하루 한 장을 꾸며요. 손글씨와 그림도 붙이고, 서로의 장에 하트와 한마디를 남겨요. 사진첩과 둘의 책장도 함께 채워요.</p>
+          </div>
+          <div class="sd-group sd-g4">
+            <h3>생활도 함께 챙겨요</h3>
+            <p>사이캘에 일정을 모으고, 위시리스트·공유 목록·레시피를 같이 써요. 약 챙기기와 위젯, 애플워치, Face ID 잠금도 곁에 있어요.</p>
+          </div>
+        </div>
+        <p class="sd-emoji">꼼이·꼼미니·꼼지락부터 뻐니·꽉이·꿀됑까지, 둘의 대화에 어울리는 이모티콘도 모두 무료예요.</p>
+
+        <div class="sd-close">
+          <ul class="sd-promises" aria-label="사이담의 약속">
+            <li>광고 없음</li>
+            <li>기록을 팔거나 인공지능 학습에 쓰지 않음</li>
+            <li>언제든 기록 전부 내려받기</li>
+          </ul>
+          <p class="sd-price">모든 기능 무료</p>
+          <!-- 기간 한정: 그날(한국 시간)이 지나면 아래 스크립트가 숨긴다. 12/1 뒤 다음 배포 때 이 상자를 지운다 -->
+          <div class="sd-offer" data-until="2026-11-30">
+            <strong>11월 30일까지 가입한 분께</strong>
+            <p>지금 있는 기능은 물론, 앞으로 더해질 새 기능과 이모티콘도 평생 무료예요.</p>
+          </div>
+          <div class="sd-actions">
+            <a class="sd-btn sd-btn-main" href="https://apps.apple.com/app/apple-store/id6804463759?pt=592325&amp;ct=studio&amp;mt=8" target="_blank" rel="noopener">앱스토어에서 사이담 받기</a>
+            <a class="sd-btn sd-btn-sub" href="https://saidam.vercel.app" target="_blank" rel="noopener">갤럭시에서 시작하기</a>
+          </div>
+          <p class="sd-hint">갤럭시에서는 사이담 누리집을 홈 화면에 추가해 쓸 수 있어요.</p>
+        </div>
+      </section>
+
       <!-- 매일이 조용히 쌓이는 곳 -->
       <section class="app-group" id="daily" aria-labelledby="daily-title">
         <div class="app-group-head g-daily">
           <span class="group-label">매일</span>
           <h2 id="daily-title">매일이 조용히 쌓이는 곳</h2>
-          <p>걸음과 마음을 하루씩 차곡차곡 남겨요.</p>
+          <p>오늘 걸은 만큼, 하루의 풍경이 자라요.</p>
         </div>
 
         <article class="app-card" id="haruon">
@@ -74,35 +142,6 @@
           <div class="app-foot">
             <span class="app-price">무료<small>「하루온 전부」 ₩4,400 한 번 결제</small></span>
             <a class="app-store" href="https://apps.apple.com/app/apple-store/id6798399661?pt=592325&amp;ct=studio&amp;mt=8" target="_blank" rel="noopener">App Store에서 보기</a>
-          </div>
-        </article>
-
-        <article class="app-card" id="saidam">
-          <header class="app-card-head">
-            <img class="app-icon" src="/assets/apps/saidam/icon.png" alt="" />
-            <div>
-              <h3>사이담</h3>
-              <p class="app-kind">커플·친구 다이어리</p>
-            </div>
-          </header>
-          <p class="app-line">카톡은 흘러가고, 사이담엔 쌓여요.</p>
-          <p class="app-desc">연인이나 친한 친구와 둘이서만 쓰는 다이어리예요. 함께한 날을 세어 주고, 서로의 하루와 사진을 나누고, 며칠 뒤에 도착하는 편지도 보낼 수 있어요. 같은 종이에 동시에 낙서하면서 둘만의 추억을 차곡차곡 쌓아 가요.</p>
-          <div class="app-shots">
-            <img src="/assets/apps/saidam/shot-1.jpg" alt="사이담 화면: 함께한 날을 세는 기념일 카드" loading="lazy" />
-            <img src="/assets/apps/saidam/shot-2.jpg" alt="사이담 화면: 대화에서 쓰는 꼼이 이모티콘" loading="lazy" />
-            <img src="/assets/apps/saidam/shot-3.jpg" alt="사이담 화면: 둘의 오늘이 모인 홈" loading="lazy" />
-            <img src="/assets/apps/saidam/shot-4.jpg" alt="사이담 화면: 며칠 뒤 도착하는 편지함" loading="lazy" />
-            <img src="/assets/apps/saidam/shot-5.jpg" alt="사이담 화면: 둘의 일정을 한 화면에 보는 달력" loading="lazy" />
-          </div>
-          <p class="app-note">움직이는 이모티콘은 연인방에서 한 명이 사면 둘 다 쓸 수 있어요.</p>
-          <ul class="app-tags">
-            <li>광고 없음</li>
-            <li>Face ID 잠금</li>
-            <li>위젯</li>
-          </ul>
-          <div class="app-foot">
-            <span class="app-price">무료<small>움직이는 이모티콘 「꼼지락」 ₩1,500</small></span>
-            <a class="app-store" href="https://apps.apple.com/app/apple-store/id6804463759?pt=592325&amp;ct=studio&amp;mt=8" target="_blank" rel="noopener">App Store에서 보기</a>
           </div>
         </article>
       </section>
@@ -294,5 +333,14 @@
       </footer>
     </main>
     <script src="/apps/shots.js?v=1" defer></script>
+    <script>
+      // 기간 한정 안내(data-until="YYYY-MM-DD")는 그날(한국 시간)이 지나면 숨긴다
+      (function () {
+        var today = new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
+        document.querySelectorAll("[data-until]").forEach(function (el) {
+          if (today > el.getAttribute("data-until")) el.hidden = true;
+        });
+      })();
+    </script>
   </body>
 </html>
