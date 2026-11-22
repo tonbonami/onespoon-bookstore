@@ -432,3 +432,367 @@ body {
     transition: none;
   }
 }
+
+/* ── 스튜디오 대문 개편(11/22): 이번 주 한 문장과 작은 선물을 챙겨 가는 작업실 ── */
+.st-main {
+  display: grid;
+  gap: 26px;
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+}
+
+.st-hero {
+  display: grid;
+  gap: 10px;
+  padding: 26px 4px 0;
+}
+
+.st-hero h1 {
+  margin: 0;
+  font-size: clamp(34px, 9.4vw, 52px);
+  font-weight: 800;
+  line-height: 1.22;
+  letter-spacing: -0.035em;
+}
+
+.st-lede {
+  margin: 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.6;
+  word-break: keep-all;
+}
+
+.st-hero-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.st-btn {
+  display: flex;
+  min-height: 50px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 800;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+.st-btn-main {
+  background: var(--ink);
+  color: #ffffff;
+}
+
+.st-btn-sub {
+  border: 1.5px solid rgba(29, 29, 31, 0.14);
+  background: #ffffff;
+  color: var(--ink);
+}
+
+.st-btn-inline {
+  justify-self: start;
+  min-height: 46px;
+  font-size: 15px;
+}
+
+.st-btn:focus-visible,
+.st-free-card:focus-visible,
+.st-room:focus-visible,
+.st-sns-links a:focus-visible {
+  outline: 3px solid rgba(59, 130, 246, 0.45);
+  outline-offset: 2px;
+}
+
+/* 이번 주 한 문장 */
+.st-sentence {
+  display: grid;
+  gap: 8px;
+  padding: 22px 20px;
+  border-radius: 26px;
+  background: #fff4d9;
+  scroll-margin-top: 12px;
+}
+
+.st-tag {
+  justify-self: start;
+  margin: 0 0 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.8);
+  color: #8a6418;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.st-fr {
+  margin: 0;
+  color: #5a4210;
+  font-size: clamp(21px, 5.8vw, 26px);
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.st-ko {
+  margin: 0;
+  color: #5a4210;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.st-date {
+  margin: 0;
+  color: rgba(90, 66, 16, 0.62);
+  font-size: 13px;
+}
+
+.st-note {
+  margin: 4px 0 6px;
+  color: rgba(90, 66, 16, 0.85);
+  font-size: 15px;
+}
+
+/* 묶음 제목 */
+.st-section {
+  display: grid;
+  gap: 12px;
+  scroll-margin-top: 12px;
+}
+
+.st-h2 {
+  margin: 0 4px;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.st-h3 {
+  margin: 0 4px;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+/* 무료로 챙겨 가세요 */
+.st-free {
+  display: grid;
+  gap: 10px;
+}
+
+.st-free-card {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 96px;
+  padding: 14px 16px;
+  border: 1px solid rgba(29, 29, 31, 0.07);
+  border-radius: 20px;
+  background: #ffffff;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.st-free-card img {
+  display: block;
+  width: 62px;
+  height: 84px;
+  border-radius: 6px 10px 10px 6px;
+  object-fit: cover;
+  box-shadow: 0 6px 14px rgba(29, 29, 31, 0.12);
+}
+
+.st-free-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.st-free-text strong {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.st-free-text span {
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+
+.st-free-text em {
+  margin-top: 2px;
+  color: #2f6fb4;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+/* 요즘 한스푼: 업데이트 공지(notice.css)를 이 칸 폭에 맞춘다 */
+.st-section .notice {
+  margin: 0;
+}
+
+/* 서점·앱 */
+.st-rooms {
+  display: grid;
+  gap: 12px;
+}
+
+.st-room {
+  display: grid;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 26px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.st-room-books {
+  background: var(--books);
+  color: var(--books-ink);
+}
+
+.st-room-apps {
+  background: var(--apps);
+  color: var(--apps-ink);
+}
+
+.st-room-head {
+  display: grid;
+  gap: 4px;
+}
+
+.st-room-head strong {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.st-room-head span {
+  font-size: 15px;
+  line-height: 1.5;
+  opacity: 0.85;
+  word-break: keep-all;
+}
+
+.st-covers {
+  display: flex;
+  gap: 10px;
+}
+
+.st-covers img {
+  width: 64px;
+  height: auto;
+  border-radius: 4px 8px 8px 4px;
+  box-shadow: 0 6px 14px rgba(122, 75, 51, 0.18);
+}
+
+.st-apps {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+}
+
+.st-apps > span {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.st-apps img {
+  width: 58px;
+  height: 58px;
+  border-radius: 23%;
+  box-shadow: 0 6px 14px rgba(75, 59, 143, 0.18);
+}
+
+.st-apps .st-more {
+  align-self: center;
+  padding-bottom: 18px;
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.st-room-go {
+  justify-self: start;
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.75);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+/* 작업 노트 */
+.st-note-card {
+  display: grid;
+  gap: 10px;
+  padding: 20px;
+  border: 1px solid rgba(29, 29, 31, 0.07);
+  border-radius: 24px;
+  background: #ffffff;
+}
+
+.st-note-card .st-h2 {
+  margin: 0;
+}
+
+.st-note-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.7;
+  word-break: keep-all;
+}
+
+/* 한스푼을 계속 만나세요 */
+.st-sns-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.st-sns-links a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  padding: 0 16px;
+  border: 1px solid rgba(29, 29, 31, 0.1);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (min-width: 680px) {
+  .st-hero-actions {
+    grid-template-columns: repeat(2, max-content);
+  }
+
+  .st-free {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .st-free-card {
+    grid-template-columns: 1fr;
+    align-content: start;
+    justify-items: start;
+  }
+
+  .st-rooms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

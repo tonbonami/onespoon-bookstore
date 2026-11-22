@@ -481,6 +481,75 @@ ${items(f.more)}
     }
     console.log(`만듦: /preview/${b.slug}/ · open/ · order/ (무료로 먼저 보기)`);
   }
+
+  // 스튜디오에서 받는 무료 자료(/studio/free/<책>/, 11/22 GPT 회의): 서점 실험(/preview/…, /diary/free/)과 숫자가 섞이지 않게 주소를 따로 둔다.
+  // 내용은 같은 freebie에서 가져오고, 한 쪽에서 바로 연다. 다이어리는 /diary/free/를 거치지 않고 파일을 바로 받는다.
+  const STUDIO_DOWNLOADS = {
+    "diary-2027": [
+      { label: "다이어리 PDF 받기", href: "/free/hanspoon-diary-2026-novdec.pdf", note: "PDF 91쪽 · 약 2.8MB" },
+      { label: "굿노트 스티커 받기", href: "/free/hanspoon-stickers-basic.collection", note: "굿노트 스티커 묶음 · 약 22MB" },
+      { label: "스티커 PNG 받기", href: "/free/hanspoon-stickers-basic-png.zip", note: "다른 앱용 그림 파일 · 약 7.5MB" },
+    ],
+  };
+  for (const b of books.filter((x) => x.freebie && x.status === "판매중")) {
+    const f = b.freebie;
+    const external = /^https:\/\//.test(f.url);
+    const downloads = STUDIO_DOWNLOADS[b.slug];
+    if (!external && !downloads) {
+      problems.push(`${b.title}: 스튜디오 무료 자료 — 노션 주소(https://)도 아니고 STUDIO_DOWNLOADS에도 없음`);
+      continue;
+    }
+    for (const d of downloads || []) if (!existsSync(join(ROOT, d.href))) problems.push(`${b.title}: 스튜디오 무료 자료 파일 없음 ${d.href}`);
+    const items = (list) => list.map((x) => `        <li>${text(x)}</li>`).join("\n");
+    const open = external
+      ? `      <p class="small">노션 공개 페이지가 새 창으로 열려요. 노션 가입 없이 볼 수 있어요.</p>
+      <a class="btn primary" href="${attr(f.url)}" target="_blank" rel="noopener">무료로 열어 보기 ↗</a>`
+      : downloads
+          .map((d, i) => `      <a class="btn${i ? "" : " primary"}" href="${attr(d.href)}" download>${text(d.label)}</a>
+      <p class="small">${text(d.note)}</p>`)
+          .join("\n");
+    const html = page(`무료 자료 · ${b.title}`, `      <a class="back" href="/studio/">← 한스푼 스튜디오</a>
+      <p class="eyebrow">무료로 챙겨 가세요</p>
+      <h1>${text(quoteTitle(b))}</h1>
+      <p class="kind">${text(f.kind)}</p>
+      <img class="cover" src="${attr(b.cover)}" alt="${attr(b.title)} 표지" width="${b.coverSize[0]}" height="${b.coverSize[1]}" />
+      <p>${text(f.text)}</p>
+      <h2>이런 걸 해 볼 수 있어요</h2>
+      <ul>
+${items(f.inside)}
+      </ul>
+${open}
+      <div class="next">
+        <h2>전체 교재에서는</h2>
+        <ul>
+${items(f.more)}
+        </ul>
+        <a class="btn" href="/books/${b.slug}/">책 소개 보기</a>
+      </div>`);
+    mkdirSync(join(ROOT, "studio/free", b.slug), { recursive: true });
+    writeFileSync(join(ROOT, "studio/free", b.slug, "index.html"), html);
+    console.log(`만듦: /studio/free/${b.slug}/ (스튜디오 무료 자료)`);
+  }
+}
+
+// 스튜디오 '이번 주 한 문장'(/studio/, /studio/sentence/): 다이어리 듣기 문장 가운데 음성이 있는 것만 날짜·프랑스어·뜻으로 모은다.
+// 화면이 한국 날짜로 이번 주 월요일 문장을 고른다. 새 녹음 없이 /listen/audio/를 그대로 쓴다(11/22 GPT 회의).
+{
+  const listen = readFileSync(join(ROOT, "listen/index.html"), "utf8");
+  const line = listen.match(/const DATA = (\{.*\});\n/);
+  if (!line) problems.push("listen/index.html에서 'const DATA = {…};' 한 줄을 찾지 못해 스튜디오 한 문장을 만들 수 없음");
+  else {
+    const data = JSON.parse(line[1]);
+    const ext = data.ext || "mp3";
+    const days = (data.days || [])
+      .filter((d) => DAY_RE.test(d.date || "") && d.fr && d.ko && existsSync(join(ROOT, `listen/audio/${d.date}_fr.${ext}`)))
+      .map((d) => ({ date: d.date, fr: d.fr, ko: d.ko }));
+    if (!days.length) problems.push("스튜디오 한 문장: 음성이 있는 문장이 하나도 없음");
+    else {
+      writeFileSync(join(ROOT, "studio/sentences.json"), JSON.stringify({ ext, days }));
+      console.log(`만듦: /studio/sentences.json (스튜디오 이번 주 한 문장 ${days.length}개, ${days[0].date}~${days.at(-1).date})`);
+    }
+  }
 }
 
 for (const { dir, html, p, count } of listenPreviews) {

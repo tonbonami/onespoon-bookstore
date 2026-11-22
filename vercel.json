@@ -99,6 +99,24 @@
           "value": "noindex"
         }
       ]
+    },
+    {
+      "source": "/studio/free/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
+    },
+    {
+      "source": "/studio/sentence/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex"
+        }
+      ]
     }
   ]
 }

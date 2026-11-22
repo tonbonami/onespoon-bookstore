@@ -2776,6 +2776,58 @@ body.modal-open .order-bar {
   color: var(--ink);
 }
 
+/* 서점 위 '한스푼 둘러보기' 막대: 흰 바탕 한 줄에 스튜디오 · 함께 쓰는 앱 */
+.studio-bar {
+  justify-content: flex-start;
+  gap: 0;
+  margin: 14px 20px 0;
+  padding: 0 6px 0 16px;
+  border: 1px solid rgba(67, 63, 62, 0.1);
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.studio-bar-label {
+  margin-right: auto;
+  padding-right: 10px;
+  color: rgba(67, 63, 62, 0.55);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.studio-bar a {
+  min-height: 44px;
+  padding: 0 12px;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.studio-bar a + a {
+  position: relative;
+}
+
+/* 두 입구 사이 옅은 세로 줄 */
+.studio-bar a + a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 1px;
+  height: 16px;
+  background: rgba(67, 63, 62, 0.16);
+  transform: translateY(-50%);
+}
+
+.studio-bar a:hover {
+  background: rgba(67, 63, 62, 0.05);
+  color: var(--ink);
+}
+
 .studio-nav a:focus-visible,
 .app-store:focus-visible,
 .apps-jump a:focus-visible {

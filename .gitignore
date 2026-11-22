@@ -22,3 +22,7 @@ books/*
 /listen-preview/
 # 배포 빌드가 만드는 무료로 먼저 보기 경유 페이지(books-data.js freebie)
 /preview/
+# 배포 빌드가 만드는 스튜디오 이번 주 한 문장(listen/index.html에서)
+/studio/sentences.json
+# 배포 빌드가 만드는 스튜디오 무료 자료 페이지(books-data.js freebie)
+/studio/free/

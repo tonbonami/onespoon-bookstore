@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#fbfaf8" />
+    <title>이번 주 한 문장 · 한스푼 스튜디오</title>
+    <meta name="description" content="이번 주 프랑스어 한 문장을 듣고 따라 말해 보세요." />
+    <!-- 스튜디오 '이번 주 한 문장 듣기'의 도착 페이지. 이 페이지 방문 수 = 한 문장 듣기를 누른 수(검색 제외는 vercel.json) -->
+    <link rel="stylesheet" href="/lobby.css?v=8" />
+    <script>
+      window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <style>
+      .sn-back { display: inline-flex; min-height: 44px; align-items: center; color: var(--muted); font-size: 15px; font-weight: 700; text-decoration: none; }
+      .sn-play { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 6px; }
+      .sn-play button { min-height: 50px; border: 0; border-radius: 999px; font: inherit; font-size: 16px; font-weight: 800; cursor: pointer; }
+      .sn-play .sn-normal { background: var(--ink); color: #ffffff; }
+      .sn-play .sn-slow { border: 1.5px solid rgba(90, 66, 16, 0.2); background: #ffffff; color: #5a4210; }
+      .sn-play button:focus-visible { outline: 3px solid rgba(59, 130, 246, 0.45); outline-offset: 2px; }
+      .sn-state { min-height: 20px; margin: 0; color: rgba(90, 66, 16, 0.7); font-size: 13px; }
+      .sn-steps { margin: 0; padding-left: 20px; color: var(--muted); font-size: 15px; line-height: 1.8; }
+    </style>
+  </head>
+  <body>
+    <div class="lobby">
+      <main class="st-main">
+        <a class="sn-back" href="/studio/">← 한스푼 스튜디오</a>
+
+        <section class="st-sentence" aria-labelledby="snTitle">
+          <p class="st-tag" id="snTitle">이번 주 한 문장</p>
+          <p class="st-fr" id="stSentFr" lang="fr">Je regarde la météo le matin.</p>
+          <p class="st-ko" id="stSentKo">아침에 일기예보를 봐요.</p>
+          <p class="st-date" id="stSentDate">11월 16일 · 한스푼 다이어리 문장</p>
+          <div class="sn-play">
+            <button type="button" class="sn-normal" id="snNormal">▶ 듣기</button>
+            <button type="button" class="sn-slow" id="snSlow">느리게 듣기</button>
+          </div>
+          <p class="sn-state" id="snState" role="status" aria-live="polite"></p>
+          <audio id="snAudio" preload="none"></audio>
+        </section>
+
+        <section class="st-note-card" aria-labelledby="snHowTitle">
+          <h2 class="st-h2" id="snHowTitle">이렇게 익혀 보세요</h2>
+          <ol class="sn-steps">
+            <li>한 번 듣고, 뜻을 보며 다시 들어요.</li>
+            <li>느리게 들으며 소리 내어 따라 말해요.</li>
+            <li>일주일 동안 하루 한 번씩 꺼내 말해 봐요.</li>
+          </ol>
+        </section>
+
+        <section class="st-note-card" aria-labelledby="snDiaryTitle">
+          <h2 class="st-h2" id="snDiaryTitle">매일 한 문장은 다이어리에서</h2>
+          <p>이 문장은 한스푼 다이어리의 하루 한 문장이에요. 다이어리에서는 날마다 새 문장을 듣고 따라 써요.</p>
+          <a class="st-btn st-btn-sub st-btn-inline" href="/books/diary-2027/">다이어리 둘러보기</a>
+        </section>
+
+        <a class="st-btn st-btn-main" href="/studio/#free">무료 자료도 챙겨 가기</a>
+      </main>
+      <footer class="foot">
+        <small>© 2026 Hanspoon Studio</small>
+      </footer>
+    </div>
+    <script>
+      // 한국 날짜로 이번 주 월요일 문장(없으면 그 앞의 가장 가까운 문장). 음성은 다이어리 듣기 음성(/listen/audio/)을 그대로 쓴다
+      (function () {
+        var audio = document.getElementById("snAudio");
+        var state = document.getElementById("snState");
+        var now = new Date(Date.now() + 9 * 3600 * 1000);
+        var monday = new Date(now.getTime() - ((now.getUTCDay() + 6) % 7) * 86400000).toISOString().slice(0, 10);
+        var ready = false;
+        fetch("/studio/sentences.json")
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (!data || !data.days || !data.days.length) return;
+            var pick = data.days[0];
+            data.days.forEach(function (d) { if (d.date <= monday) pick = d; });
+            var parts = pick.date.split("-");
+            document.getElementById("stSentFr").textContent = pick.fr;
+            document.getElementById("stSentKo").textContent = pick.ko;
+            document.getElementById("stSentDate").textContent = Number(parts[1]) + "월 " + Number(parts[2]) + "일 · 한스푼 다이어리 문장";
+            audio.src = "/listen/audio/" + pick.date + "_fr." + (data.ext || "mp3");
+            ready = true;
+          })
+          .catch(function () { state.textContent = "문장을 불러오지 못했어요. 잠시 뒤 다시 열어 주세요."; });
+        function play(rate) {
+          if (!ready) { state.textContent = "문장을 불러오는 중이에요."; return; }
+          audio.pause();
+          audio.currentTime = 0;
+          audio.playbackRate = rate;
+          state.textContent = rate < 1 ? "느리게 듣는 중이에요." : "듣는 중이에요.";
+          audio.play().catch(function () { state.textContent = "소리를 틀 수 없었어요. 한 번 더 눌러 주세요."; });
+        }
+        audio.addEventListener("ended", function () { state.textContent = "한 번 더 따라 말해 볼까요?"; });
+        document.getElementById("snNormal").addEventListener("click", function () { play(1); });
+        document.getElementById("snSlow").addEventListener("click", function () { play(0.75); });
+      })();
+    </script>
+  </body>
+</html>
