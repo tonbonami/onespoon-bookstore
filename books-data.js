@@ -71,7 +71,10 @@ window.HANSPOON_BOOKS = [
     cover: "/assets/web/nofu-book-3-cover.webp",
     coverSize: [420, 596],
     formValue: "나의 첫 프랑스어 책 3.0",
-    price: 29000,
+    price: 24000,
+    listPrice: 29000,
+    priceNote: "12월 11일(금)까지 연말 할인가",
+    priceUntil: "2026-12-11",
     upgrade: { from: "2.0", price: 15000 },
     pickLabel: "A1~B1 종합 노션 교재",
     freebie: {
